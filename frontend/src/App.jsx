@@ -1,10 +1,18 @@
-import './App.css'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+import Signup from './pages/Signup';
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Signup />
+  }
+]);
 
 function App() {
+
   return (
-    <>
-      <h1 className='text-3xl font-bold underline'>Inicio</h1>
-    </>
+    <RouterProvider router={router} />
   )
 }
 
