@@ -32,6 +32,6 @@ public class Entrada {
     private Material material;
 
     @ManyToOne
-    @JoinColumn(name = "material_id")
+    @JoinColumn(name = "material_id", insertable = false, updatable = false)
     private Estoque estoque;
 }
