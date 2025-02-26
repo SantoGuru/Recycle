@@ -86,7 +86,7 @@ export default function Signup() {
                         id="email"
                         placeholder="Digite seu e-mail..."
                         type="email"
-                        valuer={email}
+                        value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
 
@@ -100,6 +100,7 @@ export default function Signup() {
                         placeholder="Digite sua nova senha..."
                         value={senha}
                         onChange={(e) => setSenha(e.target.value)}
+                        erro={erroSenha}
                     />
 
                     <Input
@@ -111,6 +112,7 @@ export default function Signup() {
                         placeholder="Confirme sua nova senha..."
                         value={confirmarSenha}
                         onChange={(e) => setConfirmarSenha(e.target.value)}
+                        erro={erroConfirmarSenha}
                     />
                     <button
                         type="submit"
