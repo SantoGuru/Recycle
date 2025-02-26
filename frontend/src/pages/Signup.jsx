@@ -54,14 +54,14 @@ export default function Signup() {
     }
 
     return (
-        <section className="flex flex-col justify-center items-center h-screen">
+        <section className="flex flex-col justify-center items-center h-screen bg-slate-100">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Criar Nova Conta</h1>
             <p className="text-gray-600">Preencha os dados abaixo para começar</p>
 
-            <div className='bg-white rounded-lg shadow-xl p-8'>
+            <div className='bg-white rounded-lg shadow-xl p-8 md:w-2xl mt-4'>
 
                 {mensagemErro && (
-                    <div className="w-50 flex items-center justify-center px-4 text-red-700 border border-red-700 text-center rounded-md mb-4">
+                    <div className="w-50 flex items-center justify-center justify-self-center px-4 text-red-700 border border-red-700 text-center rounded-md mb-4">
                         <p className="line-clamp-2">{mensagemErro}</p>
                     </div>
                 )}
