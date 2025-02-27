@@ -35,20 +35,24 @@ export default function Signup() {
         setMensagemErro("");
 
         try {
-            const response = await fetch("Backend/cadastro", {
+            const response = await fetch("http://localhost:8080/api/auth/registro", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(nome, email, senha),
+                body: JSON.stringify({
+                    nome: nome,
+                    email: email,
+                    senha: senha,
+                }),
             });
 
             if (response.ok) {
                 console.log("Dados enviados com sucesso!");
             } else {
-                alert("Erro ao enviar os dados.");
+                setMensagemErro("Email ja cadastrado");
             }
 
         } catch (error) {
-            alert("Erro de rede:", error);
+            alert("Erro de rede: " + error.message);
         }
 
     }
