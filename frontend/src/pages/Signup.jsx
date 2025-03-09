@@ -1,6 +1,7 @@
 import { Form } from 'react-router-dom';
 import Input from '../components/Input';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 export default function Signup() {
 
@@ -46,15 +47,16 @@ export default function Signup() {
             });
 
             if (response.ok) {
-                console.log("Dados enviados com sucesso!");
+                toast.success('Dados enviados com sucesso!')
+
             } else {
+                toast.error('Erro ao cadastrar!')
                 setMensagemErro("Email ja cadastrado");
             }
 
         } catch (error) {
-            alert("Erro de rede: " + error.message);
+            toast.error("Erro de rede: " + error.message);
         }
-
     }
 
     return (
