@@ -1,7 +1,9 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-import Signup from './pages/Signup';
 import RootLayout from './pages/Root';
+
+import Signup from './pages/Signup';
+import Login from './pages/Login';
 
 const router = createBrowserRouter([
   {
@@ -9,7 +11,8 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     id:'root',
     children: [
-      {index: true, element: <Signup />}, // Corrigir depois
+      {index: true, element: <Signup />}, // TODO: colocar rota correta
+      {path: '/login', element: <Login />},
     ]
   }
 ]);
