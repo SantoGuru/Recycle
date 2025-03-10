@@ -1,7 +1,39 @@
 import { Form, Link } from "react-router-dom";
 import Input from "../components/Input";
+import { useState } from "react";
 
 export default function Login() {
+    const [email, setEmail] = useState("");
+    const [senha, setSenha] = useState("");
+
+    const HandleSubmit = async (e) => {
+      e.preventDefault();
+
+      try {
+        const response = await fetch("http://localhost:8080/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: email,
+              senha: senha,
+            }),
+          });
+
+          if(response.ok) {
+            console.log("Login efetuado com sucesso");
+            alert("Login efetuado com sucesso");
+          } else{
+            console.log("Usuario Não encontrado");
+            alert("Login ou senha inválidos");
+          }
+
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    
+
   return (
     <section className="flex flex-col justify-center items-center h-screen bg-slate-100">
       <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -11,7 +43,7 @@ export default function Login() {
 
       <div className="bg-white rounded-lg shadow-xl p-8 md:w-2xl mt-4">
         {/* Formulario, mover para outro componente futuramente */}
-        <Form method="POST" className="space-y-6">
+        <Form method="POST" className="space-y-6" onSubmit={HandleSubmit}>
           {/* Input: label e input juntos para facilitar replicação*/}
           <Input
             required
@@ -20,6 +52,8 @@ export default function Login() {
             id="email"
             placeholder="Digite seu e-mail..."
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           <Input
@@ -29,6 +63,8 @@ export default function Login() {
             id="password"
             type="password"
             placeholder="Digite sua nova senha..."
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
           />
           <button
             type="submit"
