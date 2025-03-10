@@ -5,7 +5,6 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Data
 public class MaterialResponseDTO {
 
     private Long id;
@@ -28,4 +27,54 @@ public class MaterialResponseDTO {
 
         return dto;
     }
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public String getUnidade() {
+        return unidade;
+    }
+
+    public void setUnidade(String unidade) {
+        this.unidade = unidade;
+    }
+
+    public LocalDateTime getDataCriacao() {
+        return dataCriacao;
+    }
+
+    public void setDataCriacao(LocalDateTime dataCriacao) {
+        this.dataCriacao = dataCriacao;
+    }
+
+    public LocalDateTime getDataAtualizacao() {
+        return dataAtualizacao;
+    }
+
+    public void setDataAtualizacao(LocalDateTime dataAtualizacao) {
+        this.dataAtualizacao = dataAtualizacao;
+    }
+
 }
