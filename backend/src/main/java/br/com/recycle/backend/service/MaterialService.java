@@ -5,10 +5,12 @@ import br.com.recycle.backend.dto.MaterialResponseDTO;
 import br.com.recycle.backend.model.Material;
 import br.com.recycle.backend.repository.MaterialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class MaterialService {
 
     private final MaterialRepository materialRepository;
