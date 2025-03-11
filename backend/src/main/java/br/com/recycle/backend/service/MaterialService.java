@@ -16,6 +16,7 @@ public class MaterialService {
     }
 
     public MaterialResponseDTO criar(MaterialRequestDTO dto) {
+
         if (materialRepository.existsByNome(dto.getNome())) {
             throw new RuntimeException("Já existe um material com esse nome");
         }
@@ -27,5 +28,13 @@ public class MaterialService {
 
         Material materialSalvo = materialRepository.save(material);
         return MaterialResponseDTO.fromEntity(materialSalvo);
+    }
+
+    public MaterialResponseDTO buscarPorId(Long id) {
+
+        Material material = materialRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Material não encontrado"));
+
+        return MaterialResponseDTO.fromEntity(material);
     }
 }
