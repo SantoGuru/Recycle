@@ -6,6 +6,9 @@ import br.com.recycle.backend.model.Material;
 import br.com.recycle.backend.repository.MaterialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class MaterialService {
 
     private final MaterialRepository materialRepository;
@@ -36,5 +39,14 @@ public class MaterialService {
                 .orElseThrow(() -> new RuntimeException("Material não encontrado"));
 
         return MaterialResponseDTO.fromEntity(material);
+    }
+
+    public List<MaterialResponseDTO> listarTodos() {
+
+        List<Material> materiais = materialRepository.findAll();
+
+        return materiais.stream()
+                .map(MaterialResponseDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 }
