@@ -1,7 +1,6 @@
 package br.com.recycle.backend.dto;
 
 import br.com.recycle.backend.model.Material;
-import lombok.Data;
 
 import java.time.LocalDateTime;
 
