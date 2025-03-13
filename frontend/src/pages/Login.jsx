@@ -1,38 +1,52 @@
 import { Form, Link } from "react-router-dom";
 import Input from "../components/Input";
 import { useState } from "react";
+import { toast } from "react-toastify";
+import { BadgeCheck, CircleAlert } from "lucide-react";
 
 export default function Login() {
-    const [email, setEmail] = useState("");
-    const [senha, setSenha] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
 
-    const HandleSubmit = async (e) => {
-      e.preventDefault();
+  const [mensagemErro, setMensagemErro] = useState("");
 
-      try {
-        const response = await fetch("http://localhost:8080/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: email,
-              senha: senha,
-            }),
-          });
+  const HandleSubmit = async (e) => {
+    e.preventDefault();
 
-          if(response.ok) {
-            console.log("Login efetuado com sucesso");
-            alert("Login efetuado com sucesso");
-          } else{
-            console.log("Usuario Não encontrado");
-            alert("Login ou senha inválidos");
-          }
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email,
+          senha: senha,
+        }),
+      });
 
-      } catch (error) {
-        console.log(error);
+      if (response.ok) {
+        setMensagemErro("");
+        toast.success("Login efetuado com sucesso!", {
+          icon: <BadgeCheck className="stroke-blue-500" />,
+          className:
+            "border-1 border-blue-600 bg-white text-blue-600 font-bold rounded-sm",
+        });
+      } else {
+        toast.error("Erro ao logar!", {
+          className: "border-1 border-red-600 bg-white text-red-600 font-bold  rounded-sm",
+        });
+        setMensagemErro("Email ou senha errados!");
       }
+    } catch (error) {
+      toast.error(`Erro de rede: ${error.message}`, {
+        icon: <CircleAlert className="stroke-red-500" />,
+        className:
+          "border-1 border-red-600 bg-white text-red-600 font-bold rounded-sm",
+      });
     }
 
-    
+  }
+
+
 
   return (
     <section className="flex flex-col justify-center items-center h-screen bg-slate-100">
@@ -42,6 +56,11 @@ export default function Login() {
       <p className="text-gray-600">Acesse sua conta com suas credenciais</p>
 
       <div className="bg-white rounded-lg shadow-xl p-8 md:w-2xl mt-4">
+        {mensagemErro && (
+          <div className="w-50 flex items-center justify-center justify-self-center px-4 text-red-700 border border-red-700 text-center rounded-md mb-4">
+            <p className="line-clamp-2">{mensagemErro}</p>
+          </div>
+        )}
         {/* Formulario, mover para outro componente futuramente */}
         <Form method="POST" className="space-y-6" onSubmit={HandleSubmit}>
           {/* Input: label e input juntos para facilitar replicação*/}
