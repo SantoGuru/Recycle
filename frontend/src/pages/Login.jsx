@@ -1,10 +1,16 @@
 import { Form, Link } from "react-router-dom";
-import Input from "../components/Input";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { toast } from "react-toastify";
-import { BadgeCheck, CircleAlert } from "lucide-react";
+import { BadgeCheck } from "lucide-react";
+
+import AuthContext from "../store/AuthContext";
+
+import Input from "../components/Input";
+import { loginFunction } from "../http";
 
 export default function Login() {
+  const { login } = useContext(AuthContext);
+ 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
@@ -14,39 +20,23 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:8080/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email,
-          senha: senha,
-        }),
-      });
+      const response = await loginFunction({email, senha});
+      const dados = await response.json();
 
-      if (response.ok) {
-        setMensagemErro("");
-        toast.success("Login efetuado com sucesso!", {
-          icon: <BadgeCheck className="stroke-blue-500" />,
-          className:
-            "border-1 border-blue-600 bg-white text-blue-600 font-bold rounded-sm",
-        });
-      } else {
-        toast.error("Erro ao logar!", {
-          className: "border-1 border-red-600 bg-white text-red-600 font-bold  rounded-sm",
-        });
+      if(!response.ok){
         setMensagemErro("Email ou senha errados!");
+      } else {
+        setMensagemErro("");
+        login(dados);
       }
     } catch (error) {
-      toast.error(`Erro de rede: ${error.message}`, {
-        icon: <CircleAlert className="stroke-red-500" />,
-        className:
-          "border-1 border-red-600 bg-white text-red-600 font-bold rounded-sm",
+      setMensagemErro("Email ou senha errados!");
+      toast.error("Erro ao logar!", {
+        icon: <BadgeCheck className="stroke-blue-500" />,
+        className: "border-1 border-red-600 bg-white text-red-600 font-bold rounded-sm",
       });
     }
-
   }
-
-
 
   return (
     <section className="flex flex-col justify-center items-center h-screen bg-slate-100">
