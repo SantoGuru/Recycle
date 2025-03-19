@@ -1,8 +1,10 @@
-import { Form, Link } from "react-router-dom";
-import Input from "../components/Input";
 import { useState } from "react";
+import { Form, Link } from "react-router-dom";
+import { CircleAlert } from "lucide-react";
 import { toast } from "react-toastify";
-import { BadgeCheck, CircleAlert } from "lucide-react";
+
+import Input from "../components/Input";
+import { createAccountFunction } from "../http";
 
 export default function Signup() {
   const [nome, setNome] = useState("");
@@ -35,33 +37,15 @@ export default function Signup() {
     setMensagemErro("");
 
     try {
-      const response = await fetch("http://localhost:8080/api/auth/registro", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nome: nome,
-          email: email,
-          senha: senha,
-        }),
-      });
+      const response = await createAccountFunction({ nome, email, senha});
 
-      if (response.ok) {
-        toast.success("Conta criada!", {
-          icon: <BadgeCheck className="stroke-blue-500" />,
-          className:
-            "border-1 border-blue-600 bg-white text-blue-600 font-bold rounded-sm",
-        });
-      } else {
-        toast.error("Erro ao cadastrar!", {
-          className: "border-1 border-red-600 bg-white text-red-600 font-bold  rounded-sm",
-        });
-        setMensagemErro("Email ja cadastrado");
+      if(!response.ok){
+        setMensagemErro("Email já cadastrado!");
       }
     } catch (error) {
-      toast.error(`Erro de rede: ${error.message}`, {
+      setMensagemErro("Erro ao conectar com o servidor!");
+      toast.error(`Erro: ${error.message}`, {
         icon: <CircleAlert className="stroke-red-500" />,
-        className:
-          "border-1 border-red-600 bg-white text-red-600 font-bold rounded-sm",
       });
     }
   };

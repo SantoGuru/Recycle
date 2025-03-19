@@ -4,6 +4,7 @@ import RootLayout from './pages/Root';
 
 import Signup from './pages/Signup';
 import Login from './pages/Login';
+import { AuthContextProvider } from './store/AuthContext';
 
 const router = createBrowserRouter([
   {
@@ -20,7 +21,9 @@ const router = createBrowserRouter([
 function App() {
 
   return (
-    <RouterProvider router={router} />
+    <AuthContextProvider>
+      <RouterProvider router={router} />
+    </AuthContextProvider>
   )
 }
 
