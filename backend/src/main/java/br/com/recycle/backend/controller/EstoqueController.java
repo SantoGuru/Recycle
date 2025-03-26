@@ -5,6 +5,7 @@ import br.com.recycle.backend.service.EstoqueService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +28,10 @@ public class EstoqueController {
     )
 
     @GetMapping
-    public ResponseEntity<List<EstoqueResponseDTO>> listarTodos() {
+    public ResponseEntity<List<EstoqueResponseDTO>> listarTodos(HttpServletRequest request) {
 
-        List<EstoqueResponseDTO> estoques = estoqueService.listarTodos();
+        Long usuarioId = (Long) request.getAttribute("usuarioId");
+        List<EstoqueResponseDTO> estoques = estoqueService.listarTodos(usuarioId);
 
         return ResponseEntity.ok(estoques);
     }
@@ -39,9 +41,10 @@ public class EstoqueController {
     )
 
     @GetMapping("/{id}")
-    public ResponseEntity<EstoqueResponseDTO> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<EstoqueResponseDTO> buscarPorId(@PathVariable Long id, HttpServletRequest request) {
         try {
-            EstoqueResponseDTO estoque = estoqueService.buscarPorId(id);
+            Long usuarioId = (Long) request.getAttribute("usuarioId");
+            EstoqueResponseDTO estoque = estoqueService.buscarPorId(id, usuarioId);
             return ResponseEntity.ok(estoque);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

@@ -3,6 +3,7 @@ package br.com.recycle.backend.controller;
 import br.com.recycle.backend.dto.MaterialRequestDTO;
 import br.com.recycle.backend.dto.MaterialResponseDTO;
 import br.com.recycle.backend.service.MaterialService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,25 +24,29 @@ public class MaterialController {
     }
 
     @PostMapping
-    public ResponseEntity<MaterialResponseDTO> criar(@Valid @RequestBody MaterialRequestDTO dto) {
+    public ResponseEntity<MaterialResponseDTO> criar(
+            @Valid @RequestBody MaterialRequestDTO dto,
+            HttpServletRequest request) {
 
-        MaterialResponseDTO materialCriado = materialService.criar(dto);
+        Long usuarioId = (Long) request.getAttribute("usuarioId");
+        MaterialResponseDTO materialCriado = materialService.criar(dto, usuarioId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(materialCriado);
     }
 
     @GetMapping
-    public ResponseEntity<List<MaterialResponseDTO>> listarTodos() {
-
-        List<MaterialResponseDTO> materiais = materialService.listarTodos();
+    public ResponseEntity<List<MaterialResponseDTO>> listarTodos(HttpServletRequest request) {
+        Long usuarioId = (Long) request.getAttribute("usuarioId");
+        List<MaterialResponseDTO> materiais = materialService.listarTodos(usuarioId);
 
         return ResponseEntity.ok(materiais);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MaterialResponseDTO> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<MaterialResponseDTO> buscarPorId(@PathVariable Long id, HttpServletRequest request) {
         try {
-            MaterialResponseDTO material = materialService.buscarPorId(id);
+            Long usuarioId = (Long) request.getAttribute("usuarioId");
+            MaterialResponseDTO material = materialService.buscarPorId(id, usuarioId);
             return ResponseEntity.ok(material);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
