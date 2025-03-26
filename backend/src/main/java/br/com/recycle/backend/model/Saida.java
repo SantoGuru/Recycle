@@ -21,6 +21,13 @@ public class Saida {
     @Column(nullable = false)
     private Float quantidade;
 
+    @Column(name = "usuario_id", nullable = false)
+    private Long usuarioId;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", insertable = false, updatable = false)
+    private Usuario usuario;
+
     @CreationTimestamp
     private LocalDateTime data;
 
