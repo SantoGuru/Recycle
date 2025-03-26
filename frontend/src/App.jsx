@@ -4,6 +4,7 @@ import RootLayout from './pages/Root';
 
 import Signup from './pages/Signup';
 import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
 import { AuthContextProvider } from './store/AuthContext';
 
 const router = createBrowserRouter([
@@ -14,6 +15,7 @@ const router = createBrowserRouter([
     children: [
       {index: true, element: <Signup />}, // TODO: colocar rota correta
       {path: '/login', element: <Login />},
+      {path: '/Dashboard', element: <Dashboard />},
     ]
   }
 ]);
