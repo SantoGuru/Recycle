@@ -1,47 +1,47 @@
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useContext, useEffect, useReducer } from "react";
 
 const AuthContext = createContext({
     userData: {},
     login: () => {},
     logout: () => {},
-})
+});
 
 function authReducer(state, action) {
-    if(action.type === "LOGIN"){
+    if (action.type === "LOGIN") {
         localStorage.setItem("user", JSON.stringify(action.userData));
         return {
             ...state,
             userData: action.userData,
-        }
+        };
     }
-    if(action.type === "LOGOUT"){
+    if (action.type === "LOGOUT") {
         localStorage.remoteItem("user");
-        return{
+        return {
             ...state,
             userData: {},
-        }
+        };
     }
 }
 
-export function AuthContextProvider({children}){
+export function AuthContextProvider({ children }) {
     const [user, dispatchUserAction] = useReducer(authReducer, { userData: {} });
 
-    function login(userData){
+    function login(userData) {
         dispatchUserAction({
             type: "LOGIN",
             userData,
         });
     }
 
-    function logout(){
+    function logout() {
         dispatchUserAction({
-            type: "LOGOUT"
-        })
+            type: "LOGOUT",
+        });
     }
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
-        if(storedUser) {
+        if (storedUser) {
             dispatchUserAction({
                 type: "LOGIN",
                 userData: JSON.parse(storedUser),
@@ -52,12 +52,14 @@ export function AuthContextProvider({children}){
     const userCtx = {
         user,
         login,
-        logout
-    }
+        logout,
+    };
 
-    return (
-        <AuthContext.Provider value={userCtx}>{children}</AuthContext.Provider>
-    )
+    return <AuthContext.Provider value={userCtx}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+    return useContext(AuthContext); 
 }
 
 export default AuthContext;
