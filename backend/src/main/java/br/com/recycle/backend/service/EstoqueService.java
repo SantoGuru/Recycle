@@ -20,17 +20,17 @@ public class EstoqueService {
         this.estoqueRepository = estoqueRepository;
     }
 
-    public EstoqueResponseDTO buscarPorId(Long id) {
+    public EstoqueResponseDTO buscarPorId(Long id, Long usuarioId) {
 
-        Estoque estoque = estoqueRepository.findById(id)
+        Estoque estoque = estoqueRepository.findByMaterialIdAndMaterial_UsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Não foi possível encontrar o estoque com o id informado"));	
 
         return EstoqueResponseDTO.fromEntity(estoque);
     }
 
-    public List<EstoqueResponseDTO> listarTodos() {
+    public List<EstoqueResponseDTO> listarTodos(Long usuarioId) {
 
-        List<Estoque> estoques = estoqueRepository.findAll();
+        List<Estoque> estoques = estoqueRepository.findAllByMaterial_UsuarioId(usuarioId);
 
         return estoques.stream()
                 .map(EstoqueResponseDTO::fromEntity)
