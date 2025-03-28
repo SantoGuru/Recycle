@@ -24,6 +24,13 @@ public class Entrada {
     @Column(nullable = false)
     private Float preco;
 
+    @Column(name = "usuario_id", nullable = false)
+    private Long usuarioId;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", insertable = false, updatable = false)
+    private Usuario usuario;
+
     @CreationTimestamp
     private LocalDateTime data;
 

@@ -20,9 +20,9 @@ public class MaterialService {
         this.materialRepository = materialRepository;
     }
 
-    public MaterialResponseDTO criar(MaterialRequestDTO dto) {
+    public MaterialResponseDTO criar(MaterialRequestDTO dto, Long usuarioId) {
 
-        if (materialRepository.existsByNome(dto.getNome())) {
+        if (materialRepository.existsByNomeAndUsuarioId(dto.getNome(), usuarioId)) {
             throw new RuntimeException("Já existe um material com esse nome");
         }
 
@@ -30,22 +30,23 @@ public class MaterialService {
         material.setNome(dto.getNome());
         material.setDescricao(dto.getDescricao());
         material.setUnidade(dto.getUnidade());
+        material.setUsuarioId(usuarioId);
 
         Material materialSalvo = materialRepository.save(material);
         return MaterialResponseDTO.fromEntity(materialSalvo);
     }
 
-    public MaterialResponseDTO buscarPorId(Long id) {
+    public MaterialResponseDTO buscarPorId(Long id, Long usuarioId) {
 
-        Material material = materialRepository.findById(id)
+        Material material = materialRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Material não encontrado"));
 
         return MaterialResponseDTO.fromEntity(material);
     }
 
-    public List<MaterialResponseDTO> listarTodos() {
+    public List<MaterialResponseDTO> listarTodos(Long usuarioId) {
 
-        List<Material> materiais = materialRepository.findAll();
+        List<Material> materiais = materialRepository.findAllByUsuarioId(usuarioId);
 
         return materiais.stream()
                 .map(MaterialResponseDTO::fromEntity)
