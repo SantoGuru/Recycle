@@ -14,11 +14,10 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     id:'root',
     children: [
-      {index: true, element: <Signup />}, // TODO: colocar rota correta
+      {index: true, element: <LandPage />},
       {path: '/login', element: <Login />},
-      {path: '/Dashboard', element: <Dashboard />},
-      {path: '/LandPage', element: <LandPage />},
-      {path: '/Signup', element: <Signup />},
+      {path: '/dashboard', element: <Dashboard />},
+      {path: '/signup', element: <Signup />},
     ]
   }
 ]);
