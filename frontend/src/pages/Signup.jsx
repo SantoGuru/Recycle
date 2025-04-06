@@ -1,12 +1,20 @@
-import { useState } from "react";
-import { Form, Link } from "react-router-dom";
-import { CircleAlert } from "lucide-react";
-import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
+import { Form, Link, useNavigate } from "react-router-dom";
 
 import Input from "../components/Input";
 import { createAccountFunction } from "../http";
+import { useAuth } from "../store/AuthContext";
 
 export default function Signup() {
+  const { isLogged, loading, login } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && isLogged) {
+      navigate("/dashboard");
+    }
+  }, [loading, isLogged]);
+
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -14,7 +22,6 @@ export default function Signup() {
 
   const [erroSenha, setErroSenha] = useState(false);
   const [erroConfirmarSenha, setErroConfirmarSenha] = useState(false);
-
   const [mensagemErro, setMensagemErro] = useState("");
 
   const HandleSubmit = async (e) => {
@@ -37,16 +44,17 @@ export default function Signup() {
     setMensagemErro("");
 
     try {
-      const response = await createAccountFunction({ nome, email, senha});
+      const response = await createAccountFunction({ nome, email, senha });
 
-      if(!response.ok){
+      if (!response.ok) {
         setMensagemErro("Email já cadastrado!");
       }
+
+      const dados = await response.json();
+      login(dados);
+      navigate("/dashboard");
     } catch (error) {
       setMensagemErro("Erro ao conectar com o servidor!");
-      toast.error(`Erro: ${error.message}`, {
-        icon: <CircleAlert className="stroke-red-500" />,
-      });
     }
   };
 
@@ -63,7 +71,7 @@ export default function Signup() {
             <p className="line-clamp-2">{mensagemErro}</p>
           </div>
         )}
-        
+
         <Form method="POST" onSubmit={HandleSubmit} className="space-y-6">
           {/* Input: label e input juntos para facilitar replicação*/}
           <Input

@@ -1,65 +1,85 @@
-import { createContext, useContext, useEffect, useReducer } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 
 const AuthContext = createContext({
-    userData: {},
-    login: () => {},
-    logout: () => {},
+  userData: {},
+  login: () => {},
+  logout: () => {},
+  loading: true,
+  isLogged: false,
 });
 
 function authReducer(state, action) {
-    if (action.type === "LOGIN") {
-        localStorage.setItem("user", JSON.stringify(action.userData));
-        return {
-            ...state,
-            userData: action.userData,
-        };
-    }
-    if (action.type === "LOGOUT") {
-        localStorage.remoteItem("user");
-        return {
-            ...state,
-            userData: {},
-        };
-    }
+  if (action.type === "LOGIN") {
+    localStorage.setItem("user", JSON.stringify(action.userData));
+    return {
+      ...state,
+      userData: action.userData,
+      isLogged: true,
+    };
+  }
+  if (action.type === "LOGOUT") {
+    localStorage.removeItem("user");
+
+    return {
+      ...state,
+      userData: {},
+      isLogged: false,
+    };
+  }
 }
 
 export function AuthContextProvider({ children }) {
-    const [user, dispatchUserAction] = useReducer(authReducer, { userData: {} });
+  const [user, dispatchUserAction] = useReducer(authReducer, {
+    userData: {},
+    isLogged: false,
+  });
+  const [loading, setLoading] = useState(true);
 
-    function login(userData) {
-        dispatchUserAction({
-            type: "LOGIN",
-            userData,
-        });
+  function login(userData) {
+    dispatchUserAction({
+      type: "LOGIN",
+      userData,
+    });
+  }
+
+  function logout() {
+    dispatchUserAction({
+      type: "LOGOUT",
+    });
+  }
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      dispatchUserAction({
+        type: "LOGIN",
+        userData: JSON.parse(storedUser),
+      });
     }
+    setLoading(false);
+  }, []);
 
-    function logout() {
-        dispatchUserAction({
-            type: "LOGOUT",
-        });
-    }
+  const userCtx = {
+    userData: user.userData,
+    login,
+    logout,
+    loading,
+    isLogged: user.isLogged,
+  };
 
-    useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            dispatchUserAction({
-                type: "LOGIN",
-                userData: JSON.parse(storedUser),
-            });
-        }
-    }, []);
-
-    const userCtx = {
-        user,
-        login,
-        logout,
-    };
-
-    return <AuthContext.Provider value={userCtx}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={userCtx}>{children}</AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-    return useContext(AuthContext); 
+  return useContext(AuthContext);
 }
 
 export default AuthContext;
