@@ -1,16 +1,23 @@
-import { Form, Link } from "react-router-dom";
-import { useState, useContext } from "react";
+import { Form, Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { BadgeCheck } from "lucide-react";
 
-import AuthContext from "../store/AuthContext";
+import { useAuth } from "../store/AuthContext";
 
 import Input from "../components/Input";
 import { loginFunction } from "../http";
 
 export default function Login() {
-  const { login } = useContext(AuthContext);
- 
+  const { isLogged, loading, login } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && isLogged) {
+      navigate("/dashboard");
+    }
+  }, [loading, isLogged]);
+
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
@@ -20,10 +27,10 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const response = await loginFunction({email, senha});
+      const response = await loginFunction({ email, senha });
       const dados = await response.json();
 
-      if(!response.ok){
+      if (!response.ok) {
         setMensagemErro("Email ou senha errados!");
       } else {
         setMensagemErro("");
@@ -33,10 +40,11 @@ export default function Login() {
       setMensagemErro("Email ou senha errados!");
       toast.error("Erro ao logar!", {
         icon: <BadgeCheck className="stroke-blue-500" />,
-        className: "border-1 border-red-600 bg-white text-red-600 font-bold rounded-sm",
+        className:
+          "border-1 border-red-600 bg-white text-red-600 font-bold rounded-sm",
       });
     }
-  }
+  };
 
   return (
     <section className="flex flex-col justify-center items-center h-screen bg-slate-100">

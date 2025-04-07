@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 export default function Dashboard() {
 
   return (
-    <div className="container px-8 py-4 m-5">
+    <div className="mx-auto container px-8 py-4 m-5">
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold py-2 text-gray-900">Dashboard</h1>
