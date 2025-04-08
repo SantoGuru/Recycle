@@ -6,6 +6,7 @@ import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import LandPage from './pages/LandPage';
+import EntradaMaterial from './pages/EntradaMaterial';
 import { AuthContextProvider } from './store/AuthContext';
 
 const router = createBrowserRouter([
@@ -18,6 +19,8 @@ const router = createBrowserRouter([
       {path: '/login', element: <Login />},
       {path: '/dashboard', element: <Dashboard />},
       {path: '/signup', element: <Signup />},
+      {path: '/signup', element: <Signup />},
+      {path: '/entradaMaterial', element: <EntradaMaterial />}
     ]
   }
 ]);
