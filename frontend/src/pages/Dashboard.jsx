@@ -48,7 +48,7 @@ export default function Dashboard() {
 
 
       <div className="mt-8 grid grid-cols-2 gap-6">
-        <Link to="/" className="flex items-center justify-between p-6 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors">
+        <Link to="/EntradaMaterial" className="flex items-center justify-between p-6 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors">
           <div>
             <h3 className="text-lg font-semibold text-blue-900">Registrar Entrada</h3>
           </div>
