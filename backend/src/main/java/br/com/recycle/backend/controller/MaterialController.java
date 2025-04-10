@@ -66,4 +66,15 @@ public class MaterialController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            Long usuarioId = (Long) request.getAttribute("usuarioId");
+            MaterialResponseDTO materialDeletado = materialService.delete(id, usuarioId);;
+            return ResponseEntity.ok(materialDeletado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
