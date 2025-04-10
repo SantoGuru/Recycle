@@ -52,4 +52,18 @@ public class MaterialController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MaterialResponseDTO> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody MaterialRequestDTO dto,
+            HttpServletRequest request) {
+        try {
+            Long usuarioId = (Long) request.getAttribute("usuarioId");
+            MaterialResponseDTO materialAtualizado = materialService.atualizar(id, dto, usuarioId);
+            return ResponseEntity.ok(materialAtualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 }
