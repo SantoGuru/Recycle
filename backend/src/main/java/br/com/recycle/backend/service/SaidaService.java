@@ -30,13 +30,10 @@ public class SaidaService {
             throw new RuntimeException("Quantidade insuficiente no estoque");
         }
 
- 
         estoque.setQuantidade(estoque.getQuantidade() - dto.getQuantidade());
         estoqueRepository.save(estoque);
 
-   
         Saida saida = new Saida();
-        saida.setMaterialId(dto.getMaterialId());
         saida.setQuantidade(dto.getQuantidade());
         saida.setUsuarioId(usuarioId);
         saida.setMaterial(estoque.getMaterial()); 
@@ -44,4 +41,4 @@ public class SaidaService {
 
         return SaidaResponseDTO.fromEntity(saidaRepository.save(saida));
     }
-}
+} 
