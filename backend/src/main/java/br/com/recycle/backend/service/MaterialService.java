@@ -2,7 +2,9 @@ package br.com.recycle.backend.service;
 
 import br.com.recycle.backend.dto.MaterialRequestDTO;
 import br.com.recycle.backend.dto.MaterialResponseDTO;
+import br.com.recycle.backend.model.Estoque;
 import br.com.recycle.backend.model.Material;
+import br.com.recycle.backend.repository.EstoqueRepository;
 import br.com.recycle.backend.repository.MaterialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -68,5 +70,11 @@ public class MaterialService {
 
         Material materialAtualizado = materialRepository.save(material);
         return MaterialResponseDTO.fromEntity(materialAtualizado);
+    }
+
+        public void delete(Long id, Long usuarioId) {
+        Material material = materialRepository.findByIdAndUsuarioId(id, usuarioId)
+                .orElseThrow(() -> new RuntimeException("Material não encontrado ou você não tem permissão para excluí-lo"));
+        materialRepository.delete(material);
     }
 }
