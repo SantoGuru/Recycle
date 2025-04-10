@@ -139,7 +139,7 @@ public class EntradaService {
         materialDTO.setUnidade(estoque.getMaterial().getUnidade());
         Material material = new Material();
         material.setId(estoque.getMaterial().getId());
-        dto.setMaterial(material);
+        dto.setMaterial(MaterialResponseDTO.fromEntity(estoque.getMaterial()));
         dto.setQuantidade(estoque.getQuantidade());
         dto.setPrecoMedio(estoque.getPrecoMedio());
         dto.setValorTotal(estoque.getValorTotal());
