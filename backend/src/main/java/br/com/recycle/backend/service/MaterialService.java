@@ -52,4 +52,21 @@ public class MaterialService {
                 .map(MaterialResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+
+    public MaterialResponseDTO atualizar(Long id, MaterialRequestDTO dto, Long usuarioId) {
+        Material material = materialRepository.findByIdAndUsuarioId(id, usuarioId)
+                .orElseThrow(() -> new RuntimeException("Material não encontrado"));
+
+        if (!material.getNome().equals(dto.getNome()) &&
+                materialRepository.existsByNomeAndUsuarioId(dto.getNome(), usuarioId)) {
+            throw new RuntimeException("Já existe um material com este nome");
+        }
+
+        material.setNome(dto.getNome());
+        material.setDescricao(dto.getDescricao());
+        material.setUnidade(dto.getUnidade());
+
+        Material materialAtualizado = materialRepository.save(material);
+        return MaterialResponseDTO.fromEntity(materialAtualizado);
+    }
 }
