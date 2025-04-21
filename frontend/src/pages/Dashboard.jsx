@@ -12,54 +12,52 @@ export default function Dashboard() {
         <p className="text-gray-600">Bem vindo ao sistema de controle de estoque</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 justify-items-center max-w-screen">
 
-        <div className="m-8">
+        <div className=" bg-white rounded drop-shadow-md w-2/3 md:w-full p-4">
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold text-gray-900">Total de Materias</h2>
-            <p className="mt-2 text-3xl font-bold text-gray-700">{"materiais.length"}</p>
+            <p className="mt-2 text-md font-bold text-gray-700">{"materiais.length"}</p>
             <Link to="/" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-700">
               Ver todos →
             </Link>
           </div>
         </div>
 
-        <div className="m-8">
+        <div className="bg-white rounded drop-shadow-md  w-2/3 md:w-full p-4">
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold text-gray-900">Valor Total em Estoque</h2>
-            <p className="mt-2 text-3xl font-bold text-gray-700">{" R$ Saldo"}</p>
+            <p className="mt-2 text-md font-bold text-gray-700">{" R$ Saldo"}</p>
             <Link to="/" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-700">
               Ver todos →
             </Link>
           </div>
         </div>
 
-        <div className="m-8">
+        <div className="bg-white rounded drop-shadow-md w-2/3 md:w-full p-4">
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold text-gray-900">Itens em Baixa</h2>
-            <p className="mt-2 text-3xl font-bold text-gray-700">{"Items filtro com saldo < 10"}</p>
+            <p className="mt-2 text-md font-bold text-gray-700">{"Items filtro com saldo < 10"}</p>
             <Link to="/" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-700">
               Ver todos →
             </Link>
           </div>
         </div>
-
       </div>
 
 
-      <div className="mt-8 grid grid-cols-2 gap-6">
-        <Link to="/EntradaMaterial" className="flex items-center justify-between p-6 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors">
-          <div>
-            <h3 className="text-lg font-semibold text-blue-900">Registrar Entrada</h3>
+      <div className="mt-5 flex flex-col md:flex-row gap-3 md:justify-end mx-auto">
+        <Link to="/EntradaMaterial" className="flex items-center justify-center">
+          <div className="flex justify-center items-center w-64 text-white p-5 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors">
+            <h3 className="text-lg font-semibold  ">Registrar Entrada</h3>
           </div>
         </Link>
 
-        <Link to="/" className="flex items-center justify-between p-6 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors">
-          <div>
-            <h3 className="text-lg font-semibold text-blue-900">Registrar Saida</h3>
+        <Link to="/" className="flex items-center justify-center">
+          <div className="flex justify-center items-center w-64 text-white p-5 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors">
+            <h3 className="text-lg font-semibold ">Registrar Saida</h3>
           </div>
         </Link>
-
       </div>
 
     </div>

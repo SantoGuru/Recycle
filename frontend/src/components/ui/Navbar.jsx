@@ -12,39 +12,63 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
-  }
+    navigate("/");
+  };
 
   return (
-    <div className="flex justify-between bg-blue-600 p-3">
-      <Link className="my-2" to="/">
-        <span className="text-3xl p-3 bg-blue-300 rounded text-white">
-          Recycle
-        </span>
-      </Link>
-      <ul className="flex gap-3 mr-5">
-        {!currentOnLogin && !isLogged && (
-          <Link className="align-middle" to="/login">
-            <li className="click bg-gray-100 text-blue-500 hover:bg-gray-300 p-3 rounded outline-blue-500 outline-1">
-              Login
-            </li>
-          </Link>
-        )}
-        {!currentOnSignup && !isLogged && (
-          <Link className="align-middle" to="signup">
-            <li className="click bg-gray-100 text-blue-500 hover:bg-gray-300 p-3 rounded outline-blue-500 outline-1">
-              Registrar
-            </li>
-          </Link>
-        )}
-        {isLogged && (
-          <button onClick={handleLogout}>
-            <li className="click bg-gray-100 text-blue-500 hover:bg-gray-300 p-3 rounded outline-blue-500 outline-1">
-              Sair
-            </li>
+    <div className="flex justify-between items-center bg-blue-500 drop-shadow-xl p-1">
+      {isLogged ? (
+        <>
+          <ul className="flex items-center gap-7 mr-5">
+            <Link className="my-2" to="/">
+              <span className="text-3xl text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.6)]">
+                Recycle
+              </span>
+            </Link>
+
+            <Link to="/materials">
+              <li className="text-lg text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.3)]">
+                Materiais
+              </li>
+            </Link>
+            <Link to="/">
+              <li className="text-lg text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.3)]">
+                Estoque
+              </li>
+            </Link>
+          </ul>
+          <button
+            onClick={handleLogout}
+            className="mr-5 bg-gray-100 text-blue-500 hover:bg-gray-300 px-3 py-1 rounded drop-shadow-md"
+          >
+            Sair
           </button>
-        )}
-      </ul>
+        </>
+      ) : (
+        <>
+          <Link to="/">
+            <span className="text-3xl text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.6)]">
+              Recycle
+            </span>
+          </Link>
+          <ul className="flex items-center gap-3 mr-5">
+            {!currentOnLogin && (
+              <Link className="align-middle" to="/login">
+                <li className="click text-zinc-50 hover:text-zinc-300">
+                  Login
+                </li>
+              </Link>
+            )}
+            {!currentOnSignup && (
+              <Link className="align-middle" to="signup">
+                <li className="click bg-gray-100 text-blue-500 hover:bg-gray-300 px-2 py-1 rounded shadow-md">
+                  Registrar
+                </li>
+              </Link>
+            )}
+          </ul>
+        </>
+      )}
     </div>
   );
 }
