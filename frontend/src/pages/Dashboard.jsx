@@ -43,19 +43,18 @@ export default function Dashboard() {
             </Link>
           </div>
         </div>
-
       </div>
 
 
       <div className="mt-5 flex flex-col md:flex-row gap-3 md:justify-end mx-auto">
         <Link to="/EntradaMaterial" className="flex items-center justify-center">
-          <div className="flex justify-center items-center w-64 h-24 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors">
-            <h3 className="p-6 text-lg font-semibold  ">Registrar Entrada</h3>
+          <div className="flex justify-center items-center w-64 text-white p-5 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors">
+            <h3 className="text-lg font-semibold  ">Registrar Entrada</h3>
           </div>
         </Link>
 
         <Link to="/" className="flex items-center justify-center">
-          <div className="flex justify-center items-center w-64 h-24 text-white p-6 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors">
+          <div className="flex justify-center items-center w-64 text-white p-5 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors">
             <h3 className="text-lg font-semibold ">Registrar Saida</h3>
           </div>
         </Link>
