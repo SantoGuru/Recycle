@@ -45,7 +45,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-
       <div className="mt-5 flex flex-col md:flex-row gap-3 md:justify-end mx-auto">
         <Link to="/EntradaMaterial" className="flex items-center justify-center">
           <div className="flex justify-center items-center w-64 text-white p-5 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors">

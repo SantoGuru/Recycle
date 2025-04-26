@@ -104,7 +104,7 @@ export default function Login() {
 
           <div className="mt-6">
             <Link
-              to="/"
+              to="/signup"
               className="w-full flex justify-center py-2 px-4 border-1 border-blue-600 text-sm font-bold text-blue-600 hover:bg-blue-50 rounded-sm transition-colors duration-300"
             >
               Criar Conta
