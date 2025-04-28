@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 
-export default function EntradaMaterial({ fecharModal }) {
+export default function SaidaMaterial({ fecharModal }) {
   const navigate = useNavigate();
 
   const [materiais, setMateriais] = useState([]);
@@ -40,7 +40,7 @@ export default function EntradaMaterial({ fecharModal }) {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="bg-blue-700 px-6 py-4">
-        <h1 className="text-2xl font-bold text-white">Registrar Entrada de Material</h1>
+        <h1 className="text-2xl font-bold text-white">Registrar Saída de Material</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 mt-6">
@@ -74,7 +74,7 @@ export default function EntradaMaterial({ fecharModal }) {
         )}
 
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
 
           <div className='flex flex-col'>
 
@@ -110,21 +110,7 @@ export default function EntradaMaterial({ fecharModal }) {
             </div>
           </div>
 
-          <div className='flex flex-col'>
-            <div>
-              <label className="form-label">
-                Preço Unitário (R$)
-              </label>
 
-              <input
-                type="number"
-                className="input-field bg-gray-300 gray-300 rounded text-right w-full mt-3"
-                placeholder="0.0"
-                onChange={(e) => setPreco(e.target.value)}
-                required
-              />
-            </div>
-          </div>
         </div>
 
         <div className="flex justify-end my-4">
