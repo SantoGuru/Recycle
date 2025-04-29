@@ -1,7 +1,6 @@
 package br.com.recycle.backend.controller;
 
 import br.com.recycle.backend.dto.EntradaRequestDTO;
-import br.com.recycle.backend.dto.EntradaResponseDTO;
 import br.com.recycle.backend.dto.EstoqueResponseDTO;
 import br.com.recycle.backend.model.Entrada;
 import br.com.recycle.backend.service.EntradaService;
@@ -10,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,12 +26,22 @@ public class EntradaController {
 
     @PostMapping
     public ResponseEntity<?> registrarEntrada(
-            @RequestBody @Validated EntradaRequestDTO entradaDTO,
+            @RequestBody Object requestBody,
             HttpServletRequest request) {
         Long usuarioId = (Long) request.getAttribute("usuarioId");
 
-        EstoqueResponseDTO resultado = entradaService.registrarEntrada(entradaDTO, usuarioId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(resultado);
+        if (requestBody instanceof List) {
+            @SuppressWarnings("unchecked")
+            List<EntradaRequestDTO> entradas = (List<EntradaRequestDTO>) requestBody;
+            List<EstoqueResponseDTO> resultados = entradaService.registrarEntradas(entradas, usuarioId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(resultados);
+        } else if (requestBody instanceof EntradaRequestDTO) {
+            EntradaRequestDTO entrada = (EntradaRequestDTO) requestBody;
+            EstoqueResponseDTO resultado = entradaService.registrarEntrada(entrada, usuarioId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(resultado);
+        } else {
+            throw new IllegalArgumentException("Formato de requisição inválido");
+        }
     }
 
     @GetMapping
