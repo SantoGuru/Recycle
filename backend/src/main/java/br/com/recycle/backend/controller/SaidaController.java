@@ -3,6 +3,8 @@ package br.com.recycle.backend.controller;
 import br.com.recycle.backend.dto.SaidaRequestDTO;
 import br.com.recycle.backend.dto.SaidaResponseDTO;
 import br.com.recycle.backend.service.SaidaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
@@ -15,6 +17,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Tag(name= "Saídas", description = "Gerencia o registro e listagem de saídas de materiais do estoque")
 @RestController
 @RequestMapping("/api/saidas")
 public class SaidaController {
@@ -26,6 +29,11 @@ public class SaidaController {
         this.saidaService = saidaService;
         this.objectMapper = objectMapper;
     }
+
+     @Operation(
+        summary = "Registrar saída(s) de material",
+        description = "Registra uma ou mais saídas de materiais para o usuário autenticado"
+    )
 
  @PostMapping
     public ResponseEntity<List<SaidaResponseDTO>> registrarSaida(
@@ -51,6 +59,11 @@ public class SaidaController {
 
         return ResponseEntity.ok(saidas);
     }
+    
+    @Operation(
+        summary = "Listar saídas",
+        description = "Retorna todas as saídas registradas pelo usuário"
+    )
 
     @GetMapping
     public ResponseEntity<List<SaidaResponseDTO>> listarSaidas(HttpServletRequest request) {
