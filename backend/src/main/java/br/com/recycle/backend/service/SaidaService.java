@@ -45,6 +45,14 @@ public class SaidaService {
         return SaidaResponseDTO.fromEntity(saidaRepository.save(saida));
     }
 
+    @Transactional
+    public List<SaidaResponseDTO> registrarSaidas(List<SaidaRequestDTO> dtos, Long usuarioId) {
+        return dtos.stream()
+                   .map(dto -> registrarSaida(dto, usuarioId))
+                   .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<SaidaResponseDTO> listarSaidas(Long usuarioId) {
         List<Saida> saidas = saidaRepository.findByUsuarioId(usuarioId);
         return saidas.stream()
