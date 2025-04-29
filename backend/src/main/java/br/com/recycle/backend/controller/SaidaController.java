@@ -5,6 +5,7 @@ import br.com.recycle.backend.dto.SaidaResponseDTO;
 import br.com.recycle.backend.service.SaidaService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,5 +25,12 @@ public class SaidaController {
         Long usuarioId = (Long) request.getAttribute("usuarioId"); 
         SaidaResponseDTO saida = saidaService.registrarSaida(saidaRequestDTO, usuarioId);
         return ResponseEntity.ok(saida);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<SaidaResponseDTO>> listarSaidas(HttpServletRequest request) {
+        Long usuarioId = (Long) request.getAttribute("usuarioId");
+        List<SaidaResponseDTO> saidas = saidaService.listarSaidas(usuarioId);
+        return ResponseEntity.ok(saidas);
     }
 }
