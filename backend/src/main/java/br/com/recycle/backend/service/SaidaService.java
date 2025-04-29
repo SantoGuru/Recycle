@@ -7,6 +7,9 @@ import br.com.recycle.backend.model.Material;
 import br.com.recycle.backend.model.Saida;
 import br.com.recycle.backend.repository.EstoqueRepository;
 import br.com.recycle.backend.repository.SaidaRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,5 +43,12 @@ public class SaidaService {
         saida.setEstoque(estoque);
 
         return SaidaResponseDTO.fromEntity(saidaRepository.save(saida));
+    }
+
+    public List<SaidaResponseDTO> listarSaidas(Long usuarioId) {
+        List<Saida> saidas = saidaRepository.findByUsuarioId(usuarioId);
+        return saidas.stream()
+                     .map(SaidaResponseDTO::fromEntity)
+                     .collect(Collectors.toList());
     }
 } 
