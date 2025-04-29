@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface SaidaRepository extends JpaRepository<Saida, Long> {
     List<Saida> findByMaterialId(Long materialId);
+    List<Saida> findByUsuarioId(Long usuarioId);
 }
