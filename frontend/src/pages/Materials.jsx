@@ -3,12 +3,15 @@ import FormulariosModal from "../components/FormulariosModal";
 import NewMaterial from "../components/ui/NewMaterialModal";
 import { useAuth } from "../store/AuthContext";
 import { toast } from "react-toastify";
+import EditMaterial from "../components/ui/EditMaterial";
 
 export default function Materials() {
   const { userData } = useAuth();
   const token = userData?.token;
-
+  
   const [materials, setMaterials] = useState([]);
+  const [selectedMaterialId, setSelectedMaterialId] = useState(null);
+  const editMaterialModal = useRef();
 
   async function fetchMaterials() {
     if (!token) return;
@@ -47,10 +50,29 @@ export default function Materials() {
     newMaterialModal.current?.open();
   };
 
+  const abrirModalEditar = (materialId) => {
+    setSelectedMaterialId(materialId);
+    editMaterialModal.current?.open();
+
+  }
+
+  const fecharModalEditar = () => {
+    editMaterialModal.current?.close();
+    setSelectedMaterialId(null);
+    fetchMaterials();
+  }
+
   return (
     <>
       <FormulariosModal ref={newMaterialModal} fecharModal={fecharModal}>
         <NewMaterial fecharModal={fecharModal} />
+      </FormulariosModal>
+
+      <FormulariosModal ref={editMaterialModal} fecharModal={fecharModalEditar}>
+        <EditMaterial
+          fecharModal={fecharModalEditar}
+          materialId={selectedMaterialId}
+          />
       </FormulariosModal>
 
       <main className="flex flex-col min-h-screen mx-auto mt-20 items-center px-8 py-4 ">
@@ -81,7 +103,7 @@ export default function Materials() {
                     <td className="p-3">{material.descricao}</td>
                     <td className="p-3">{material.unidade}</td>
                     <td className="flex flex-col sm:flex-row p-3 text-start gap-2">
-                      <button className=" px-2 py-1 rounded-sm bg-blue-500 text-white hover:bg-blue-700">
+                      <button className=" px-2 py-1 rounded-sm bg-blue-500 text-white hover:bg-blue-700" onClick={() => abrirModalEditar(material.id)}>
                         Editar
                       </button>
                       <button className="px-2 py-1 rounded-sm bg-red-500 text-white hover:bg-red-700">
