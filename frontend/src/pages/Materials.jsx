@@ -36,6 +36,29 @@ export default function Materials() {
     }
   }
 
+  async function deleteMaterial(materialId) {
+    if (!token) return;
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/materiais/${materialId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao excluir material!");
+      }
+
+      toast.success("Material excluído com sucesso!");
+      fetchMaterials();
+    } catch (error) {
+      toast.error(error.message || "Erro ao excluir material!");
+    }
+  }
+
   useEffect(() => {
     fetchMaterials();
   }, [token]);
@@ -106,7 +129,7 @@ export default function Materials() {
                       <button className=" px-2 py-1 rounded-sm bg-blue-500 text-white hover:bg-blue-700" onClick={() => abrirModalEditar(material.id)}>
                         Editar
                       </button>
-                      <button className="px-2 py-1 rounded-sm bg-red-500 text-white hover:bg-red-700">
+                      <button className="px-2 py-1 rounded-sm bg-red-500 text-white hover:bg-red-700" onClick={() => deleteMaterial(material.id)}>
                         Excluir
                       </button>
                     </td>
@@ -114,7 +137,7 @@ export default function Materials() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="p-3 text-center">
+                  <td colSpan="4" className="p-3 text-center bg-white">
                     Nenhum material encontrado.
                   </td>
                 </tr>
