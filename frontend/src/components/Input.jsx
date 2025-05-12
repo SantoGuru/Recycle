@@ -6,7 +6,7 @@ export default function Input({label, id, erro, ...props}){
     return (
       <div className="mt-2">
         <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-        <input id={id} className={erro ? estiloErro : estiloPadrao} {...props} /> 
+        <input id={id} name={id} className={erro ? estiloErro : estiloPadrao} {...props} /> 
       </div>
     )
   }
