@@ -12,6 +12,7 @@ import { AuthContextProvider } from "./store/AuthContext";
 import PrivateRoute from "./components/routes/PrivateRoute";
 import PublicRoute from "./components/routes/PublicRoute";
 import LoaderDialog from "./components/ui/LoaderDialog";
+import Materials from "./pages/Materials";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,7 @@ const router = createBrowserRouter([
         element: <PrivateRoute />,
         children: [
           { path: "/dashboard", element: <Dashboard /> },
+          { path: "/materials", element: <Materials /> },
           { path: "/entradaMaterial", element: <EntradaMaterial /> },
         ],
       },
