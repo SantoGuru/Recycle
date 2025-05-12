@@ -6,12 +6,12 @@ const FormulariosModal = forwardRef(({ fecharModal, children }, ref) => {
   useImperativeHandle(ref, () => ({
     open: () => {
       if (dialogRef.current) {
-        dialogRef.current.showModal();
+        dialogRef.current?.showModal();
       }
     },
     close: () => {
       if (dialogRef.current) {
-        dialogRef.current.close();
+        dialogRef.current?.close();
       }
     },
   }));
