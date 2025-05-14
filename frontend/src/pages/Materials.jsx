@@ -102,12 +102,12 @@ export default function Materials() {
         <section className="w-full max-w-5xl min-w-[300px] px-10">
           <div className="flex flex-col md:flex-row justify-between">
             <h1 className="font-semibold text-2xl">Materiais</h1>
-            <button
+            <butto
               onClick={abrirModal}
               className="p-3 bg-blue-500 text-white rounded-md hover:bg-blue-700"
             >
               Adicionar Material
-            </button>
+            </butto>
           </div>
           <table className="w-full max-w-5xl min-w-[300px] mt-5 drop-shadow-md mx-auto">
             <thead>
