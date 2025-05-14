@@ -100,7 +100,7 @@ export default function Materials() {
 
       <main className="flex flex-col min-h-screen mx-auto mt-20 items-center px-8 py-4 ">
         <section className="w-full max-w-5xl min-w-[300px] px-10">
-          <div className="flex flex-col md:flex-row justify-between">
+          <div className="flex flex-col md:flex-row justify-between items-end">
             <h1 className="font-semibold text-2xl">Materiais</h1>
             <butto
               onClick={abrirModal}
@@ -109,24 +109,30 @@ export default function Materials() {
               Adicionar Material
             </butto>
           </div>
-          <table className="w-full max-w-5xl min-w-[300px] mt-5 drop-shadow-md mx-auto">
+          <div className="">
+          <table className="w-full max-w-5xl min-w-[300px] mt-5 drop-shadow-xl mx-auto border-separate border-spacing-0 rounded-lg overflow-hidden">
             <thead>
               <tr className="bg-gray-200">
-                <th className="p-3 text-left">Nome</th>
-                <th className="p-3 text-left">Descrição</th>
-                <th className="p-3 text-left">Unidade</th>
-                <th className="p-3 text-left">Ações</th>
+                <th className="p-3 text-left font-semibold text-gray-700">Nome</th>
+                <th className="p-3 text-left font-semibold text-gray-700">Descrição</th>
+                <th className="p-3 text-left font-semibold text-gray-700">Unidade</th>
+                <th className="p-3 text-left font-semibold text-gray-700">Ações</th>
               </tr>
             </thead>
             <tbody>
               {materials.length > 0 ? (
-                materials.map((material) => (
-                  <tr key={material.id} className="bg-white ">
-                    <td className="p-3">{material.nome}</td>
-                    <td className="p-3">{material.descricao}</td>
-                    <td className="p-3">{material.unidade}</td>
+                materials.map((material, index) => (
+                  <tr
+                    key={material.id}
+                    className={`${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    } hover:bg-gray-100 transition-colors`}
+                  >
+                    <td className="p-3 text-gray-800">{material.nome}</td>
+                    <td className="p-3 text-gray-800">{material.descricao}</td>
+                    <td className="p-3 text-gray-800">{material.unidade}</td>
                     <td className="flex flex-col sm:flex-row p-3 text-start gap-2">
-                      <button className=" px-2 py-1 rounded-sm bg-blue-500 text-white hover:bg-blue-700" onClick={() => abrirModalEditar(material.id)}>
+                      <button className="px-2 py-1 rounded-sm bg-blue-500 text-white hover:bg-blue-700" onClick={() => abrirModalEditar(material.id)}>
                         Editar
                       </button>
                       <button className="px-2 py-1 rounded-sm bg-red-500 text-white hover:bg-red-700" onClick={() => deleteMaterial(material.id)}>
@@ -137,13 +143,14 @@ export default function Materials() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="p-3 text-center bg-white">
+                  <td colSpan="4" className="p-3 text-center text-gray-500 bg-white">
                     Nenhum material encontrado.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
+          </div>
         </section>
       </main>
     </>
