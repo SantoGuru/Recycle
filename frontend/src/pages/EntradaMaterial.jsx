@@ -1,31 +1,81 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../store/AuthContext";
+import { toast } from "react-toastify";
 
 
 export default function EntradaMaterial({ fecharModal }) {
   const navigate = useNavigate();
 
-  const [materiais, setMateriais] = useState([]);
+  const { userData } = useAuth();
+  const token = userData?.token;
+
+  const [materials, setMaterials] = useState([]);
   const [movimentacoes, setMovimentacoes] = useState([]);
 
   const [materialSelecionado, setMaterialSelecionado] = useState("");
   const [quantidade, setQuantidade] = useState("");
   const [preco, setPreco] = useState("");
 
+  useEffect(() => {
+    fetchMaterials();
+  }, [token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Movimentações:", movimentacoes);
+    try {
+      const response = await fetch("http://localhost:8080/api/entradas", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(movimentacoes)
+      });
+
+      if (!response.ok) {
+        toast.error("Erro ao enviar dados das movimentações!");
+        throw new Error("Erro ao enviar dados das movimentações!");
+      }
+    } catch (error) {
+      toast.error(error.message || "Erro ao enviar dados das movimentações!");
+    }
   };
+
+  async function fetchMaterials() {
+    if (!token) return;
+
+    try {
+      const response = await fetch("http://localhost:8080/api/materiais", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao carregar dados dos materiais!");
+      }
+
+      const data = await response.json();
+      setMaterials(data);
+    } catch (error) {
+      toast.error(error.message || "Erro ao carregar dados dos materiais!");
+    }
+  }
+
+
 
 
   const handleAddMovimentacao = () => {
     if (!materialSelecionado || !quantidade || !preco) return;
 
-    const material = materiais.find(m => m.id === parseInt(materialSelecionado));
+    //const material = materials.find(m => m.id === parseInt(materialSelecionado));
 
     const novaMovimentacao = {
-      materialId: materialSelecionado,
+      materialId: Number(materialSelecionado),
       quantidade: parseFloat(quantidade),
       preco: parseFloat(preco),
     };
@@ -35,7 +85,17 @@ export default function EntradaMaterial({ fecharModal }) {
     setMaterialSelecionado("");
     setQuantidade("");
     setPreco("");
+    
   };
+
+  const handleCancel = () => {
+    setMovimentacoes([]);
+    setMaterialSelecionado("");
+    setQuantidade("");
+    setPreco("");
+    fecharModal(); // fecha o modal após limpar
+  };
+
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -58,7 +118,7 @@ export default function EntradaMaterial({ fecharModal }) {
               </thead>
               <tbody>
                 {movimentacoes.map((mov, index) => {
-                  const material = materiais.find(m => m.id === parseInt(mov.materialId));
+                  const material = materials.find(m => m.id === parseInt(mov.materialId));
                   return (
                     <tr key={index} className="border-t">
                       <td className="px-3 py-2">{material?.nome || 'Desconhecido'} {material?.unidade || '-'}</td>
@@ -86,7 +146,7 @@ export default function EntradaMaterial({ fecharModal }) {
               required
               onChange={(e) => setMaterialSelecionado(e.target.value)}>
               <option value={0}>Selecione um material</option>
-              {materiais.map((material) => (
+              {materials.map((material) => (
                 <option key={material.id} value={material.id}>
                   {material.nome} ({material.unidade})
                 </option>
@@ -138,7 +198,7 @@ export default function EntradaMaterial({ fecharModal }) {
         </div>
 
         <div className="flex justify-end space-x-4 mt-6">
-          <button type="button" className="bg-red-500 hover:bg-red-600 cursor-pointer rounded px-4 py-2 text-white" onClick={fecharModal}>
+          <button type="button" className="bg-red-500 hover:bg-red-600 cursor-pointer rounded px-4 py-2 text-white" onClick={handleCancel}>
             Cancelar
           </button>
           <button type="submit" className="bg-blue-600 hover:bg-blue-700 cursor-pointer rounded px-4 py-2 text-white">
