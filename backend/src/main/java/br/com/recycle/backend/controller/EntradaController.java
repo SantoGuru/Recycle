@@ -32,23 +32,12 @@ public class EntradaController {
     )
 
     @PostMapping
-    public ResponseEntity<?> registrarEntrada(
-            @RequestBody Object requestBody,
+    public ResponseEntity<List<EstoqueResponseDTO>> registrarEntrada(
+            @RequestBody List<EntradaRequestDTO> entradas,
             HttpServletRequest request) {
         Long usuarioId = (Long) request.getAttribute("usuarioId");
-
-        if (requestBody instanceof List) {
-            @SuppressWarnings("unchecked")
-            List<EntradaRequestDTO> entradas = (List<EntradaRequestDTO>) requestBody;
-            List<EstoqueResponseDTO> resultados = entradaService.registrarEntradas(entradas, usuarioId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(resultados);
-        } else if (requestBody instanceof EntradaRequestDTO) {
-            EntradaRequestDTO entrada = (EntradaRequestDTO) requestBody;
-            EstoqueResponseDTO resultado = entradaService.registrarEntrada(entrada, usuarioId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(resultado);
-        } else {
-            throw new IllegalArgumentException("Formato de requisição inválido");
-        }
+        List<EstoqueResponseDTO> resultados = entradaService.registrarEntradas(entradas, usuarioId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(resultados);
     }
 
     @Operation(
