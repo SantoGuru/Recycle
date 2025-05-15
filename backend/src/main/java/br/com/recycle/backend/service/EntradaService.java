@@ -44,32 +44,45 @@ public class EntradaService {
         Material material = materialRepository.findById(entradaRequestDTO.getMaterialId())
                 .orElseThrow(() -> new RuntimeException("Material não encontrado com ID: " + entradaRequestDTO.getMaterialId()));
 
-        Estoque estoque = buscarOuCriarEstoque(material, usuarioId);
+        if (!material.getUsuarioId().equals(usuarioId)) {
+            throw new RuntimeException("Material não pertence ao usuário");
+        }
 
-        Float novoPrecoMedio = calcularPrecoMedio(
-                estoque.getQuantidade(),
-                estoque.getPrecoMedio(),
-                entradaRequestDTO.getQuantidade(),
-                entradaRequestDTO.getPreco()
-        );
+        Estoque estoque = estoqueRepository.findByMaterialIdAndMaterial_UsuarioId(material.getId(), usuarioId)
+                .orElse(null);
 
-        estoque.setQuantidade(estoque.getQuantidade() + entradaRequestDTO.getQuantidade());
+        if (estoque == null) {
+            estoque = new Estoque();
+            estoque.setMaterial(material);
+            estoque.setQuantidade(0.0f);
+            estoque.setPrecoMedio(0.0f);
+            estoque.setValorTotal(0.0f);
+            estoque = estoqueRepository.save(estoque); // Salvar antes de prosseguir
+        }
+
+        Float quantidadeAtual = estoque.getQuantidade();
+        Float precoMedioAtual = estoque.getPrecoMedio();
+        Float quantidadeEntrada = entradaRequestDTO.getQuantidade();
+        Float precoEntrada = entradaRequestDTO.getPreco();
+
+        Float valorEstoqueAtual = quantidadeAtual * precoMedioAtual;
+        Float valorNovaEntrada = quantidadeEntrada * precoEntrada;
+        Float quantidadeTotal = quantidadeAtual + quantidadeEntrada;
+        Float novoPrecoMedio = quantidadeTotal > 0 ? (valorEstoqueAtual + valorNovaEntrada) / quantidadeTotal : precoEntrada;
+
+        estoque.setQuantidade(quantidadeTotal);
         estoque.setPrecoMedio(novoPrecoMedio);
-        estoque.setValorTotal(calcularValorTotal(estoque.getQuantidade(), novoPrecoMedio));
-
+        estoque.setValorTotal(quantidadeTotal * novoPrecoMedio);
         estoqueRepository.save(estoque);
 
         Entrada entrada = new Entrada();
         entrada.setMaterial(material);
-        entrada.setQuantidade(entradaRequestDTO.getQuantidade());
-        entrada.setPreco(entradaRequestDTO.getPreco());
-        entrada.setData(LocalDateTime.now());
-        entrada.setEstoque(estoque);
+        entrada.setQuantidade(quantidadeEntrada);
+        entrada.setPreco(precoEntrada);
         entrada.setUsuarioId(usuarioId);
+        entrada = entradaRepository.save(entrada);
 
-        entradaRepository.save(entrada);
-
-        return mapToEstoqueDTO(estoque);
+        return EstoqueResponseDTO.fromEntity(estoque);
     }
 
     @Transactional
