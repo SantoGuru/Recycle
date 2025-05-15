@@ -1,5 +1,7 @@
 package br.com.recycle.backend.controller;
 
+import br.com.recycle.backend.dto.EntradaRequestDTO;
+import br.com.recycle.backend.dto.EstoqueResponseDTO;
 import br.com.recycle.backend.dto.SaidaRequestDTO;
 import br.com.recycle.backend.dto.SaidaResponseDTO;
 import br.com.recycle.backend.service.SaidaService;
@@ -10,6 +12,8 @@ import jakarta.validation.Valid;
 
 import java.util.Collections;
 import java.util.List;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,29 +41,13 @@ public class SaidaController {
 
  @PostMapping
     public ResponseEntity<List<SaidaResponseDTO>> registrarSaida(
-            @RequestBody @Valid JsonNode payload,
+            @RequestBody List<SaidaRequestDTO> saidas,
             HttpServletRequest request) {
-
         Long usuarioId = (Long) request.getAttribute("usuarioId");
-
-        List<SaidaRequestDTO> dtos;
-        if (payload.isArray()) {
-            dtos = objectMapper.convertValue(
-                payload,
-                new TypeReference<List<SaidaRequestDTO>>() {}
-            );
-        } else {
-            SaidaRequestDTO single =
-                objectMapper.convertValue(payload, SaidaRequestDTO.class);
-            dtos = Collections.singletonList(single);
-        }
-
-        List<SaidaResponseDTO> saidas =
-            saidaService.registrarSaidas(dtos, usuarioId);
-
-        return ResponseEntity.ok(saidas);
+        List<SaidaResponseDTO> resultados = saidaService.registrarSaidas(saidas, usuarioId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(resultados);
     }
-    
+  
     @Operation(
         summary = "Listar saídas",
         description = "Retorna todas as saídas registradas pelo usuário"
