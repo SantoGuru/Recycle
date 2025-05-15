@@ -17,7 +17,7 @@ public class EntradaResponseDTO {
     public static EntradaResponseDTO fromEntity(Entrada entrada) {
         EntradaResponseDTO dto = new EntradaResponseDTO();
         dto.setId(entrada.getId());
-        dto.setMaterialId(entrada.getId());
+        dto.setMaterialId(entrada.getMaterialId());
 
         if (entrada.getMaterial() != null) {
             dto.setMaterialNome(entrada.getMaterial().getNome());
