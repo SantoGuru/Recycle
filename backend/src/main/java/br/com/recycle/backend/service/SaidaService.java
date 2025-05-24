@@ -59,6 +59,7 @@ public class SaidaService {
 
     @Transactional
     public List<SaidaResponseDTO> registrarSaidas(List<SaidaRequestDTO> dtos, Long usuarioId) {
+        // Validação inicial de todos os DTOs
         for (SaidaRequestDTO dto : dtos) {
             if (dto.getMaterialId() == null || dto.getQuantidade() == null || dto.getQuantidade() <= 0) {
                 throw new RuntimeException("Dados inválidos para registro de saída");
