@@ -1,6 +1,7 @@
 package br.com.recycle.backend.controller;
 
 import br.com.recycle.backend.dto.EntradaRequestDTO;
+import br.com.recycle.backend.dto.EntradaResponseDTO;
 import br.com.recycle.backend.dto.EstoqueResponseDTO;
 import br.com.recycle.backend.model.Entrada;
 import br.com.recycle.backend.service.EntradaService;
@@ -41,13 +42,13 @@ public class EntradaController {
     }
 
     @Operation(
-        summary = "Listar todas as entradas",
-        description = "Retorna uma lista com todas as entradas registradas no sistema"
+            summary = "Listar todas as entradas do usuário",
+            description = "Retorna uma lista com todas as entradas registradas pelo usuário autenticado"
     )
-
     @GetMapping
-    public ResponseEntity<List<Entrada>> listarEntradas() {
-        List<Entrada> entradas = entradaService.listarEntradas();
+    public ResponseEntity<List<EntradaResponseDTO>> listarEntradas(HttpServletRequest request) {
+        Long usuarioId = (Long) request.getAttribute("usuarioId");
+        List<EntradaResponseDTO> entradas = entradaService.listarEntradas(usuarioId);
         return ResponseEntity.ok(entradas);
     }
 }
