@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import br.com.recycle.backend.dto.EntradaResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -186,7 +188,19 @@ public class EntradaService {
         return dto;
     }
 
-    public List<Entrada> listarEntradas() {
-        return entradaRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<EntradaResponseDTO> listarEntradas(Long usuarioId) {
+        List<Material> materiais = materialRepository.findAllByUsuarioId(usuarioId);
+        List<Long> materiaisIds = materiais.stream().map(Material::getId).collect(Collectors.toList());
+
+        List<Entrada> todasEntradas = new ArrayList<>();
+        for (Long materialId : materiaisIds) {
+            List<Entrada> entradasDoMaterial = entradaRepository.findByMaterialId(materialId);
+            todasEntradas.addAll(entradasDoMaterial);
+        }
+
+        return todasEntradas.stream()
+                .map(EntradaResponseDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 }
