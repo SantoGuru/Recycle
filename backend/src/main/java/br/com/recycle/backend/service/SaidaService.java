@@ -51,6 +51,7 @@ public class SaidaService {
         saida.setQuantidade(dto.getQuantidade());
         saida.setUsuarioId(usuarioId);
         saida.setMaterial(material);
+        saida.setMaterialId(material.getId());
         saida.setEstoque(estoque);
 
         return SaidaResponseDTO.fromEntity(saidaRepository.save(saida));

@@ -79,10 +79,11 @@ public class EntradaService {
 
         Entrada entrada = new Entrada();
         entrada.setMaterial(material);
+        entrada.setMaterialId(material.getId());
         entrada.setQuantidade(quantidadeEntrada);
         entrada.setPreco(precoEntrada);
         entrada.setUsuarioId(usuarioId);
-        entrada = entradaRepository.save(entrada);
+        entradaRepository.save(entrada);
 
         return EstoqueResponseDTO.fromEntity(estoque);
     }
