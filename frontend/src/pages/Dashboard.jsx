@@ -1,10 +1,13 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useAuth } from "../store/AuthContext";
 import { Link } from 'react-router-dom';
 import FormulariosModal from "../components/FormulariosModal";
 import EntradaMaterial from "./EntradaMaterial";
 import SaidaMaterial from "./SaidaMaterial";
 
 export default function Dashboard() {
+  const { userData } = useAuth();
+  const token = userData?.token;
 
   // Modal
   const modalRefEntrada = useRef();
@@ -27,6 +30,38 @@ export default function Dashboard() {
     modalRefSaida.current?.close();
   };
 
+  const [totalMateriais, setTotalMateriais] = useState();
+  const [quantidadeTotalKg, setQuantidadeTotalKg] = useState();
+  const [valorTotal, setValorTotal] = useState();
+  const [materiaisComEstoqueBaixo, setMateriaisComEstoqueBaixo] = useState([]);
+
+
+  const carregarDados = async () => {
+    try {
+      const response = await
+        fetch("http://localhost:8080/api/dashboard/resumo", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        })
+      const data = await response.json();
+
+      setTotalMateriais(data.totalMateriais);
+      setQuantidadeTotalKg(data.quantidadeTotalKg);
+      setValorTotal(data.valorTotalEstoque);
+      setMateriaisComEstoqueBaixo(data.materiaisComEstoqueBaixo);
+
+    } catch {
+      console.log('Falha ao carregar dados');
+    }
+  };
+
+  useEffect(() => {
+    carregarDados();
+  }, []);
+
   return (
     <div className="mx-auto container px-8 py-4 m-5">
       <div className="mb-8">
@@ -38,7 +73,7 @@ export default function Dashboard() {
         <div className="bg-white rounded drop-shadow-md w-2/3 md:w-full p-4">
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold text-gray-900">Total de Materiais</h2>
-            <p className="mt-2 text-md font-bold text-gray-700">{"materiais.length"}</p>
+            <p className="mt-2 text-md font-bold text-gray-700">{totalMateriais}</p>
             <Link to="/" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-700">
               Ver todos →</Link>
           </div>
@@ -47,7 +82,9 @@ export default function Dashboard() {
         <div className="bg-white rounded drop-shadow-md  w-2/3 md:w-full p-4">
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold text-gray-900">Valor Total em Estoque</h2>
-            <p className="mt-2 text-md font-bold text-gray-700">{" R$ Saldo"}</p>
+            <p className="mt-2 text-md font-bold text-gray-700">
+              R$ {valorTotal !== undefined ? `R$ ${valorTotal.toFixed(2)}` : "R$ Erro ao carregar"}
+            </p>
             <Link to="/" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-700">
               Ver todos →</Link>
           </div>
@@ -56,7 +93,7 @@ export default function Dashboard() {
         <div className="bg-white rounded drop-shadow-md w-2/3 md:w-full p-4">
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold text-gray-900">Itens em Baixa</h2>
-            <p className="mt-2 text-md font-bold text-gray-700">{"Items filtro com saldo < 10"}</p>
+            <p className="mt-2 text-md font-bold text-gray-700">{materiaisComEstoqueBaixo}</p>
             <Link to="/" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-700">
               Ver todos →</Link>
           </div>

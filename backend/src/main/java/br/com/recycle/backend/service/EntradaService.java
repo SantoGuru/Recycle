@@ -1,18 +1,16 @@
 package br.com.recycle.backend.service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
+import br.com.recycle.backend.dto.EntradaResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.recycle.backend.dto.EntradaRequestDTO;
 import br.com.recycle.backend.dto.EstoqueResponseDTO;
-import br.com.recycle.backend.dto.MaterialResponseDTO;
-
 import br.com.recycle.backend.model.Entrada;
 import br.com.recycle.backend.model.Estoque;
 import br.com.recycle.backend.model.Material;
@@ -44,32 +42,46 @@ public class EntradaService {
         Material material = materialRepository.findById(entradaRequestDTO.getMaterialId())
                 .orElseThrow(() -> new RuntimeException("Material não encontrado com ID: " + entradaRequestDTO.getMaterialId()));
 
-        Estoque estoque = buscarOuCriarEstoque(material, usuarioId);
+        if (!material.getUsuarioId().equals(usuarioId)) {
+            throw new RuntimeException("Material não pertence ao usuário");
+        }
 
-        Float novoPrecoMedio = calcularPrecoMedio(
-                estoque.getQuantidade(),
-                estoque.getPrecoMedio(),
-                entradaRequestDTO.getQuantidade(),
-                entradaRequestDTO.getPreco()
-        );
+        Estoque estoque = estoqueRepository.findByMaterialIdAndMaterial_UsuarioId(material.getId(), usuarioId)
+                .orElse(null);
 
-        estoque.setQuantidade(estoque.getQuantidade() + entradaRequestDTO.getQuantidade());
+        if (estoque == null) {
+            estoque = new Estoque();
+            estoque.setMaterial(material);
+            estoque.setQuantidade(0.0f);
+            estoque.setPrecoMedio(0.0f);
+            estoque.setValorTotal(0.0f);
+            estoque = estoqueRepository.save(estoque);
+        }
+
+        Float quantidadeAtual = estoque.getQuantidade();
+        Float precoMedioAtual = estoque.getPrecoMedio();
+        Float quantidadeEntrada = entradaRequestDTO.getQuantidade();
+        Float precoEntrada = entradaRequestDTO.getPreco();
+
+        Float valorEstoqueAtual = quantidadeAtual * precoMedioAtual;
+        Float valorNovaEntrada = quantidadeEntrada * precoEntrada;
+        Float quantidadeTotal = quantidadeAtual + quantidadeEntrada;
+        Float novoPrecoMedio = quantidadeTotal > 0 ? (valorEstoqueAtual + valorNovaEntrada) / quantidadeTotal : precoEntrada;
+
+        estoque.setQuantidade(quantidadeTotal);
         estoque.setPrecoMedio(novoPrecoMedio);
-        estoque.setValorTotal(calcularValorTotal(estoque.getQuantidade(), novoPrecoMedio));
-
+        estoque.setValorTotal(quantidadeTotal * novoPrecoMedio);
         estoqueRepository.save(estoque);
 
         Entrada entrada = new Entrada();
         entrada.setMaterial(material);
-        entrada.setQuantidade(entradaRequestDTO.getQuantidade());
-        entrada.setPreco(entradaRequestDTO.getPreco());
-        entrada.setData(LocalDateTime.now());
-        entrada.setEstoque(estoque);
+        entrada.setMaterialId(material.getId());
+        entrada.setQuantidade(quantidadeEntrada);
+        entrada.setPreco(precoEntrada);
         entrada.setUsuarioId(usuarioId);
-
         entradaRepository.save(entrada);
 
-        return mapToEstoqueDTO(estoque);
+        return EstoqueResponseDTO.fromEntity(estoque);
     }
 
     @Transactional
@@ -96,6 +108,22 @@ public class EntradaService {
         return resultados;
     }
 
+    @Transactional(readOnly = true)
+    public List<EntradaResponseDTO> listarEntradas(Long usuarioId) {
+        List<Material> materiais = materialRepository.findAllByUsuarioId(usuarioId);
+        List<Long> materiaisIds = materiais.stream().map(Material::getId).collect(Collectors.toList());
+
+        List<Entrada> todasEntradas = new ArrayList<>();
+        for (Long materialId : materiaisIds) {
+            List<Entrada> entradasDoMaterial = entradaRepository.findByMaterialId(materialId);
+            todasEntradas.addAll(entradasDoMaterial);
+        }
+
+        return todasEntradas.stream()
+                .map(EntradaResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
     private void validarDadosEntrada(EntradaRequestDTO entradaDTO) {
         if (entradaDTO == null) {
             throw new RuntimeException("Dados de entrada não podem ser nulos");
@@ -112,68 +140,5 @@ public class EntradaService {
         if (entradaDTO.getPreco() == null || entradaDTO.getPreco() < 0) {
             throw new RuntimeException("Preço unitário deve ser um valor positivo");
         }
-    }
-
-    private Estoque buscarOuCriarEstoque(Material material, Long usuarioId) {
-        Optional<Estoque> estoqueOpt = estoqueRepository.findByMaterialIdAndMaterial_UsuarioId(material.getId(),usuarioId);
-
-        if (estoqueOpt.isPresent()) {
-            return estoqueOpt.get();
-        } else {
-            Estoque novoEstoque = new Estoque();
-            novoEstoque.setMaterial(material);
-            novoEstoque.setQuantidade(Float.valueOf(0));
-            novoEstoque.setPrecoMedio(Float.valueOf(0));
-            novoEstoque.setValorTotal(Float.valueOf(0));
-            return novoEstoque;
-        }
-    }
-
-    public Float calcularPrecoMedio(
-            Float quantidadeAtual,
-            Float precoMedioAtual,
-            Float quantidadeEntrada,
-            Float precoEntrada) {
-
-        if (quantidadeAtual == null || quantidadeAtual <= 0f) {
-            return precoEntrada;
-        }
-
-        Float valorEstoqueAtual = (quantidadeAtual * precoMedioAtual);
-        Float valorNovaEntrada = (quantidadeEntrada * precoEntrada);
-        Float valorTotal = valorEstoqueAtual + valorNovaEntrada;
-        Float quantidadeTotal = quantidadeAtual + quantidadeEntrada;
-
-        if (quantidadeTotal == 0f) {
-            return 0f;
-        }
-
-        return valorTotal/quantidadeTotal;
-    }
-
-    public Float calcularValorTotal(Float quantidade, Float precoMedio) {
-        return quantidade*precoMedio;
-    }
-
-    private EstoqueResponseDTO mapToEstoqueDTO(Estoque estoque) {
-        EstoqueResponseDTO dto = new EstoqueResponseDTO();
-        dto.setMaterialId(estoque.getMaterialId());
-
-        MaterialResponseDTO materialDTO = new MaterialResponseDTO();
-        materialDTO.setId(estoque.getMaterial().getId());
-        materialDTO.setNome(estoque.getMaterial().getNome());
-        materialDTO.setDescricao(estoque.getMaterial().getDescricao());
-        materialDTO.setUnidade(estoque.getMaterial().getUnidade());
-        Material material = new Material();
-        material.setId(estoque.getMaterial().getId());
-        dto.setMaterial(MaterialResponseDTO.fromEntity(estoque.getMaterial()));
-        dto.setQuantidade(estoque.getQuantidade());
-        dto.setPrecoMedio(estoque.getPrecoMedio());
-        dto.setValorTotal(estoque.getValorTotal());
-        return dto;
-    }
-
-    public List<Entrada> listarEntradas() {
-        return entradaRepository.findAll();
     }
 }

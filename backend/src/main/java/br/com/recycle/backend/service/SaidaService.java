@@ -6,8 +6,10 @@ import br.com.recycle.backend.model.Estoque;
 import br.com.recycle.backend.model.Material;
 import br.com.recycle.backend.model.Saida;
 import br.com.recycle.backend.repository.EstoqueRepository;
+import br.com.recycle.backend.repository.MaterialRepository;
 import br.com.recycle.backend.repository.SaidaRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -18,28 +20,38 @@ public class SaidaService {
 
     private final SaidaRepository saidaRepository;
     private final EstoqueRepository estoqueRepository;
+    private final MaterialRepository materialRepository;
 
-    public SaidaService(SaidaRepository saidaRepository, EstoqueRepository estoqueRepository) {
+    public SaidaService(SaidaRepository saidaRepository, EstoqueRepository estoqueRepository, MaterialRepository materialRepository) {
         this.saidaRepository = saidaRepository;
         this.estoqueRepository = estoqueRepository;
+        this.materialRepository = materialRepository;
     }
 
     @Transactional
     public SaidaResponseDTO registrarSaida(SaidaRequestDTO dto, Long usuarioId) {
+        Material material = materialRepository.findByIdAndUsuarioId(dto.getMaterialId(), usuarioId)
+                .orElseThrow(() -> new RuntimeException("Material não encontrado ou não pertence ao usuário"));
+
         Estoque estoque = estoqueRepository.findByMaterialIdAndMaterial_UsuarioId(dto.getMaterialId(), usuarioId)
-            .orElseThrow(() -> new RuntimeException("Estoque não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Estoque não encontrado"));
 
         if (estoque.getQuantidade() < dto.getQuantidade()) {
-            throw new RuntimeException("Quantidade insuficiente no estoque");
+            throw new RuntimeException("Quantidade insuficiente no estoque. Disponível: " + estoque.getQuantidade());
         }
 
-        estoque.setQuantidade(estoque.getQuantidade() - dto.getQuantidade());
+        Float novaQuantidade = estoque.getQuantidade() - dto.getQuantidade();
+        Float novoValorTotal = novaQuantidade * estoque.getPrecoMedio();
+
+        estoque.setQuantidade(novaQuantidade);
+        estoque.setValorTotal(novoValorTotal);
         estoqueRepository.save(estoque);
 
         Saida saida = new Saida();
         saida.setQuantidade(dto.getQuantidade());
         saida.setUsuarioId(usuarioId);
-        saida.setMaterial(estoque.getMaterial()); 
+        saida.setMaterial(material);
+        saida.setMaterialId(material.getId());
         saida.setEstoque(estoque);
 
         return SaidaResponseDTO.fromEntity(saidaRepository.save(saida));
@@ -47,16 +59,30 @@ public class SaidaService {
 
     @Transactional
     public List<SaidaResponseDTO> registrarSaidas(List<SaidaRequestDTO> dtos, Long usuarioId) {
-        return dtos.stream()
-                   .map(dto -> registrarSaida(dto, usuarioId))
-                   .collect(Collectors.toList());
+        // Validação inicial de todos os DTOs
+        for (SaidaRequestDTO dto : dtos) {
+            if (dto.getMaterialId() == null || dto.getQuantidade() == null || dto.getQuantidade() <= 0) {
+                throw new RuntimeException("Dados inválidos para registro de saída");
+            }
+
+            Material material = materialRepository.findByIdAndUsuarioId(dto.getMaterialId(), usuarioId)
+                    .orElseThrow(() -> new RuntimeException("Material não encontrado: " + dto.getMaterialId()));
+        }
+
+        List<SaidaResponseDTO> resultados = new ArrayList<>();
+        for (SaidaRequestDTO dto : dtos) {
+            SaidaResponseDTO resultado = registrarSaida(dto, usuarioId);
+            resultados.add(resultado);
+        }
+
+        return resultados;
     }
 
     @Transactional(readOnly = true)
     public List<SaidaResponseDTO> listarSaidas(Long usuarioId) {
         List<Saida> saidas = saidaRepository.findByUsuarioId(usuarioId);
         return saidas.stream()
-                     .map(SaidaResponseDTO::fromEntity)
-                     .collect(Collectors.toList());
+                .map(SaidaResponseDTO::fromEntity)
+                .collect(Collectors.toList());
     }
-} 
+}
