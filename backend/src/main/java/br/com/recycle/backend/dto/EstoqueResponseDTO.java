@@ -1,10 +1,6 @@
 package br.com.recycle.backend.dto;
 
-import java.util.List;
-
-import br.com.recycle.backend.model.Entrada;
 import br.com.recycle.backend.model.Estoque;
-import br.com.recycle.backend.model.Saida;
 
 public class EstoqueResponseDTO {
 
@@ -13,8 +9,6 @@ public class EstoqueResponseDTO {
     private Float quantidade;
     private Float precoMedio;
     private Float valorTotal;
-    private List<Entrada> entradas;
-    private List<Saida> saidas;
 
     public static EstoqueResponseDTO fromEntity(Estoque estoque) {
         EstoqueResponseDTO dto = new EstoqueResponseDTO();
@@ -24,8 +18,6 @@ public class EstoqueResponseDTO {
         dto.setQuantidade(estoque.getQuantidade());
         dto.setPrecoMedio(estoque.getPrecoMedio());
         dto.setValorTotal(estoque.getValorTotal());
-        dto.setEntradas(estoque.getEntradas());
-        dto.setSaidas(estoque.getSaidas());
 
         return dto;
     }
@@ -68,21 +60,5 @@ public class EstoqueResponseDTO {
 
     public void setValorTotal(Float valorTotal) {
         this.valorTotal = valorTotal;
-    }
-
-    public List<Entrada> getEntradas() {
-        return entradas;
-    }
-
-    public void setEntradas(List<Entrada> entradas) {
-        this.entradas = entradas;
-    }
-
-    public List<Saida> getSaidas() {
-        return saidas;
-    }
-
-    public void setSaidas(List<Saida> saidas) {
-        this.saidas = saidas;
     }
 }
