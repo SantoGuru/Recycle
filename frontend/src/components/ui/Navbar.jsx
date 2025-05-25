@@ -16,11 +16,11 @@ export default function Navbar() {
   };
 
   return (
-    <div className="flex justify-between items-center bg-blue-500 drop-shadow-xl p-1">
+    <div className="fixed top-0 left-0 z-50 w-[100%] flex justify-between items-center bg-blue-500 drop-shadow-xl p-1">
       {isLogged ? (
         <>
           <ul className="flex items-center gap-7 mr-5">
-            <Link className="my-2" to="/">
+            <Link className="my-2" to={isLogged ? "/dashboard" : "/"}>
               <span className="text-3xl text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.6)]">
                 Recycle
               </span>
@@ -31,7 +31,7 @@ export default function Navbar() {
                 Materiais
               </li>
             </Link>
-            <Link to="/">
+            <Link to="/stock">
               <li className="text-lg text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.3)]">
                 Estoque
               </li>

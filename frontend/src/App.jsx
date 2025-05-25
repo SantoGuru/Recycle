@@ -13,6 +13,7 @@ import PrivateRoute from "./components/routes/PrivateRoute";
 import PublicRoute from "./components/routes/PublicRoute";
 import LoaderDialog from "./components/ui/LoaderDialog";
 import Materials from "./pages/Materials";
+import Stock from "./pages/Stock";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,7 @@ const router = createBrowserRouter([
         children: [
           { path: "/dashboard", element: <Dashboard /> },
           { path: "/materials", element: <Materials /> },
+          { path: "/stock", element: <Stock /> },
           { path: "/entradaMaterial", element: <EntradaMaterial /> },
         ],
       },

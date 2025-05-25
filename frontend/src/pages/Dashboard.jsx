@@ -42,7 +42,6 @@ export default function Dashboard() {
         fetch("http://localhost:8080/api/dashboard/resumo", {
           method: "GET",
           headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
           },
         })
@@ -63,7 +62,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="mx-auto container px-8 py-4 m-5">
+    <div className="mx-auto container px-8 pt-26 m-5">
       <div className="mb-8">
         <h1 className="text-3xl font-bold py-2 text-gray-900">Dashboard</h1>
         <p className="text-gray-600">Bem-vindo ao sistema de controle de estoque</p>
