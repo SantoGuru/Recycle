@@ -5,7 +5,7 @@ export default function RootLayout() {
     return (
         <>
             <Navbar />
-            <main>
+            <main className="bg-slate-100">
                 <Outlet />
             </main>
         </>
