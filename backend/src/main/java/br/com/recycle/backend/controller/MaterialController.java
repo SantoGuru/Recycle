@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "Materiais", description = "Gerencia os materiais cadastrados pelo usuário")
 @SecurityRequirement(name = "bearerAuth")
@@ -190,8 +191,9 @@ public class MaterialController {
             content = @Content
         )
     })
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
+    public ResponseEntity<?> delete(
             @Parameter(description = "ID do material", required = true)
             @PathVariable Long id,
             HttpServletRequest request) {
@@ -199,6 +201,9 @@ public class MaterialController {
             Long usuarioId = (Long) request.getAttribute("usuarioId");
             materialService.delete(id, usuarioId);
             return ResponseEntity.ok().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
