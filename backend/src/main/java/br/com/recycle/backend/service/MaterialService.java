@@ -16,10 +16,12 @@ import java.util.stream.Collectors;
 public class MaterialService {
 
     private final MaterialRepository materialRepository;
+    private final EstoqueRepository estoqueRepository;
 
     @Autowired
-    public MaterialService(MaterialRepository materialRepository) {
+    public MaterialService(MaterialRepository materialRepository, EstoqueRepository estoqueRepository) {
         this.materialRepository = materialRepository;
+        this.estoqueRepository = estoqueRepository;
     }
 
     public MaterialResponseDTO criar(MaterialRequestDTO dto, Long usuarioId) {
@@ -72,9 +74,18 @@ public class MaterialService {
         return MaterialResponseDTO.fromEntity(materialAtualizado);
     }
 
-        public void delete(Long id, Long usuarioId) {
+    public void delete(Long id, Long usuarioId) {
         Material material = materialRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Material não encontrado ou você não tem permissão para excluí-lo"));
+
+        estoqueRepository.findByMaterialIdAndMaterial_UsuarioId(id, usuarioId)
+                .ifPresent(estoque -> {
+                    if (estoque.getQuantidade() > 0) {
+                        throw new IllegalStateException("Não é possível excluir este material pois ainda há " +
+                                estoque.getQuantidade() + "kg em estoque. Para excluir o material, primeiro retire todo o estoque através de saídas.");
+                    }
+                });
+
         materialRepository.delete(material);
     }
 }
