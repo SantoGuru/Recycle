@@ -1,12 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useAuth } from "../store/AuthContext";
 import { toast } from "react-toastify";
 
 
-export default function EntradaMaterial({ fecharModal }) {
-  const navigate = useNavigate();
-
+export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
   const { userData } = useAuth();
   const token = userData?.token;
 
@@ -34,7 +31,6 @@ export default function EntradaMaterial({ fecharModal }) {
 
     const todasMovimentacoes = [...movimentacoes, novaMovimentacao];
 
-    console.log("Movimentações:", todasMovimentacoes);
     try {
       const response = await fetch("http://localhost:8080/api/entradas", {
         method: "POST",
