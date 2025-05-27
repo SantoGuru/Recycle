@@ -68,12 +68,12 @@ export default function Stock() {
           ref={modalRefEntrada}
           fecharModal={fecharModalEntrada}
         >
-          <EntradaMaterial fecharModal={fecharModalEntrada} />
+          <EntradaMaterial fecharModal={fecharModalEntrada} atualizarEstoque={fetchStock} />
         </FormulariosModal>
       </div>
       <div className="py-7">
         <FormulariosModal ref={modalRefSaida} fecharModal={fecharModalSaida}>
-          <SaidaMaterial fecharModal={fecharModalSaida} />
+          <SaidaMaterial fecharModal={fecharModalSaida} atualizarEstoque={fetchStock}/>
         </FormulariosModal>
       </div>
       <main className="flex flex-col min-h-screen mx-auto items-center px-8 pt-26">
