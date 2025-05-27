@@ -42,7 +42,6 @@ export default function Dashboard() {
         fetch("http://localhost:8080/api/dashboard/resumo", {
           method: "GET",
           headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
           },
         })
@@ -63,7 +62,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="mx-auto container px-8 py-4 m-5">
+    <div className="mx-auto container px-8 pt-26 m-5">
       <div className="mb-8">
         <h1 className="text-3xl font-bold py-2 text-gray-900">Dashboard</h1>
         <p className="text-gray-600">Bem-vindo ao sistema de controle de estoque</p>
@@ -74,7 +73,7 @@ export default function Dashboard() {
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold text-gray-900">Total de Materiais</h2>
             <p className="mt-2 text-md font-bold text-gray-700">{totalMateriais}</p>
-            <Link to="/" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-700">
+            <Link to="/materials" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-700">
               Ver todos →</Link>
           </div>
         </div>
@@ -83,9 +82,9 @@ export default function Dashboard() {
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold text-gray-900">Valor Total em Estoque</h2>
             <p className="mt-2 text-md font-bold text-gray-700">
-              R$ {valorTotal !== undefined ? `R$ ${valorTotal.toFixed(2)}` : "R$ Erro ao carregar"}
+              {valorTotal !== undefined ? `R$ ${valorTotal.toFixed(2)}` : "Erro ao carregar"}
             </p>
-            <Link to="/" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-700">
+            <Link to="/stock" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-700">
               Ver todos →</Link>
           </div>
         </div>
@@ -94,7 +93,7 @@ export default function Dashboard() {
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold text-gray-900">Itens em Baixa</h2>
             <p className="mt-2 text-md font-bold text-gray-700">{materiaisComEstoqueBaixo}</p>
-            <Link to="/" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-700">
+            <Link to="/stock" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-700">
               Ver todos →</Link>
           </div>
         </div>
@@ -109,7 +108,7 @@ export default function Dashboard() {
 
         <div className="py-7">
           <FormulariosModal ref={modalRefEntrada} fecharModal={fecharModalEntrada}>
-            <EntradaMaterial fecharModal={fecharModalEntrada} />
+            <EntradaMaterial fecharModal={fecharModalEntrada} atualizarEstoque={carregarDados} />
           </FormulariosModal>
         </div>
 
@@ -121,7 +120,7 @@ export default function Dashboard() {
 
         <div className="py-7">
           <FormulariosModal ref={modalRefSaida} fecharModal={fecharModalSaida}>
-            <SaidaMaterial fecharModal={fecharModalSaida} />
+            <SaidaMaterial fecharModal={fecharModalSaida} atualizarEstoque={carregarDados}/>
           </FormulariosModal>
         </div>
       </div>

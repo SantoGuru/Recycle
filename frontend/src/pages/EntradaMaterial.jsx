@@ -23,7 +23,18 @@ export default function EntradaMaterial({ fecharModal }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Movimentações:", movimentacoes);
+
+    if (!materialSelecionado || materialSelecionado == 0 || !quantidade || !preco) return;
+
+    const novaMovimentacao = {
+      materialId: Number(materialSelecionado),
+      quantidade: parseFloat(quantidade),
+      preco: parseFloat(preco),
+    };
+
+    const todasMovimentacoes = [...movimentacoes, novaMovimentacao];
+
+    console.log("Movimentações:", todasMovimentacoes);
     try {
       const response = await fetch("http://localhost:8080/api/entradas", {
         method: "POST",
@@ -31,13 +42,23 @@ export default function EntradaMaterial({ fecharModal }) {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(movimentacoes)
+        body: JSON.stringify(todasMovimentacoes)
       });
 
       if (!response.ok) {
         toast.error("Erro ao enviar dados das movimentações!");
         throw new Error("Erro ao enviar dados das movimentações!");
       }
+
+      toast.success("Material registrado com sucesso!");
+
+      setMovimentacoes([]);
+      setMaterialSelecionado("");
+      setQuantidade("");
+      setPreco("");
+      atualizarEstoque();
+
+
     } catch (error) {
       toast.error(error.message || "Erro ao enviar dados das movimentações!");
     }
@@ -70,7 +91,7 @@ export default function EntradaMaterial({ fecharModal }) {
 
 
   const handleAddMovimentacao = () => {
-    if (!materialSelecionado || !quantidade || !preco) return;
+    if (!materialSelecionado || materialSelecionado == 0 || !quantidade || !preco) return;
 
     //const material = materials.find(m => m.id === parseInt(materialSelecionado));
 
@@ -85,8 +106,14 @@ export default function EntradaMaterial({ fecharModal }) {
     setMaterialSelecionado("");
     setQuantidade("");
     setPreco("");
-    
+
   };
+
+  const removerMovimentacao = (index) => {
+    const novasMovimentacoes = movimentacoes.filter((_, i) => i !== index);
+    setMovimentacoes(novasMovimentacoes);
+  };
+
 
   const handleCancel = () => {
     setMovimentacoes([]);
@@ -124,14 +151,23 @@ export default function EntradaMaterial({ fecharModal }) {
                       <td className="px-3 py-2">{material?.nome || 'Desconhecido'} {material?.unidade || '-'}</td>
                       <td className="px-3 py-2 text-right">{mov.quantidade}</td>
                       <td className="px-3 py-2 text-right"> {mov.preco.toFixed(2).replace('.', ',')}</td>
+                      <td className="px-3 py-2 text-center">
+                        <button
+                          type="button"
+                          className="text-red-500 hover:text-red-700 font-bold cursor-pointer"
+                          onClick={() => removerMovimentacao(index)}
+                        >
+                          ✕
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
               </tbody>
-
             </table>
           </div>
         )}
+
 
 
         <div className="grid grid-cols-3 gap-4">
@@ -142,16 +178,20 @@ export default function EntradaMaterial({ fecharModal }) {
               Material
             </label>
 
-            <select className="input-field bg-gray-300 mt-3 rounded"
+            <select
+              className="input-field bg-gray-300 mt-3 rounded"
               required
-              onChange={(e) => setMaterialSelecionado(e.target.value)}>
-              <option value={0}>Selecione um material</option>
+              value={materialSelecionado}
+              onChange={(e) => setMaterialSelecionado(e.target.value)}
+            >
+              <option value="">Selecione um material</option>
               {materials.map((material) => (
                 <option key={material.id} value={material.id}>
                   {material.nome} ({material.unidade})
                 </option>
               ))}
             </select>
+
           </div>
 
           <div className='flex flex-col'>
@@ -164,6 +204,7 @@ export default function EntradaMaterial({ fecharModal }) {
                 type="number"
                 className="input-field bg-gray-300 rounded text-right w-full mt-3"
                 placeholder="0"
+                value={quantidade}
                 onChange={(e) => setQuantidade(e.target.value)}
                 required
               />
@@ -178,8 +219,10 @@ export default function EntradaMaterial({ fecharModal }) {
 
               <input
                 type="number"
+                step="any"
                 className="input-field bg-gray-300 gray-300 rounded text-right w-full mt-3"
                 placeholder="0.0"
+                value={preco}
                 onChange={(e) => setPreco(e.target.value)}
                 required
               />

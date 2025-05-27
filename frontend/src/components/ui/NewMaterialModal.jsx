@@ -10,7 +10,7 @@ export default function NewMaterial({ fecharModal }) {
   const [formData, setFormData] = useState({
     nome: "",
     descricao: "",
-    unidade: "",
+    unidade: "un",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,7 +38,7 @@ export default function NewMaterial({ fecharModal }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -49,6 +49,7 @@ export default function NewMaterial({ fecharModal }) {
       }
 
       toast.success("Material registrado com sucesso!");
+      setFormData({ nome: "", descricao: "", unidade: "un" });
       fecharModal();
     } catch (error) {
       toast.error(error);
@@ -66,7 +67,14 @@ export default function NewMaterial({ fecharModal }) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-        <Input label="Nome" id="nome" type="text" onChange={handleFormChange} />
+        <Input
+          label="Nome"
+          maxLength="25"
+          id="nome"
+          type="text"
+          value={formData.nome}
+          onChange={handleFormChange}
+        />
         <label
           className="block text-sm font-medium text-gray-700 mb-1"
           htmlFor="descricao"
@@ -76,15 +84,32 @@ export default function NewMaterial({ fecharModal }) {
         <textarea
           id="descricao"
           name="descricao"
+          maxLength={100}
           onChange={handleFormChange}
+          value={formData.descricao}
           className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         />
-        <Input
-          label="Unidade"
+        <label
+          className="block text-sm font-medium text-gray-700 mb-1"
+          htmlFor="unidade"
+        >
+          Unidade
+        </label>
+        <select
           id="unidade"
-          type="text"
+          name="unidade"
           onChange={handleFormChange}
-        />
+          value={formData.unidade}
+          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="kg">kg</option>
+          <option value="g">g</option>
+          <option selected="selected" value="un">
+            un
+          </option>
+          <option value="l">l</option>
+          <option value="ml">ml</option>
+        </select>
 
         <div className="flex justify-end space-x-4 mt-6">
           <button
