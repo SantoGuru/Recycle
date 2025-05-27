@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import { useAuth } from "../store/AuthContext";
 import { toast } from "react-toastify";
-
 
 export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
   const { userData } = useAuth();
@@ -21,7 +20,13 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!materialSelecionado || materialSelecionado == 0 || !quantidade || !preco) return;
+    if (
+      !materialSelecionado ||
+      materialSelecionado == 0 ||
+      !quantidade ||
+      !preco
+    )
+      return;
 
     const novaMovimentacao = {
       materialId: Number(materialSelecionado),
@@ -36,9 +41,9 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(todasMovimentacoes)
+        body: JSON.stringify(todasMovimentacoes),
       });
 
       if (!response.ok) {
@@ -53,8 +58,6 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
       setQuantidade("");
       setPreco("");
       atualizarEstoque();
-
-
     } catch (error) {
       toast.error(error.message || "Erro ao enviar dados das movimentações!");
     }
@@ -68,7 +71,7 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -83,13 +86,12 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
     }
   }
 
-
-
-
+  const inputsEmpty =
+    !materialSelecionado || materialSelecionado == 0 || !quantidade || !preco || quantidade <= 0 || preco <= 0;
   const handleAddMovimentacao = () => {
-    if (!materialSelecionado || materialSelecionado == 0 || !quantidade || !preco) return;
+    if (inputsEmpty) return;
 
-    //const material = materials.find(m => m.id === parseInt(materialSelecionado));
+    // const material = materials.find(m => m.id === parseInt(materialSelecionado));
 
     const novaMovimentacao = {
       materialId: Number(materialSelecionado),
@@ -102,7 +104,6 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
     setMaterialSelecionado("");
     setQuantidade("");
     setPreco("");
-
   };
 
   const removerMovimentacao = (index) => {
@@ -110,27 +111,28 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
     setMovimentacoes(novasMovimentacoes);
   };
 
-
   const handleCancel = () => {
     setMovimentacoes([]);
     setMaterialSelecionado("");
     setQuantidade("");
     setPreco("");
-    fecharModal(); // fecha o modal após limpar
+    fecharModal();
   };
-
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="bg-blue-700 px-6 py-4">
-        <h1 className="text-2xl font-bold text-white">Registrar Entrada de Material</h1>
+        <h1 className="text-2xl font-bold text-white">
+          Registrar Entrada de Material
+        </h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-
         {movimentacoes.length > 0 && (
           <div className="overflow-x-auto border border-gray-300 rounded-md p-4 bg-white">
-            <h2 className="text-lg font-semibold mb-2">Movimentações adicionadas:</h2>
+            <h2 className="text-lg font-semibold mb-2">
+              Movimentações adicionadas:
+            </h2>
             <table className="w-full text-sm text-left">
               <thead className="bg-gray-200">
                 <tr>
@@ -141,12 +143,20 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
               </thead>
               <tbody>
                 {movimentacoes.map((mov, index) => {
-                  const material = materials.find(m => m.id === parseInt(mov.materialId));
+                  const material = materials.find(
+                    (m) => m.id === parseInt(mov.materialId)
+                  );
                   return (
                     <tr key={index} className="border-t">
-                      <td className="px-3 py-2">{material?.nome || 'Desconhecido'} {material?.unidade || '-'}</td>
+                      <td className="px-3 py-2">
+                        {material?.nome || "Desconhecido"}{" "}
+                        {material?.unidade || "-"}
+                      </td>
                       <td className="px-3 py-2 text-right">{mov.quantidade}</td>
-                      <td className="px-3 py-2 text-right"> {mov.preco.toFixed(2).replace('.', ',')}</td>
+                      <td className="px-3 py-2 text-right">
+                        {" "}
+                        {mov.preco.toFixed(2).replace(".", ",")}
+                      </td>
                       <td className="px-3 py-2 text-center">
                         <button
                           type="button"
@@ -164,15 +174,9 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
           </div>
         )}
 
-
-
         <div className="grid grid-cols-3 gap-4">
-
-          <div className='flex flex-col'>
-
-            <label className="form-label">
-              Material
-            </label>
+          <div className="flex flex-col">
+            <label className="form-label">Material</label>
 
             <select
               className="input-field bg-gray-300 mt-3 rounded"
@@ -187,39 +191,41 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
                 </option>
               ))}
             </select>
-
           </div>
 
-          <div className='flex flex-col'>
-
+          <div className="flex flex-col">
             <div>
-              <label className="form-label">
-                Quantidade
-              </label>
+              <label className="form-label">Quantidade</label>
               <input
                 type="number"
                 className="input-field bg-gray-300 rounded text-right w-full mt-3"
                 placeholder="0"
+                min={0}
                 value={quantidade}
-                onChange={(e) => setQuantidade(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === "" || Number(value) >= 0) setQuantidade(value);
+                }}
                 required
               />
             </div>
           </div>
 
-          <div className='flex flex-col'>
+          <div className="flex flex-col">
             <div>
-              <label className="form-label">
-                Preço Unitário (R$)
-              </label>
+              <label className="form-label">Preço Unitário (R$)</label>
 
               <input
                 type="number"
                 step="any"
+                min={0}
                 className="input-field bg-gray-300 gray-300 rounded text-right w-full mt-3"
                 placeholder="0.0"
                 value={preco}
-                onChange={(e) => setPreco(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === "" || Number(value) >= 0) setPreco(value);
+                }}
                 required
               />
             </div>
@@ -229,23 +235,35 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
         <div className="flex justify-end my-4">
           <button
             type="button"
+            disabled={inputsEmpty}
             onClick={handleAddMovimentacao}
-            className="text-blue-600 hover:text-blue-800 cursor-pointer font-medium"
+            className={
+              (inputsEmpty
+                ? "text-blue-300"
+                : "text-blue-600 hover:text-blue-800 cursor-pointer") +
+              " font-medium"
+            }
           >
             + Adicionar mais uma movimentação
           </button>
         </div>
 
         <div className="flex justify-end space-x-4 mt-6">
-          <button type="button" className="bg-red-500 hover:bg-red-600 cursor-pointer rounded px-4 py-2 text-white" onClick={handleCancel}>
+          <button
+            type="button"
+            className="bg-red-500 hover:bg-red-600 cursor-pointer rounded px-4 py-2 text-white"
+            onClick={handleCancel}
+          >
             Cancelar
           </button>
-          <button type="submit" className="bg-blue-600 hover:bg-blue-700 cursor-pointer rounded px-4 py-2 text-white">
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 cursor-pointer rounded px-4 py-2 text-white"
+          >
             Registrar
           </button>
         </div>
-
       </form>
     </div>
   );
-};
+}
