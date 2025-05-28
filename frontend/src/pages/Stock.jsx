@@ -5,6 +5,7 @@ import { Minus, Plus } from "lucide-react";
 import FormulariosModal from "../components/FormulariosModal";
 import SaidaMaterial from "./SaidaMaterial";
 import EntradaMaterial from "./EntradaMaterial";
+import converterParaReal from "../helpers/convert-real";
 
 export default function Stock() {
   const { userData } = useAuth();
@@ -92,7 +93,7 @@ export default function Stock() {
           <div className="p-7 bg-white w-full rounded-sm drop-shadow-xl space-y-3">
             <h2 className="font-semibold">Resumo do Estoque</h2>
             <p className="font-bold text-xl">
-              Valor Total: R$ {total.toFixed(2)}
+              Valor Total: R$ {converterParaReal(total)}
             </p>
           </div>
 
@@ -129,10 +130,10 @@ export default function Stock() {
                         {item.material.unidade}
                       </td>
                       <td className="p-3 text-end text-gray-800">
-                        R$ {item.precoMedio.toFixed(2)}
+                        R$ {converterParaReal(item.precoMedio)}
                       </td>
                       <td className="p-3 text-end text-gray-800">
-                        R$ {item.valorTotal.toFixed(2)}
+                        R$ {converterParaReal(item.valorTotal)}
                       </td>
                     </tr>
                   ))
@@ -149,7 +150,7 @@ export default function Stock() {
               </tbody>
             </table>
             <p className="p-2 text-end font-semibold text-sm">
-              Valor Total: R$ {total.toFixed(2)}
+              Valor Total: R$ {converterParaReal(total)}
             </p>
           </div>
         </section>

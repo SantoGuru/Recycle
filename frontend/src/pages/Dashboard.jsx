@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import FormulariosModal from "../components/FormulariosModal";
 import EntradaMaterial from "./EntradaMaterial";
 import SaidaMaterial from "./SaidaMaterial";
+import converterParaReal from "../helpers/convert-real";
 
 export default function Dashboard() {
   const { userData } = useAuth();
@@ -82,7 +83,7 @@ export default function Dashboard() {
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold text-gray-900">Valor Total em Estoque</h2>
             <p className="mt-2 text-md font-bold text-gray-700">
-              {valorTotal !== undefined ? `R$ ${valorTotal.toFixed(2)}` : "Erro ao carregar"}
+              {valorTotal !== undefined ? `R$ ${converterParaReal(valorTotal)}` : "Erro ao carregar"}
             </p>
             <Link to="/stock" className="mt-4 inline-block text-sm text-blue-600 hover:text-blue-700">
               Ver todos →</Link>
