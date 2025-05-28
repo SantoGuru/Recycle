@@ -12,7 +12,7 @@ import { AuthContextProvider } from "./store/AuthContext";
 import PrivateRoute from "./components/routes/PrivateRoute";
 import PublicRoute from "./components/routes/PublicRoute";
 import LoaderDialog from "./components/ui/LoaderDialog";
-import Materials from "./pages/Materials";
+import Materials from "./pages/Material/Materials";
 import Stock from "./pages/Stock";
 
 const router = createBrowserRouter([

@@ -58,6 +58,7 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
       setQuantidade("");
       setPreco("");
       atualizarEstoque();
+      fecharModal();
     } catch (error) {
       toast.error(error.message || "Erro ao enviar dados das movimentações!");
     }

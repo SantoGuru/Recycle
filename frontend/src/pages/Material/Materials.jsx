@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import FormulariosModal from "../components/FormulariosModal";
-import NewMaterial from "../components/ui/NewMaterialModal";
-import { useAuth } from "../store/AuthContext";
+import FormulariosModal from "../../components/FormulariosModal";
+import NewMaterial from "./NewMaterialModal";
+import { useAuth } from "../../store/AuthContext";
 import { toast } from "react-toastify";
-import EditMaterial from "../components/ui/EditMaterial";
+import EditMaterial from "./EditMaterial";
 import { Plus } from "lucide-react";
+import ConfirmMaterialDelete from "./ConfirmMaterialDelete";
 
 export default function Materials() {
   const { userData } = useAuth();
@@ -13,7 +14,9 @@ export default function Materials() {
   const [materials, setMaterials] = useState([]);
   const [selectedMaterialId, setSelectedMaterialId] = useState(null);
   const editMaterialModal = useRef();
-
+  const newMaterialModal = useRef();
+  const confirmarExclusaoModal = useRef();
+  
   async function fetchMaterials() {
     if (!token) return;
 
@@ -69,7 +72,6 @@ export default function Materials() {
   useEffect(() => {
     fetchMaterials();
   }, [token]);
-  const newMaterialModal = useRef();
 
   const fecharModal = () => {
     newMaterialModal.current?.close();
@@ -91,6 +93,24 @@ export default function Materials() {
     fetchMaterials();
   };
 
+  const abrirModalConfirmacao = (materialId) => {
+    setSelectedMaterialId(materialId);
+    confirmarExclusaoModal.current?.open();
+  }
+
+  const fecharModalConfirmacao = () => {
+    confirmarExclusaoModal.current?.close();
+  }
+  
+  const confirmarExclusao = () => {
+    if (selectedMaterialId) {
+      deleteMaterial(selectedMaterialId);
+      setSelectedMaterialId(null);
+      fecharModalConfirmacao();
+    }
+  }
+
+
   return (
     <>
       <FormulariosModal ref={newMaterialModal} fecharModal={fecharModal}>
@@ -101,6 +121,13 @@ export default function Materials() {
         <EditMaterial
           fecharModal={fecharModalEditar}
           materialId={selectedMaterialId}
+        />
+      </FormulariosModal>
+      
+      <FormulariosModal ref={confirmarExclusaoModal} fecharModal={fecharModalConfirmacao}>
+        <ConfirmMaterialDelete 
+          onConfirm={confirmarExclusao}
+          onCancel={fecharModalConfirmacao}
         />
       </FormulariosModal>
 
@@ -157,7 +184,7 @@ export default function Materials() {
                         </button>
                         <button
                           className="px-2 py-1 rounded-sm bg-red-500 text-white hover:bg-red-700"
-                          onClick={() => deleteMaterial(material.id)}
+                          onClick={() => abrirModalConfirmacao(material.id)}
                         >
                           Excluir
                         </button>
