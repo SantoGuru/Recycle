@@ -79,6 +79,10 @@ export default function EditMaterial({ fecharModal, materialId }) {
         }
       );
 
+      if (response.status === 403) {
+        toast.error("Material já registrado!");
+      }
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Erro ao editar material.");
