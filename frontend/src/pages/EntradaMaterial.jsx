@@ -175,12 +175,12 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="flex flex-col">
             <label className="form-label">Material</label>
 
             <select
-              className="input-field bg-gray-300 mt-3 rounded"
+              className="input-field bg-gray-100 mt-3 rounded drop-shadow-md"
               required
               value={materialSelecionado}
               onChange={(e) => setMaterialSelecionado(e.target.value)}
@@ -199,7 +199,7 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
               <label className="form-label">Quantidade</label>
               <input
                 type="number"
-                className="input-field bg-gray-300 rounded text-right w-full mt-3"
+                className="input-field bg-gray-100 rounded text-right w-full mt-3 drop-shadow-md"
                 placeholder="0"
                 min={0}
                 value={quantidade}
@@ -220,7 +220,7 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
                 type="number"
                 step="any"
                 min={0}
-                className="input-field bg-gray-300 gray-300 rounded text-right w-full mt-3"
+                className="input-field bg-gray-100 gray-100 rounded text-right w-full mt-3 drop-shadow-md"
                 placeholder="0.0"
                 value={preco}
                 onChange={(e) => {
