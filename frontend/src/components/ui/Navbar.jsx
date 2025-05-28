@@ -16,7 +16,7 @@ export default function Navbar() {
   };
 
   return (
-    <div className="fixed top-0 left-0 z-50 w-[100%] flex justify-between items-center bg-blue-500 drop-shadow-xl p-1">
+    <div className="fixed top-0 left-0 z-50 w-[100%] flex justify-between items-center bg-blue-500 drop-shadow-xl py-1 px-5">
       {isLogged ? (
         <>
           <ul className="flex items-center gap-7 mr-5">
