@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import  { useEffect, useRef, useState } from "react";
 import { useAuth } from "../store/AuthContext";
 import { Link } from 'react-router-dom';
 import FormulariosModal from "../components/FormulariosModal";
@@ -10,11 +10,9 @@ export default function Dashboard() {
   const { userData } = useAuth();
   const token = userData?.token;
 
-  // Modal
   const modalRefEntrada = useRef();
   const modalRefSaida = useRef();
 
-  // Funções para abrir e fechar o modal
   const abrirModalEntrada = () => {
     modalRefEntrada.current?.open();
   };
