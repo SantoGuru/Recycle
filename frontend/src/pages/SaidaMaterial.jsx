@@ -44,10 +44,6 @@ export default function SaidaMaterial({ fecharModal, atualizarEstoque }) {
 
     if (!materialSelecionado || !quantidade) return;
 
-    const material = materials.find(
-      (m) => m.id === parseInt(materialSelecionado)
-    );
-
     if (!materialSelecionado || materialSelecionado == 0 || !quantidade) return;
 
     const novaMovimentacao = {
@@ -78,6 +74,7 @@ export default function SaidaMaterial({ fecharModal, atualizarEstoque }) {
       setMaterialSelecionado("");
       setQuantidade("");
       atualizarEstoque();
+      fecharModal();
     } catch (error) {
       toast.error(error.message || "Erro ao enviar dados das movimentações!");
     }
