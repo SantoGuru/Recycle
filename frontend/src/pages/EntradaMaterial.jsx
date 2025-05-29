@@ -47,7 +47,6 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
       });
 
       if (!response.ok) {
-        toast.error("Erro ao enviar dados das movimentações!");
         throw new Error("Erro ao enviar dados das movimentações!");
       }
 
@@ -199,6 +198,7 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
               <label className="form-label">Quantidade</label>
               <input
                 type="number"
+                step="any"
                 className="input-field bg-gray-100 rounded text-right w-full mt-3 drop-shadow-md"
                 placeholder="0"
                 min={0}
