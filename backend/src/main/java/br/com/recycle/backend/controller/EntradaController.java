@@ -9,11 +9,15 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,9 +57,12 @@ public class EntradaController {
     })
     @PostMapping
     public ResponseEntity<List<EstoqueResponseDTO>> registrarEntrada(
-            @RequestBody List<EntradaRequestDTO> entradas,
-            HttpServletRequest request) {
-        Long usuarioId = (Long) request.getAttribute("usuarioId");
+            @Parameter(description = "Lista de entradas a serem registradas", required = true)
+            @Valid @RequestBody List<EntradaRequestDTO> entradas,
+            @Parameter(hidden = true) @AuthenticationPrincipal Long usuarioId) {
+        if (usuarioId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         List<EstoqueResponseDTO> resultados = entradaService.registrarEntradas(entradas, usuarioId);
         return ResponseEntity.status(HttpStatus.CREATED).body(resultados);
     }
@@ -77,9 +84,15 @@ public class EntradaController {
         )
     })
     @GetMapping
-    public ResponseEntity<List<EntradaResponseDTO>> listarEntradas(HttpServletRequest request) {
-        Long usuarioId = (Long) request.getAttribute("usuarioId");
+    public ResponseEntity<List<EntradaResponseDTO>> listarEntradas(
+        @Parameter(hidden = true) @AuthenticationPrincipal Long usuarioId) {
+        if (usuarioId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         List<EntradaResponseDTO> entradas = entradaService.listarEntradas(usuarioId);
+        if (entradas.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(entradas);
     }
 }
