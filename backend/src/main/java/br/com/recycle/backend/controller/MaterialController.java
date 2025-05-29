@@ -200,12 +200,21 @@ public class MaterialController {
         try {
             Long usuarioId = (Long) request.getAttribute("usuarioId");
             materialService.delete(id, usuarioId);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok()
+                    .body(Map.of("message", "Material deletado com sucesso!"));
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            System.out.println("Erro ao deletar material: " + e.getMessage());
+            e.printStackTrace();
+
+            if (e.getMessage().contains("não encontrado") || e.getMessage().contains("não tem permissão")) {
+                return ResponseEntity.notFound().build();
+            } else {
+                return ResponseEntity.status(500)
+                        .body(Map.of("error", "Erro interno: " + e.getMessage()));
+            }
         }
     }
 }

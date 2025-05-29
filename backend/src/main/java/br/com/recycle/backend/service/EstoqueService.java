@@ -24,7 +24,7 @@ public class EstoqueService {
     public EstoqueResponseDTO buscarPorId(Long id, Long usuarioId) {
 
         Estoque estoque = estoqueRepository.findByMaterialIdAndMaterial_UsuarioId(id, usuarioId)
-                .orElseThrow(() -> new RuntimeException("Não foi possível encontrar o estoque com o id informado"));	
+                .orElseThrow(() -> new RuntimeException("Não foi possível encontrar o estoque com o id informado"));
 
         return EstoqueResponseDTO.fromEntity(estoque);
     }
@@ -34,6 +34,7 @@ public class EstoqueService {
         List<Estoque> estoques = estoqueRepository.findAllByMaterial_UsuarioId(usuarioId);
 
         return estoques.stream()
+                .filter(estoque -> estoque.getQuantidade() > 0) // FILTRO ADICIONADO AQUI
                 .map(EstoqueResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
