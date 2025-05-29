@@ -2,14 +2,20 @@ package br.com.recycle.backend.service;
 
 import br.com.recycle.backend.dto.MaterialRequestDTO;
 import br.com.recycle.backend.dto.MaterialResponseDTO;
+import br.com.recycle.backend.model.Entrada;
 import br.com.recycle.backend.model.Estoque;
 import br.com.recycle.backend.model.Material;
+import br.com.recycle.backend.model.Saida;
+import br.com.recycle.backend.repository.EntradaRepository;
 import br.com.recycle.backend.repository.EstoqueRepository;
 import br.com.recycle.backend.repository.MaterialRepository;
+import br.com.recycle.backend.repository.SaidaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,11 +23,18 @@ public class MaterialService {
 
     private final MaterialRepository materialRepository;
     private final EstoqueRepository estoqueRepository;
+    private final EntradaRepository entradaRepository;
+    private final SaidaRepository saidaRepository;
 
     @Autowired
-    public MaterialService(MaterialRepository materialRepository, EstoqueRepository estoqueRepository) {
+    public MaterialService(MaterialRepository materialRepository,
+                           EstoqueRepository estoqueRepository,
+                           EntradaRepository entradaRepository,
+                           SaidaRepository saidaRepository) {
         this.materialRepository = materialRepository;
         this.estoqueRepository = estoqueRepository;
+        this.entradaRepository = entradaRepository;
+        this.saidaRepository = saidaRepository;
     }
 
     public MaterialResponseDTO criar(MaterialRequestDTO dto, Long usuarioId) {
@@ -74,17 +87,30 @@ public class MaterialService {
         return MaterialResponseDTO.fromEntity(materialAtualizado);
     }
 
+    @Transactional
     public void delete(Long id, Long usuarioId) {
         Material material = materialRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Material não encontrado ou você não tem permissão para excluí-lo"));
 
-        estoqueRepository.findByMaterialIdAndMaterial_UsuarioId(id, usuarioId)
-                .ifPresent(estoque -> {
-                    if (estoque.getQuantidade() > 0) {
-                        throw new IllegalStateException("Não é possível excluir este material pois ainda há " +
-                                estoque.getQuantidade() + "kg em estoque. Para excluir o material, primeiro retire todo o estoque através de saídas.");
-                    }
-                });
+        Optional<Estoque> estoqueOpt = estoqueRepository.findByMaterialIdAndMaterial_UsuarioId(id, usuarioId);
+        if (estoqueOpt.isPresent() && estoqueOpt.get().getQuantidade() > 0) {
+            throw new IllegalStateException("Não é possível excluir este material pois ainda há " +
+                    estoqueOpt.get().getQuantidade() + "kg em estoque. Para excluir o material, primeiro retire todo o estoque através de saídas.");
+        }
+
+        List<Entrada> entradas = entradaRepository.findByMaterialId(id);
+        if (!entradas.isEmpty()) {
+            entradaRepository.deleteAll(entradas);
+        }
+
+        List<Saida> saidas = saidaRepository.findByMaterialId(id);
+        if (!saidas.isEmpty()) {
+            saidaRepository.deleteAll(saidas);
+        }
+
+        if (estoqueOpt.isPresent()) {
+            estoqueRepository.delete(estoqueOpt.get());
+        }
 
         materialRepository.delete(material);
     }
