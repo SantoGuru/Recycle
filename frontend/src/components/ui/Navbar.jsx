@@ -39,7 +39,7 @@ export default function Navbar() {
           </ul>
           <button
             onClick={handleLogout}
-            className="mr-5 bg-gray-100 text-blue-500 hover:bg-gray-300 px-3 py-1 rounded drop-shadow-md"
+            className="cursor-pointer mr-5 bg-gray-100 text-blue-500 hover:bg-gray-300 px-3 py-1 rounded drop-shadow-md"
           >
             Sair
           </button>
@@ -47,7 +47,7 @@ export default function Navbar() {
       ) : (
         <>
           <Link to="/">
-            <span className="text-3xl text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.6)]">
+            <span className="cursor-pointer text-3xl text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.6)]">
               Recycle
             </span>
           </Link>

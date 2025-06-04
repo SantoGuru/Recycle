@@ -82,10 +82,10 @@ export default function Stock() {
           <div className="flex flex-col md:flex-row justify-between my-8">
             <h1 className="font-semibold text-2xl">Controle de Estoque</h1>
             <div className="flex gap-2 mt-2">
-              <button onClick={abrirModalEntrada} className="flex gap-2 p-3 bg-blue-500 text-white rounded-md hover:bg-blue-700">
+              <button onClick={abrirModalEntrada} className="cursor-pointer flex gap-2 p-3 bg-blue-500 text-white rounded-md hover:bg-blue-700">
                 <Plus /> Adicionar Entrada
               </button>
-              <button onClick={abrirModalSaida} className="flex gap-2 p-3 bg-red-500 text-white rounded-md hover:bg-red-700">
+              <button onClick={abrirModalSaida} className="cursor-pointer flex gap-2 p-3 bg-red-500 text-white rounded-md hover:bg-red-700">
                 <Minus /> Adicionar Saída
               </button>
             </div>

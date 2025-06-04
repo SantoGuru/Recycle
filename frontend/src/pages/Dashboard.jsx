@@ -99,7 +99,7 @@ export default function Dashboard() {
       </div>
 
       <div className="mt-5 flex flex-col md:flex-row gap-3 md:justify-end mx-auto">
-        <button onClick={abrirModalEntrada} className="flex items-center justify-center">
+        <button onClick={abrirModalEntrada} className="flex items-center justify-center cursor-pointer">
           <div className="flex justify-center items-center w-64 text-white p-5 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors">
             <h3 className="text-lg font-semibold  ">Registrar Entrada</h3>
           </div>

@@ -6,13 +6,13 @@ export default function ConfirmMaterialDelete({ onConfirm, onCancel }) {
       </p>
       <div className="flex gap-4">
         <button
-          className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded"
+          className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded cursor-pointer"
           onClick={onConfirm}
         >
           Confirmar
         </button>
         <button
-          className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
+          className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded cursor-pointer"
           onClick={onCancel}
         >
           Cancelar
