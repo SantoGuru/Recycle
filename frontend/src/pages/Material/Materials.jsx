@@ -137,7 +137,7 @@ export default function Materials() {
             <h1 className="font-semibold text-2xl">Materiais</h1>
             <button
               onClick={abrirModal}
-              className="flex gap-2 p-3 bg-blue-500 text-white rounded-md hover:bg-blue-700"
+              className="flex gap-2 p-3 bg-blue-500 text-white rounded-md hover:bg-blue-700 cursor-pointer"
             >
               <Plus />
               Adicionar Material
@@ -177,13 +177,13 @@ export default function Materials() {
                       <td className="p-3 text-gray-800">{material.unidade}</td>
                       <td className="flex flex-col sm:flex-row p-3 text-start gap-2">
                         <button
-                          className="px-2 py-1 rounded-sm bg-blue-500 text-white hover:bg-blue-700"
+                          className="px-2 py-1 rounded-sm bg-blue-500 text-white hover:bg-blue-700 cursor-pointer"
                           onClick={() => abrirModalEditar(material.id)}
                         >
                           Editar
                         </button>
                         <button
-                          className="px-2 py-1 rounded-sm bg-red-500 text-white hover:bg-red-700"
+                          className="px-2 py-1 rounded-sm bg-red-500 text-white hover:bg-red-700 cursor-pointer"
                           onClick={() => abrirModalConfirmacao(material.id)}
                         >
                           Excluir
