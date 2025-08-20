@@ -22,11 +22,9 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        # Informa à ação onde encontrar o package-lock.json para o cache
         cache-dependency-path: frontend/package-lock.json
 
     - name: Install Dependencies
-      # Define o diretório de trabalho para este e os próximos passos
       working-directory: ./frontend
       run: npm ci
 
