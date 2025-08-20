@@ -1,0 +1,51 @@
+# --------------------------------------------------------------------
+
+# Regras de Propriedade do Código
+
+#
+
+# Este arquivo define quem são os revisores padrão para cada parte
+
+# do projeto. As descrições ajudam a entender o papel de cada pessoa.
+
+# --------------------------------------------------------------------
+
+
+
+# RESPONSABILIDADE DOS OWNERS
+
+# @SantoGuru -> Project Manager (PM) e Dev Full Stack (foco no backend), responsável pelas alterações no backend, governança do projeto e CI/CD.
+
+# @waltherpires -> Product Owner (PO) e Dev Full Stack (foco no frontend), responsável pelas alterações no frontend e alterações de dependências/arquitetura
+
+# @EVANGLarissa -> Dev frontend, responsável pela documentação técnica e de processos.
+
+
+
+# Arquivos de governança e documentação principal
+
+/CONTRIBUTING.md @SantoGuru
+
+/README.md @SantoGuru
+
+
+
+# .gitignore será gerenciado tanto pelo PO quanto pelo PM
+
+/.gitignore @SantoGuru @waltherpires
+
+
+
+# --- Código Fonte e Documentação ---
+
+/frontend/ @waltherpires
+
+/backend/ @SantoGuru
+
+/docs/ @EVANGLarissa
+
+
+
+# --- Configurações do Repositório ---
+
+/.github/ @SantoGuru
