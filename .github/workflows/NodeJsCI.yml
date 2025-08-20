@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -17,10 +16,20 @@ jobs:
         
     steps:
     - uses: actions/checkout@v4
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: Run cd ./frontend && npm ci
-    - run: Run cd ./frontend && npm run build --if-present
+        # Informa à ação onde encontrar o package-lock.json para o cache
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install Dependencies
+      # Define o diretório de trabalho para este e os próximos passos
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Build Project
+      working-directory: ./frontend
+      run: npm run build --if-present
