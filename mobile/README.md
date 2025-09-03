@@ -1,5 +1,3 @@
-Beleza, aqui está no formato de um **README.md** pronto para colocar no repositório:
-
 ````markdown
 # 📱 Guia de Inicialização do Projeto Mobile
 
