@@ -3,6 +3,7 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 
 import { TextInput } from 'react-native-paper';
 
+import { loginFunction } from '../../http';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -24,11 +25,18 @@ export default function LoginScreen() {
     setLoading(true);
     setMessage('');
     setMessageType('');
+
+    const result = await loginFunction(email, senha);
+
+    if (result.success) {
+      setMessage('Login realizado com sucesso!');
+      setMessageType('success');
+    } else {
+      setMessage(`Erro: ${result.error}`);
+      setMessageType('error');
+    }
     setLoading(false);
   };
-
-
-
 
   return (
     <View style={styles.container}>
