@@ -31,10 +31,11 @@ export default function LoginScreen() {
 
 
   return (
-    <View>
-      <Text>Login</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Login</Text>
 
       <TextInput
+        style={styles.input}
         placeholder="Email"
         placeholderTextColor="#ccc"
         value={email}
@@ -44,6 +45,7 @@ export default function LoginScreen() {
       />
 
       <TextInput
+        style={styles.input}
         placeholder="Senha"
         placeholderTextColor="#ccc"
         value={senha}
@@ -64,7 +66,52 @@ export default function LoginScreen() {
         disabled={loading}
       />
 
+      {message ? (
+        <Text
+          style={[
+            styles.message,
+            messageType === 'success' ? styles.success : styles.error,
+          ]}
+        >
+          {message}
+        </Text>
+      ) : null}
     </View>
   );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    backgroundColor: '#000',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 40,
+    textAlign: 'center',
+    color: '#fff',
+  },
+  input: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#999',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    marginBottom: 20,
+    color: '#fff',
+  },
+  message: {
+    marginTop: 20,
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  success: {
+    color: 'green',
+  },
+  error: {
+    color: 'red',
+  },
+});
