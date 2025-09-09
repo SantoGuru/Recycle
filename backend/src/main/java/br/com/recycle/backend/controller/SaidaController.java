@@ -1,12 +1,17 @@
 package br.com.recycle.backend.controller;
 
 import br.com.recycle.backend.dto.EntradaRequestDTO;
+import br.com.recycle.backend.dto.EntradaResponseDTO;
 import br.com.recycle.backend.dto.EstoqueResponseDTO;
 import br.com.recycle.backend.dto.SaidaRequestDTO;
 import br.com.recycle.backend.dto.SaidaResponseDTO;
 import br.com.recycle.backend.service.SaidaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -32,7 +37,24 @@ public class SaidaController {
      @Operation(
         summary = "Registrar saída(s) de material",
         description = "Registra uma ou mais saídas de materiais para o usuário autenticado"
-    )
+    		 )
+     		@ApiResponses(value = {
+     				@ApiResponse(
+     						responseCode = "200",
+     						description = "Sáida registrada com sucesso",
+     						content = @Content(schema = @Schema(implementation = SaidaResponseDTO.class))
+     					),
+     				@ApiResponse(
+     			            responseCode = "400",
+     			            description = "Dados inválidos",
+     			            content = @Content
+     			    ),
+     				@ApiResponse(
+     						responseCode = "401",
+     						description = "Não autorizado",
+     						content = @Content)  				
+     				
+     		})
 
  @PostMapping
     public ResponseEntity<List<SaidaResponseDTO>> registrarSaida(
@@ -46,10 +68,22 @@ public class SaidaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(resultados);
     }
   
-    @Operation(
-        summary = "Listar saídas",
-        description = "Retorna todas as saídas registradas pelo usuário"
-    )
+     @Operation(
+    	        summary = "Listar todas as saídas do usuário",
+    	        description = "Retorna uma lista com todas as saídas registradas pelo usuário autenticado"
+    	    )
+    	    @ApiResponses(value = {
+    	        @ApiResponse(
+    	            responseCode = "200",
+    	            description = "Saídas listadas com sucesso",
+    	            content = @Content(schema = @Schema(implementation = SaidaResponseDTO.class))
+    	        ),
+    	        @ApiResponse(
+    	            responseCode = "401",
+    	            description = "Não autorizado",
+    	            content = @Content
+    	        )
+    	    })
 
     @GetMapping
     public ResponseEntity<List<SaidaResponseDTO>> listarSaidas(
