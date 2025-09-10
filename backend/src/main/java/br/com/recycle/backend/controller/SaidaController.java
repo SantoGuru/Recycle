@@ -40,7 +40,7 @@ public class SaidaController {
     		 )
      		@ApiResponses(value = {
      				@ApiResponse(
-     						responseCode = "200",
+     						responseCode = "201",
      						description = "Sáida registrada com sucesso",
      						content = @Content(schema = @Schema(implementation = SaidaResponseDTO.class))
      					),
