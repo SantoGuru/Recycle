@@ -25,6 +25,10 @@ public class Usuario {
     @Column(nullable = false)
     private String nome;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
     @CreationTimestamp
     @Column(name = "data_criacao")
     private LocalDateTime dataCriacao;
@@ -32,4 +36,8 @@ public class Usuario {
     @UpdateTimestamp
     @Column(name = "data_atualizacao")
     private LocalDateTime dataAtualizacao;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "empresa_id", nullable = false)
+    private Empresa empresa;
 }
