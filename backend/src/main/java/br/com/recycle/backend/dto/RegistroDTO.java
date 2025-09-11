@@ -22,6 +22,12 @@ public class RegistroDTO {
         regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).*$",
         message = "A senha deve conter pelo menos uma letra maiúscula, uma minúscula e um dígito."
     )
+
+    private String nomeFantasia;
+
+    private String cnpj;
+
+
     private String senha;
 
     public String getNome() {
@@ -47,4 +53,21 @@ public class RegistroDTO {
     public void setSenha(String senha) {
         this.senha = senha;
     }
+
+    public String getNomeFantasia() {
+        return nomeFantasia;
+    }
+
+    public void setNomeFantasia(String nomeFantasia) {
+        this.nomeFantasia = nomeFantasia;
+    }
+
+    public String getCnpj() {
+        return cnpj;
+    }
+
+    public void setCnpj(String cnpj) {
+        this.cnpj = cnpj;
+    }
+
 }
