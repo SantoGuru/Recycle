@@ -3,7 +3,10 @@ package br.com.recycle.backend.service;
 import br.com.recycle.backend.dto.LoginDTO;
 import br.com.recycle.backend.dto.RegistroDTO;
 import br.com.recycle.backend.dto.TokenDTO;
+import br.com.recycle.backend.model.Empresa;
+import br.com.recycle.backend.model.Role;
 import br.com.recycle.backend.model.Usuario;
+import br.com.recycle.backend.repository.EmpresaRepository;
 import br.com.recycle.backend.repository.UsuarioRepository;
 import br.com.recycle.backend.security.JwtTokenProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,13 +22,16 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final CustomUserDetailsService userDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final EmpresaRepository empresaRepository;
 
     public AuthService(
             UsuarioRepository usuarioRepository,
+            EmpresaRepository empresaRepository,
             PasswordEncoder passwordEncoder,
             CustomUserDetailsService userDetailsService,
             JwtTokenProvider jwtTokenProvider) {
         this.usuarioRepository = usuarioRepository;
+        this.empresaRepository = empresaRepository;
         this.passwordEncoder = passwordEncoder;
         this.userDetailsService = userDetailsService;
         this.jwtTokenProvider = jwtTokenProvider;
@@ -57,10 +63,23 @@ public class AuthService {
             throw new RuntimeException("Email já cadastrado");
         }
 
+        Empresa empresa = empresaRepository.findByCnpj(registroDTO.getCnpj())
+                .orElseGet(() -> {
+                    if (registroDTO.getNomeFantasia() == null || registroDTO.getNomeFantasia().isBlank()) {
+                        throw new IllegalArgumentException("O nome fantasia é obrigatório para cadastrar uma nova empresa.");
+                    }
+                    Empresa novaEmpresa = new Empresa();
+                    novaEmpresa.setCnpj(registroDTO.getCnpj());
+                    novaEmpresa.setNomeFantasia(registroDTO.getNomeFantasia());
+                    return empresaRepository.save(novaEmpresa);
+                });
+
         Usuario usuario = new Usuario();
         usuario.setNome(registroDTO.getNome());
         usuario.setEmail(registroDTO.getEmail());
         usuario.setSenha(passwordEncoder.encode(registroDTO.getSenha()));
+        usuario.setRole(Role.GERENTE);
+        usuario.setEmpresa(empresa);
 
         return usuarioRepository.save(usuario);
     }

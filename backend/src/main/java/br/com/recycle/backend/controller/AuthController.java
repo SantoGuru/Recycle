@@ -75,7 +75,7 @@ public class AuthController {
     })
     @PostMapping("/registro")
     public ResponseEntity<TokenDTO> registro(
-        @Parameter(description = "Dados do novo usuário (nome, email, senha)", required = true)
+        @Parameter(description = "Dados do novo usuário (nome, email, senha e cnpj)", required = true)
         @Valid @RequestBody RegistroDTO registroDTO) {
         Usuario usuario = authService.registrar(registroDTO);
 
