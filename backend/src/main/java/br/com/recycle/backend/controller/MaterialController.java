@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+
 @Tag(name = "Materiais", description = "Gerencia os materiais cadastrados pelo usuário")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
@@ -36,7 +37,7 @@ public class MaterialController {
         summary = "Criar material",
         description = "Registra um novo material para o usuário autenticado"
     )
-
+    
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "201",
@@ -70,7 +71,6 @@ public class MaterialController {
         summary = "Listar materiais",
         description = "Retorna todos os materiais cadastrados pelo usuário"
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -95,7 +95,6 @@ public class MaterialController {
         summary = "Buscar material por ID",
         description = "Retorna os dados de um material específico pertencente ao usuário"
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -113,6 +112,7 @@ public class MaterialController {
             content = @Content
         )
     })
+
     @GetMapping("/{id}")
     public ResponseEntity<MaterialResponseDTO> buscarPorId(
             @Parameter(description = "ID do material", required = true)
@@ -131,7 +131,6 @@ public class MaterialController {
         summary = "Atualizar material",
         description = "Atualiza os dados de um material existente"
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -174,10 +173,9 @@ public class MaterialController {
         summary = "Remover material",
         description = "Deleta um material do usuário com base no ID"
     )
-    
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200",
+            responseCode = "200", 
             description = "Material removido com sucesso"
         ),
         @ApiResponse(
@@ -188,6 +186,11 @@ public class MaterialController {
         @ApiResponse(
             responseCode = "401",
             description = "Não autorizado - token ausente ou inválido",
+            content = @Content
+        ),
+        @ApiResponse(
+            responseCode = "500", 
+            description = "Erro interno ao deletar",
             content = @Content
         )
     })
