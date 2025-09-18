@@ -34,6 +34,11 @@
 4. Baixe o aplicativo **Expo Go** no celular (Android/iOS).
 5. Escaneie o QR Code exibido no terminal ou navegador.
 
+### É necessário configurar o IP para acessar o backend 
+1. Acesse o prompt e digite ipconfig
+2. Copie o ipv4 da sua máquina
+3. Altere o ip em config.ts
+
 ---
 
 ## 💻 Inicialização em Emulador Android
