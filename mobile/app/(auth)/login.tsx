@@ -3,9 +3,10 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 
 import { TextInput } from 'react-native-paper';
 
-import { loginFunction } from '../../http';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginScreen() {
+  const { signIn }= useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,7 @@ export default function LoginScreen() {
     setMessage('');
     setMessageType('');
 
-    const result = await loginFunction(email, senha);
+    const result = await signIn(email, senha);
 
     if (result.success) {
       setMessage('Login realizado com sucesso!');
