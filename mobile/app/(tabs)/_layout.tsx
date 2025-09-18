@@ -8,8 +8,10 @@ import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useAuth } from "@/context/AuthContext";
 
 export default function TabLayout() {
+  const { signOut } = useAuth();
   const colorScheme = useColorScheme();
 
   return (
@@ -21,7 +23,6 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: "absolute",
           },
           default: {},
@@ -38,11 +39,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="home"
         options={{
           title: "Sair",
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="logout" size={28} color={color} />
+            <MaterialIcons name="logout" size={28} color={color} onPress={signOut}/>
           ),
         }}
       />
