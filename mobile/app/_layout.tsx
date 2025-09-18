@@ -19,7 +19,7 @@ import { PaperProvider } from "react-native-paper";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 function RootLayout() {
-  const { userToken, isLoading } = useAuth();
+  const { session, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
   const navigationState = useRootNavigationState();
@@ -33,12 +33,12 @@ function RootLayout() {
 
     const inAuthGroup = segments[0] === "(auth)";
 
-    if (userToken && inAuthGroup) {
+    if (session && inAuthGroup) {
       router.replace({ pathname: "/(tabs)" });
-    } else if (!userToken && !inAuthGroup) {
+    } else if (!session && !inAuthGroup) {
       router.replace({ pathname: "/login" });
     }
-  }, [userToken, isLoading, segments, navigationState?.key, router]);
+  }, [session, isLoading, segments, navigationState?.key, router]);
 
   useEffect(() => {
     if (loaded && !isLoading) {
