@@ -1,7 +1,14 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import * as SecureStore from "expo-secure-store";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
 import { loginFunction } from "@/http";
 
-interface TokenDto {
+interface UserSession {
   token: string;
   nome: string;
   id: number;
@@ -9,28 +16,21 @@ interface TokenDto {
 
 interface SignInResult {
   success: boolean;
-  data?: TokenDto;
+  data?: UserSession;
   error?: string;
 }
-
 interface AuthContextType {
   isLoading: boolean;
   signIn: (email: string, senha: string) => Promise<SignInResult>;
   signOut: () => void;
-  userToken: string | null;
+  session: UserSession | null; 
 }
 
 const AuthContext = createContext<AuthContextType>({
   isLoading: false,
-  signIn: async (email: string, senha: string) => {
-    return Promise.resolve({
-      success: false,
-      data: { token: "", nome: "", id: 0 },
-      error: "",
-    });
-  },
+  signIn: async () => Promise.resolve({ success: false, error: "Contexto não provido" }),
   signOut: () => {},
-  userToken: null,
+  session: null, 
 });
 
 export const useAuth = () => {
@@ -38,11 +38,24 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [userToken, setUserToken] = useState<string | null>(null);
+  const [session, setSession] = useState<UserSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(false);
+    const bootstrapAsync = async () => {
+      let userSessionString: string | null;
+      try {
+        userSessionString = await SecureStore.getItemAsync("userSession");
+        if (userSessionString) {
+          setSession(JSON.parse(userSessionString));
+        }
+      } catch (e) {
+        console.warn("Erro ao restaurar a sessão: ", e);
+      }
+      setIsLoading(false);
+    };
+
+    bootstrapAsync();
   }, []);
 
   const signIn = async (
@@ -51,20 +64,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   ): Promise<SignInResult> => {
     const response = await loginFunction(email, senha);
     if (response.success && response.data) {
-      const { token, nome, id } = response.data;
-      setUserToken(token);
-      return { success: true, data: { token, nome, id } };
+      const userSessionData = response.data;
+      setSession(userSessionData);
+      await SecureStore.setItemAsync(
+        "userSession",
+        JSON.stringify(userSessionData)
+      );
+      return { success: true, data: userSessionData };
     } else {
       return { success: false, error: response.error };
     }
   };
 
-  const signOut = () => {
-    setUserToken(null);
+  const signOut = async () => {
+    setSession(null);
+    await SecureStore.deleteItemAsync("userSession");
   };
 
   return (
-    <AuthContext.Provider value={{ isLoading, signIn, signOut, userToken }}>
+    <AuthContext.Provider value={{ isLoading, signIn, signOut, session }}>
       {children}
     </AuthContext.Provider>
   );
