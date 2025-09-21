@@ -39,11 +39,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="home"
+        name="sair"
         options={{
           title: "Sair",
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="logout" size={28} color={color} onPress={signOut}/>
+            <MaterialIcons
+              name="logout"
+              size={28}
+              color={color}
+            />
           ),
         }}
       />
