@@ -36,7 +36,7 @@ function RootLayout() {
     if (session && inAuthGroup) {
       router.replace({ pathname: "/(tabs)" });
     } else if (!session && !inAuthGroup) {
-      router.replace({ pathname: "/login" });
+      router.replace({ pathname: "/inicio" });
     }
   }, [session, isLoading, segments, navigationState?.key, router]);
 

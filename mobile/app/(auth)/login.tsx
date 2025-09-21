@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
-import { TextInput } from 'react-native-paper';
+import { TextInput, Button } from 'react-native-paper';
 
 import { useAuth } from '@/context/AuthContext';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function LoginScreen() {
-  const { signIn }= useAuth();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
+
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const tintColor = useThemeColor({}, "tint");
+  const iconColor = useThemeColor({}, "icon");
 
 
   const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
@@ -40,13 +46,14 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+    <View style={[styles.container, { backgroundColor }]}>
+      <Text style={[styles.title, { color: textColor }]}>Login</Text>
 
       <TextInput
-        style={styles.input}
+        mode="flat"
+        style={[styles.input, { color: textColor }]}
         placeholder="Email"
-        placeholderTextColor="#ccc"
+        placeholderTextColor={textColor}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -54,26 +61,35 @@ export default function LoginScreen() {
       />
 
       <TextInput
-        style={styles.input}
+        mode="flat"
+        style={[styles.input, { color: textColor }]}
         placeholder="Senha"
-        placeholderTextColor="#ccc"
+        placeholderTextColor={textColor}
         value={senha}
         onChangeText={setSenha}
         secureTextEntry={!mostrarSenha}
         right={
           <TextInput.Icon
             icon={mostrarSenha ? "eye-off" : "eye"}
+            color={iconColor}
             onPress={() => setMostrarSenha(!mostrarSenha)}
           />
         }
       />
 
 
+
+
       <Button
-        title={loading ? 'Entrando...' : 'Login'}
+        mode="contained"
+        style={{ backgroundColor: tintColor }}
+        labelStyle={{ color: backgroundColor }}
         onPress={handleLogin}
         disabled={loading}
-      />
+      >
+        {loading ? "Entrando..." : "Login"}
+      </Button>
+
 
       {message ? (
         <Text
@@ -94,14 +110,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 20,
-    backgroundColor: '#000',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 40,
     textAlign: 'center',
-    color: '#fff',
   },
   input: {
     height: 50,
@@ -110,7 +124,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 15,
     marginBottom: 20,
-    color: '#fff',
   },
   message: {
     marginTop: 20,
