@@ -12,14 +12,20 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
 
+@Log
 @Tag(name = "Materiais", description = "Gerencia os materiais cadastrados pelo usuário")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
@@ -27,6 +33,7 @@ import java.util.Map;
 public class MaterialController {
 
     private final MaterialService materialService;
+
 
     @Autowired
     public MaterialController(MaterialService materialService) {
@@ -55,12 +62,12 @@ public class MaterialController {
             content = @Content
         )
     })
+    @PreAuthorize("hasRole('GERENTE')")
     @PostMapping
     public ResponseEntity<MaterialResponseDTO> criar(
             @Parameter(description = "Dados do material a ser criado", required = true)
             @Valid @RequestBody MaterialRequestDTO dto,
             HttpServletRequest request) {
-
         Long usuarioId = (Long) request.getAttribute("usuarioId");
         MaterialResponseDTO materialCriado = materialService.criar(dto, usuarioId);
 
@@ -153,6 +160,7 @@ public class MaterialController {
             content = @Content
         )
     })
+    @PreAuthorize("hasRole('GERENTE')")
     @PutMapping("/{id}")
     public ResponseEntity<MaterialResponseDTO> atualizar(
             @Parameter(description = "ID do material", required = true)
@@ -195,6 +203,7 @@ public class MaterialController {
         )
     })
 
+    @PreAuthorize("hasRole('GERENTE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(
             @Parameter(description = "ID do material", required = true)
