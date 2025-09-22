@@ -4,8 +4,10 @@ import br.com.recycle.backend.dto.RegistroDTO;
 import br.com.recycle.backend.dto.TokenDTO;
 import br.com.recycle.backend.model.Usuario;
 import br.com.recycle.backend.service.AuthService;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,6 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Authentication", description = "Endpoints para autenticação e registro de usuários")
+@PermitAll
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -73,6 +76,7 @@ public class AuthController {
             content = @Content
         )
     })
+    @PreAuthorize("hasRole('GERENTE')")
     @PostMapping("/registro")
     public ResponseEntity<TokenDTO> registro(
         @Parameter(description = "Dados do novo usuário (nome, email, senha e cnpj)", required = true)
