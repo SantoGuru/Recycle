@@ -1,9 +1,23 @@
-import {StyleSheet, View } from "react-native";
-
+import { StyleSheet, View } from "react-native";
 
 import IconCard from "@/components/ui/IconCard";
 
+import { useAuth } from "@/context/AuthContext";
+
+
 export default function HomeScreen() {
+  const { session } = useAuth();
+  const role = session?.role;
+
+
+  let isAdmin;
+  if (role == "GERENTE") {
+    isAdmin = true;
+  }
+  else {
+    isAdmin = false;
+  }
+
   return (
     <View style={styles.body}>
       <View style={styles.grid}>
@@ -17,16 +31,22 @@ export default function HomeScreen() {
           title="Saída"
           onPress={() => console.log("Início")}
         />
-        <IconCard
-          iconName="new-label"
-          title="Novo Item"
-          onPress={() => console.log("Início")}
-        />
-        <IconCard
-          iconName="person-add"
-          title="Cadastrar Funcionário"
-          onPress={() => console.log("Início")}
-        />
+
+
+        {isAdmin && (
+          <>
+            <IconCard
+              iconName="new-label"
+              title="Novo Item"
+              onPress={() => console.log("Início")}
+            />
+            <IconCard
+              iconName="person-add"
+              title="Cadastrar Funcionário"
+              onPress={() => console.log("Início")}
+            /> </>
+        )}
+
       </View>
     </View>
   );
