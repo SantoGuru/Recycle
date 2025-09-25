@@ -1,4 +1,5 @@
 package br.com.recycle.backend.controller;
+
 import br.com.recycle.backend.dto.LoginDTO;
 import br.com.recycle.backend.dto.RegistroDTO;
 import br.com.recycle.backend.dto.TokenDTO;
@@ -10,12 +11,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
+
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 
 @Tag(name = "Authentication", description = "Endpoints para autenticação e registro de usuários")
 @PermitAll
@@ -31,9 +34,8 @@ public class AuthController {
 
     @Operation(
         summary = "Login de usuário",
-        description = "Realiza a autenticação do usuário e retorna o token JWT"
+        description = "Acesso público. Autentica o usuário e retorna um token JWT (Bearer)."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -61,9 +63,8 @@ public class AuthController {
 
     @Operation(
         summary = "Registro de usuário",
-        description = "Registra um novo usuário e realiza o login, retornando o token JWT"
+        description = "Acesso público. Registra um novo usuário (cria a empresa se necessário) e retorna token JWT (Bearer)."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -86,7 +87,7 @@ public class AuthController {
         LoginDTO loginDTO = new LoginDTO();
         loginDTO.setEmail(registroDTO.getEmail());
         loginDTO.setSenha(registroDTO.getSenha());
-
+        
         TokenDTO tokenDTO = authService.login(loginDTO);
         return ResponseEntity.ok(tokenDTO);
     }
