@@ -1,5 +1,8 @@
 package br.com.recycle.backend.security.tenant;
 
+import br.com.recycle.backend.model.Entrada;
+import br.com.recycle.backend.model.Material;
+import br.com.recycle.backend.model.Saida;
 import br.com.recycle.backend.model.Usuario;
 import br.com.recycle.backend.repository.EntradaRepository;
 import br.com.recycle.backend.repository.MaterialRepository;
@@ -15,7 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Optional; // Garanta que o Optional está importado
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,8 +52,8 @@ public class TenantSecurityFilter extends OncePerRequestFilter {
         Matcher matcher = RESOURCE_PATTERN.matcher(path);
 
         if (matcher.find()) {
-            Usuario usuario = (Usuario) authentication.getPrincipal();
-            Long userEmpresaId = usuario.getEmpresa().getId();
+            Usuario usuarioLogado = (Usuario) authentication.getPrincipal();
+            Long userEmpresaId = usuarioLogado.getEmpresa().getId();
 
             String resourceType = matcher.group(1);
             Long resourceId = Long.parseLong(matcher.group(2));
@@ -59,6 +62,7 @@ public class TenantSecurityFilter extends OncePerRequestFilter {
             try {
                 hasAccess = checkOwnership(userEmpresaId, resourceType, resourceId);
             } catch (Exception e) {
+                logger.error("Erro ao verificar propriedade do recurso", e);
                 sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao verificar permissão do recurso.");
                 return;
             }
@@ -96,22 +100,39 @@ public class TenantSecurityFilter extends OncePerRequestFilter {
         Object entity = entityOptional.get();
         Long entityEmpresaId = getEmpresaIdFromEntity(entity);
 
+        // Se a entidade não tiver um usuário associado (e, portanto, uma empresa),
+        // consideramos como um erro de dados e negamos o acesso para segurança.
+        if (entityEmpresaId == null) {
+            return false;
+        }
+        
         return userEmpresaId.equals(entityEmpresaId);
     }
 
+    /**
+     * Extrai o ID da Empresa da entidade através do relacionamento com o Usuário.
+     * Esta é a versão CORRETA baseada nos seus modelos.
+     */
     private Long getEmpresaIdFromEntity(Object entity) {
-        if (entity instanceof br.com.recycle.backend.model.Material) {
-            return ((br.com.recycle.backend.model.Material) entity).getUsuario().getEmpresa().getId();
-        }
-        if (entity instanceof br.com.recycle.backend.model.Entrada) {
-            return ((br.com.recycle.backend.model.Material) entity).getUsuario().getEmpresa().getId();
-        }
-        if (entity instanceof br.com.recycle.backend.model.Saida) {
-            return ((br.com.recycle.backend.model.Material) entity).getUsuario().getEmpresa().getId();
-        }
-        throw new IllegalArgumentException("Tipo de entidade não suportado para verificação de tenant: " + entity.getClass().getName());
-    }
+        Usuario usuarioDaEntidade = null;
 
+        if (entity instanceof Material) {
+            usuarioDaEntidade = ((Material) entity).getUsuario();
+        } else if (entity instanceof Entrada) {
+            usuarioDaEntidade = ((Entrada) entity).getUsuario();
+        } else if (entity instanceof Saida) {
+            usuarioDaEntidade = ((Saida) entity).getUsuario();
+        } else {
+            throw new IllegalArgumentException("Tipo de entidade não suportado para verificação de tenant: " + entity.getClass().getName());
+        }
+
+        if (usuarioDaEntidade != null && usuarioDaEntidade.getEmpresa() != null) {
+            return usuarioDaEntidade.getEmpresa().getId();
+        }
+
+        // Retorna null se a entidade não tiver um usuário ou empresa associada.
+        return null;
+    }
 
     private void sendErrorResponse(HttpServletResponse response, HttpStatus status, String message) throws IOException {
         response.setStatus(status.value());
