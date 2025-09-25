@@ -9,6 +9,8 @@ import br.com.recycle.backend.model.Usuario;
 import br.com.recycle.backend.repository.EmpresaRepository;
 import br.com.recycle.backend.repository.UsuarioRepository;
 import br.com.recycle.backend.security.JwtTokenProvider;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -82,5 +84,15 @@ public class AuthService {
         usuario.setEmpresa(empresa);
 
         return usuarioRepository.save(usuario);
+    }
+
+@PreAuthorize("hasRole('GERENTE')")
+@Transactional
+public Usuario atualizarRole(Long usuarioId, Role novoRole) {
+    Usuario usuario = usuarioRepository.findById(usuarioId)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+    usuario.setRole(novoRole);
+    return usuarioRepository.save(usuario);
     }
 }
