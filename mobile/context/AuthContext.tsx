@@ -11,6 +11,7 @@ import { loginFunction } from "@/http";
 interface UserSession {
   token: string;
   nome: string;
+  role: string;
   id: number;
 }
 

@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import br.com.recycle.backend.dto.DashboardDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import br.com.recycle.backend.dto.EstoqueResponseDTO;
@@ -20,7 +21,7 @@ public class EstoqueService {
     public EstoqueService(EstoqueRepository estoqueRepository) {
         this.estoqueRepository = estoqueRepository;
     }
-
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public EstoqueResponseDTO buscarPorId(Long id, Long usuarioId) {
 
         Estoque estoque = estoqueRepository.findByMaterialIdAndMaterial_UsuarioId(id, usuarioId)
@@ -28,7 +29,7 @@ public class EstoqueService {
 
         return EstoqueResponseDTO.fromEntity(estoque);
     }
-
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public List<EstoqueResponseDTO> listarTodos(Long usuarioId) {
 
         List<Estoque> estoques = estoqueRepository.findAllByMaterial_UsuarioId(usuarioId);
@@ -38,7 +39,7 @@ public class EstoqueService {
                 .map(EstoqueResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
-
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public DashboardDTO gerarResumoDashboard(Long usuarioId) {
         List<Estoque> estoques = estoqueRepository.findAllByMaterial_UsuarioId(usuarioId);
 

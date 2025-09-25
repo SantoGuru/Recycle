@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import br.com.recycle.backend.dto.EntradaResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +35,7 @@ public class EntradaService {
         this.estoqueRepository = estoqueRepository;
         this.materialRepository = materialRepository;
     }
-
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional
     public EstoqueResponseDTO registrarEntrada(EntradaRequestDTO entradaRequestDTO, Long usuarioId) {
         validarDadosEntrada(entradaRequestDTO);
@@ -83,7 +84,7 @@ public class EntradaService {
 
         return EstoqueResponseDTO.fromEntity(estoque);
     }
-
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional
     public List<EstoqueResponseDTO> registrarEntradas(List<EntradaRequestDTO> entradas, Long usuarioId) {
         // Valida todas as entradas antes de processar
@@ -107,7 +108,7 @@ public class EntradaService {
 
         return resultados;
     }
-
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional(readOnly = true)
     public List<EntradaResponseDTO> listarEntradas(Long usuarioId) {
         List<Material> materiais = materialRepository.findAllByUsuarioId(usuarioId);
