@@ -1,10 +1,13 @@
 package br.com.recycle.backend.controller;
 
 import br.com.recycle.backend.dto.AtualizarRoleDTO;
+import br.com.recycle.backend.dto.RegistroDTO;
 import br.com.recycle.backend.dto.UsuarioResponseDTO;
+import br.com.recycle.backend.model.Role;
 import br.com.recycle.backend.model.Usuario;
 import br.com.recycle.backend.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,6 +29,100 @@ public class UsuarioController {
 
     public UsuarioController(AuthService authService) {
         this.authService = authService;
+    }
+
+    @Operation(
+        summary = "Registro de usuário",
+        description = "Registra um novo usuário"
+    )
+
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Usuário registrado com sucesso"
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Dados de registro inválidos ou email já existente"
+        ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Acesso negado."
+            )
+    })
+    @PreAuthorize("hasRole('GERENTE')")
+    @PutMapping("/cadastrar")
+    public ResponseEntity cadastrar(
+            @Parameter(description = "Dados do novo usuário (nome, email, senha e cnpj)", required = true)
+            @Valid @RequestBody RegistroDTO registroDTO) {
+        var usuario = authService.registrar(registroDTO);
+        authService.atualizarRole(usuario.getId(), Role.OPERADOR);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(
+            summary = "Modificar um usuário",
+            description = "Modificar um usuário"
+    )
+
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Usuário modificado com sucesso"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Dados de registro inválidos"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Acesso negado."
+            )
+    })
+    @PreAuthorize("hasRole('GERENTE')")
+    @PostMapping("/modificar/{email}")
+    public ResponseEntity modificar(
+            @Parameter(description = "Dados do usuário (nome, email, senha e cnpj)", required = true)
+            @PathVariable String email,
+            @Valid @RequestBody RegistroDTO registroDTO) {
+        try {
+            authService.modificar(email, registroDTO);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(
+            summary = "Deletar um usuário",
+            description = "Deletar um usuário"
+    )
+
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Usuário deletado com sucesso"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Dados de registro inválidos"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Acesso negado."
+            )
+    })
+    @PreAuthorize("hasRole('GERENTE')")
+    @DeleteMapping("/deletar/{email}")
+    public ResponseEntity deletar(
+            @Parameter(description = "Dados do usuário (nome, email, senha e cnpj)", required = true)
+            @PathVariable String email) {
+        try {
+            authService.deletar(email);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().build();
     }
 
     @Operation(
