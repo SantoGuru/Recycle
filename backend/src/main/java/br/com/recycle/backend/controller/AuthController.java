@@ -5,8 +5,10 @@ import br.com.recycle.backend.dto.RegistroDTO;
 import br.com.recycle.backend.dto.TokenDTO;
 import br.com.recycle.backend.model.Usuario;
 import br.com.recycle.backend.service.AuthService;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -19,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 
 @Tag(name = "Authentication", description = "Endpoints para autenticação e registro de usuários")
+@PermitAll
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -33,27 +36,23 @@ public class AuthController {
         summary = "Login de usuário",
         description = "Acesso público. Autentica o usuário e retorna um token JWT (Bearer)."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Login realizado com sucesso",
             content = @Content(schema = @Schema(implementation = TokenDTO.class))
         ),
-
         @ApiResponse(
             responseCode = "400",
             description = "Dados inválidos",
             content = @Content
         ),
-
         @ApiResponse(
             responseCode = "401",
             description = "Credenciais incorretas",
             content = @Content
         )
     })
-
     @PostMapping("/login")
     public ResponseEntity<TokenDTO> login(
         @Parameter(description = "Credenciais do usuário para login", required = true)
@@ -66,21 +65,19 @@ public class AuthController {
         summary = "Registro de usuário",
         description = "Acesso público. Registra um novo usuário (cria a empresa se necessário) e retorna token JWT (Bearer)."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Usuário registrado com sucesso",
             content = @Content(schema = @Schema(implementation = TokenDTO.class))
         ),
-
         @ApiResponse(
             responseCode = "400",
             description = "Dados de registro inválidos ou email já existente",
             content = @Content
         )
     })
-
+    @PreAuthorize("hasRole('GERENTE')")
     @PostMapping("/registro")
     public ResponseEntity<TokenDTO> registro(
         @Parameter(description = "Dados do novo usuário (nome, email, senha e cnpj)", required = true)
@@ -90,7 +87,6 @@ public class AuthController {
         LoginDTO loginDTO = new LoginDTO();
         loginDTO.setEmail(registroDTO.getEmail());
         loginDTO.setSenha(registroDTO.getSenha());
-
         
         TokenDTO tokenDTO = authService.login(loginDTO);
         return ResponseEntity.ok(tokenDTO);
