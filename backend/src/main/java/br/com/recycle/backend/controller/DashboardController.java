@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @Tag(name = "Dashboard", description = "Fornece um resumo geral do sistema para o usuário autenticado")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
@@ -35,21 +36,18 @@ public class DashboardController {
         description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
                       "Retorna total de materiais, quantidade total (KG), valor total do estoque e materiais com estoque baixo."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Resumo retornado com sucesso",
             content = @Content(schema = @Schema(implementation = DashboardDTO.class))
         ),
-
         @ApiResponse(
             responseCode = "401",
             description = "Não autorizado - token ausente ou inválido",
             content = @Content
         )
     })
-
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping("/resumo")
     public ResponseEntity<DashboardDTO> getResumoDashboard(
@@ -60,7 +58,6 @@ public class DashboardController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         
-
         DashboardDTO resumo = estoqueService.gerarResumoDashboard(usuarioId);
         return ResponseEntity.ok(resumo);
     }

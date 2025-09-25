@@ -40,27 +40,23 @@ public class EntradaController {
         description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
                       "Registra uma nova entrada ou uma lista de entradas no estoque para o usuário autenticado."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "201",
             description = "Entradas registradas com sucesso",
             content = @Content(schema = @Schema(implementation = EstoqueResponseDTO.class))
         ),
-
         @ApiResponse(
             responseCode = "400",
             description = "Dados inválidos",
             content = @Content
         ),
-
         @ApiResponse(
             responseCode = "401",
             description = "Não autorizado",
             content = @Content
         )
     })
-
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @PostMapping
     public ResponseEntity<List<EstoqueResponseDTO>> registrarEntrada(
@@ -73,7 +69,6 @@ public class EntradaController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-
         List<EstoqueResponseDTO> resultados = entradaService.registrarEntradas(entradas, usuarioId);
         return ResponseEntity.status(HttpStatus.CREATED).body(resultados);
     }
@@ -83,21 +78,18 @@ public class EntradaController {
         description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
                       "Retorna uma lista com todas as entradas registradas pelo usuário autenticado."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Entradas listadas com sucesso",
             content = @Content(schema = @Schema(implementation = EntradaResponseDTO.class))
         ),
-
         @ApiResponse(
             responseCode = "401",
             description = "Não autorizado",
             content = @Content
         )
     })
-
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping
     public ResponseEntity<List<EntradaResponseDTO>> listarEntradas(HttpServletRequest request) {
@@ -106,7 +98,6 @@ public class EntradaController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        
         List<EntradaResponseDTO> entradas = entradaService.listarEntradas(usuarioId);
         if (entradas.isEmpty()) {
             return ResponseEntity.noContent().build();

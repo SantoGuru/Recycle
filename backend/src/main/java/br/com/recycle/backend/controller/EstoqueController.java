@@ -13,8 +13,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,7 +24,6 @@ import java.util.List;
 @RequestMapping("/api/estoques")
 public class EstoqueController {
 
-    
     private final EstoqueService estoqueService;
 
     public EstoqueController(EstoqueService estoqueService) {
@@ -36,27 +35,23 @@ public class EstoqueController {
         description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
                       "Retorna todos os registros de estoque do usuário (apenas com quantidade > 0)."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Lista de estoques retornada com sucesso",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = EstoqueResponseDTO.class)))
         ),
-
         @ApiResponse(
             responseCode = "204",
             description = "Sem conteúdo (não há estoques para o usuário)",
             content = @Content
         ),
-
         @ApiResponse(
             responseCode = "401",
             description = "Não autorizado - token ausente ou inválido",
             content = @Content
         )
     })
-
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping
     public ResponseEntity<List<EstoqueResponseDTO>> listarTodos(HttpServletRequest request) {
@@ -80,20 +75,17 @@ public class EstoqueController {
             description = "Estoque encontrado com sucesso",
             content = @Content(schema = @Schema(implementation = EstoqueResponseDTO.class))
         ),
-
         @ApiResponse(
             responseCode = "404",
             description = "Estoque não encontrado ou não pertence ao usuário",
             content = @Content
         ),
-
         @ApiResponse(
             responseCode = "401",
             description = "Não autorizado - token ausente ou inválido",
             content = @Content
         )
     })
-
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping("/{id}")
     public ResponseEntity<EstoqueResponseDTO> buscarPorId(

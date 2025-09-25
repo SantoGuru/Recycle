@@ -37,27 +37,23 @@ public class SaidaController {
         description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
                       "Registra uma ou mais saídas de materiais para o usuário autenticado."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "201",
             description = "Saída registrada com sucesso",
             content = @Content(schema = @Schema(implementation = SaidaResponseDTO.class))
         ),
-
         @ApiResponse(
             responseCode = "400",
             description = "Dados inválidos",
             content = @Content
         ),
-
         @ApiResponse(
             responseCode = "401",
             description = "Não autorizado",
             content = @Content
         )
     })
-
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @PostMapping
     public ResponseEntity<List<SaidaResponseDTO>> registrarSaida(
@@ -79,14 +75,12 @@ public class SaidaController {
         description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
                       "Retorna uma lista com todas as saídas registradas pelo usuário autenticado."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Saídas listadas com sucesso",
             content = @Content(schema = @Schema(implementation = SaidaResponseDTO.class))
         ),
-
         @ApiResponse(
             responseCode = "401",
             description = "Não autorizado",

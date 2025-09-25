@@ -30,7 +30,6 @@ public class MaterialController {
 
     private final MaterialService materialService;
 
-    
     @Autowired
     public MaterialController(MaterialService materialService) {
         this.materialService = materialService;
@@ -41,27 +40,23 @@ public class MaterialController {
         description = "Requer autenticação (Bearer). Permissões: apenas GERENTE. " +
                       "Registra um novo material para o usuário autenticado."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "201",
             description = "Material criado com sucesso",
             content = @Content(schema = @Schema(implementation = MaterialResponseDTO.class))
         ),
-
         @ApiResponse(
             responseCode = "400",
             description = "Dados inválidos fornecidos",
             content = @Content
         ),
-
         @ApiResponse(
             responseCode = "401",
             description = "Não autorizado - token ausente ou inválido",
             content = @Content
         )
     })
-
     @PreAuthorize("hasRole('GERENTE')")
     @PostMapping
     public ResponseEntity<MaterialResponseDTO> criar(
@@ -79,21 +74,18 @@ public class MaterialController {
         description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
                       "Retorna todos os materiais cadastrados pelo usuário."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Lista de materiais retornada com sucesso",
             content = @Content(schema = @Schema(implementation = MaterialResponseDTO.class))
         ),
-
         @ApiResponse(
             responseCode = "401",
             description = "Não autorizado - token ausente ou inválido",
             content = @Content
         )
     })
-
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping
     public ResponseEntity<List<MaterialResponseDTO>> listarTodos(HttpServletRequest request) {
@@ -107,27 +99,23 @@ public class MaterialController {
         description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
                       "Retorna os dados de um material específico pertencente ao usuário."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Material encontrado com sucesso",
             content = @Content(schema = @Schema(implementation = MaterialResponseDTO.class))
         ),
-
         @ApiResponse(
             responseCode = "404",
             description = "Material não encontrado",
             content = @Content
         ),
-
         @ApiResponse(
             responseCode = "401",
             description = "Não autorizado - token ausente ou inválido",
             content = @Content
         )
     })
-
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping("/{id}")
     public ResponseEntity<MaterialResponseDTO> buscarPorId(
@@ -149,33 +137,28 @@ public class MaterialController {
         description = "Requer autenticação (Bearer). Permissões: apenas GERENTE. " +
                       "Atualiza os dados de um material existente."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Material atualizado com sucesso",
             content = @Content(schema = @Schema(implementation = MaterialResponseDTO.class))
         ),
-
         @ApiResponse(
             responseCode = "400",
             description = "Dados inválidos",
             content = @Content
         ),
-
         @ApiResponse(
             responseCode = "404",
             description = "Material não encontrado",
             content = @Content
         ),
-
         @ApiResponse(
             responseCode = "401",
             description = "Não autorizado - token ausente ou inválido",
             content = @Content
         )
     })
-
     @PreAuthorize("hasRole('GERENTE')")
     @PutMapping("/{id}")
     public ResponseEntity<MaterialResponseDTO> atualizar(
@@ -201,32 +184,27 @@ public class MaterialController {
         description = "Requer autenticação (Bearer). Permissões: apenas GERENTE. " +
                       "Remove um material do usuário (bloqueado se houver saldo em estoque)."
     )
-
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Material removido com sucesso"
         ),
-
         @ApiResponse(
             responseCode = "404",
             description = "Material não encontrado",
             content = @Content
         ),
-
         @ApiResponse(
             responseCode = "401",
             description = "Não autorizado - token ausente ou inválido",
             content = @Content
         ),
-
         @ApiResponse(
             responseCode = "500",
             description = "Erro interno ao deletar",
             content = @Content
         )
     })
-
     @PreAuthorize("hasRole('GERENTE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(

@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+
 @Tag(name = "Authentication", description = "Endpoints para autenticação e registro de usuários")
 @RestController
 @RequestMapping("/api/auth")
