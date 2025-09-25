@@ -9,13 +9,17 @@ import br.com.recycle.backend.model.Usuario;
 import br.com.recycle.backend.repository.EmpresaRepository;
 import br.com.recycle.backend.repository.UsuarioRepository;
 import br.com.recycle.backend.security.JwtTokenProvider;
+import br.com.recycle.backend.security.LoginAttemptService;
+import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; 
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException; 
 
 @Service
 public class AuthService {
@@ -25,33 +29,44 @@ public class AuthService {
     private final CustomUserDetailsService userDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
     private final EmpresaRepository empresaRepository;
+    private final LoginAttemptService loginAttemptService;
+    private final HttpServletRequest request;
 
     public AuthService(
             UsuarioRepository usuarioRepository,
             EmpresaRepository empresaRepository,
             PasswordEncoder passwordEncoder,
             CustomUserDetailsService userDetailsService,
-            JwtTokenProvider jwtTokenProvider) {
+            JwtTokenProvider jwtTokenProvider, 
+            LoginAttemptService loginAttemptService, 
+            HttpServletRequest request) {
         this.usuarioRepository = usuarioRepository;
         this.empresaRepository = empresaRepository;
         this.passwordEncoder = passwordEncoder;
         this.userDetailsService = userDetailsService;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.loginAttemptService = loginAttemptService;
+        this.request = request;
     }
 
     public TokenDTO login(LoginDTO loginDTO) {
         try {
+            final String ip = loginAttemptService.getClientIP(request);
+            if (loginAttemptService.isBlocked(ip)) {
+                throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Muitas tentativas de login falhas. Tente novamente mais tarde.");
+            }
             UserDetails userDetails = userDetailsService.loadUserByUsername(loginDTO.getEmail());
 
             if (!passwordEncoder.matches(loginDTO.getSenha(), userDetails.getPassword())) {
-                throw new BadCredentialsException("Senha inválida");
+                loginAttemptService.loginFailed(ip); 
+                throw new BadCredentialsException("Credenciais inválidas");
             }
 
             Usuario usuario = usuarioRepository.findByEmail(loginDTO.getEmail())
-                    .orElseThrow(() -> new BadCredentialsException("Usuário não encontrado"));
+                    .orElseThrow(() -> new BadCredentialsException("Credenciais inválidas"));
 
             String token = jwtTokenProvider.generateToken(userDetails);
-
+            loginAttemptService.loginSucceeded(ip);
             return new TokenDTO(token, usuario.getNome(), usuario.getId());
         } catch (Exception e) {
             throw new BadCredentialsException("Credenciais inválidas");
