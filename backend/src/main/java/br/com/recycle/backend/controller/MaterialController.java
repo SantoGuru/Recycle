@@ -1,4 +1,5 @@
 package br.com.recycle.backend.controller;
+
 import br.com.recycle.backend.dto.MaterialRequestDTO;
 import br.com.recycle.backend.dto.MaterialResponseDTO;
 import br.com.recycle.backend.service.MaterialService;
@@ -15,12 +16,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
-import org.springframework.security.access.prepost.PreAuthorize;
-
-
 
 @Tag(name = "Materiais", description = "Gerencia os materiais cadastrados pelo usuário")
 @SecurityRequirement(name = "bearerAuth")
@@ -37,9 +37,9 @@ public class MaterialController {
 
     @Operation(
         summary = "Criar material",
-        description = "Registra um novo material para o usuário autenticado"
+        description = "Requer autenticação (Bearer). Permissões: apenas GERENTE. " +
+                      "Registra um novo material para o usuário autenticado."
     )
-    
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "201",
@@ -60,19 +60,19 @@ public class MaterialController {
     @PreAuthorize("hasRole('GERENTE')")
     @PostMapping
     public ResponseEntity<MaterialResponseDTO> criar(
-            @Parameter(description = "Dados do material a ser criado", required = true)
-            @Valid @RequestBody MaterialRequestDTO dto,
-            HttpServletRequest request) {
-
+        @Parameter(description = "Dados do material a ser criado", required = true)
+        @Valid @RequestBody MaterialRequestDTO dto,
+        HttpServletRequest request
+    ) {
         Long usuarioId = (Long) request.getAttribute("usuarioId");
         MaterialResponseDTO materialCriado = materialService.criar(dto, usuarioId);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(materialCriado);
     }
 
     @Operation(
         summary = "Listar materiais",
-        description = "Retorna todos os materiais cadastrados pelo usuário"
+        description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
+                      "Retorna todos os materiais cadastrados pelo usuário."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -91,13 +91,13 @@ public class MaterialController {
     public ResponseEntity<List<MaterialResponseDTO>> listarTodos(HttpServletRequest request) {
         Long usuarioId = (Long) request.getAttribute("usuarioId");
         List<MaterialResponseDTO> materiais = materialService.listarTodos(usuarioId);
-
         return ResponseEntity.ok(materiais);
     }
 
     @Operation(
         summary = "Buscar material por ID",
-        description = "Retorna os dados de um material específico pertencente ao usuário"
+        description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
+                      "Retorna os dados de um material específico pertencente ao usuário."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -119,9 +119,10 @@ public class MaterialController {
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping("/{id}")
     public ResponseEntity<MaterialResponseDTO> buscarPorId(
-            @Parameter(description = "ID do material", required = true)
-            @PathVariable Long id,
-            HttpServletRequest request) {
+        @Parameter(description = "ID do material", required = true)
+        @PathVariable Long id,
+        HttpServletRequest request
+    ) {
         try {
             Long usuarioId = (Long) request.getAttribute("usuarioId");
             MaterialResponseDTO material = materialService.buscarPorId(id, usuarioId);
@@ -133,7 +134,8 @@ public class MaterialController {
 
     @Operation(
         summary = "Atualizar material",
-        description = "Atualiza os dados de um material existente"
+        description = "Requer autenticação (Bearer). Permissões: apenas GERENTE. " +
+                      "Atualiza os dados de um material existente."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -160,11 +162,14 @@ public class MaterialController {
     @PreAuthorize("hasRole('GERENTE')")
     @PutMapping("/{id}")
     public ResponseEntity<MaterialResponseDTO> atualizar(
-            @Parameter(description = "ID do material", required = true)
-            @PathVariable Long id,
-            @Parameter(description = "Novos dados do material", required = true)
-            @Valid @RequestBody MaterialRequestDTO dto,
-            HttpServletRequest request) {
+        @Parameter(description = "ID do material", required = true)
+        @PathVariable Long id,
+
+        @Parameter(description = "Novos dados do material", required = true)
+        @Valid @RequestBody MaterialRequestDTO dto,
+
+        HttpServletRequest request
+    ) {
         try {
             Long usuarioId = (Long) request.getAttribute("usuarioId");
             MaterialResponseDTO materialAtualizado = materialService.atualizar(id, dto, usuarioId);
@@ -176,11 +181,12 @@ public class MaterialController {
 
     @Operation(
         summary = "Remover material",
-        description = "Deleta um material do usuário com base no ID"
+        description = "Requer autenticação (Bearer). Permissões: apenas GERENTE. " +
+                      "Remove um material do usuário (bloqueado se houver saldo em estoque)."
     )
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200", 
+            responseCode = "200",
             description = "Material removido com sucesso"
         ),
         @ApiResponse(
@@ -194,7 +200,7 @@ public class MaterialController {
             content = @Content
         ),
         @ApiResponse(
-            responseCode = "500", 
+            responseCode = "500",
             description = "Erro interno ao deletar",
             content = @Content
         )
@@ -202,26 +208,21 @@ public class MaterialController {
     @PreAuthorize("hasRole('GERENTE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(
-            @Parameter(description = "ID do material", required = true)
-            @PathVariable Long id,
-            HttpServletRequest request) {
+        @Parameter(description = "ID do material", required = true)
+        @PathVariable Long id,
+        HttpServletRequest request
+    ) {
         try {
             Long usuarioId = (Long) request.getAttribute("usuarioId");
             materialService.delete(id, usuarioId);
-            return ResponseEntity.ok()
-                    .body(Map.of("message", "Material deletado com sucesso!"));
+            return ResponseEntity.ok().body(Map.of("message", "Material deletado com sucesso!"));
         } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (RuntimeException e) {
-            System.out.println("Erro ao deletar material: " + e.getMessage());
-            e.printStackTrace();
-
             if (e.getMessage().contains("não encontrado") || e.getMessage().contains("não tem permissão")) {
                 return ResponseEntity.notFound().build();
             } else {
-                return ResponseEntity.status(500)
-                        .body(Map.of("error", "Erro interno: " + e.getMessage()));
+                return ResponseEntity.status(500).body(Map.of("error", "Erro interno: " + e.getMessage()));
             }
         }
     }

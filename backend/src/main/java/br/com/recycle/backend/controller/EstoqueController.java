@@ -13,9 +13,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
-
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,7 +32,8 @@ public class EstoqueController {
 
     @Operation(
         summary = "Listar todos os Estoques",
-        description = "Retorna uma lista com todos os registros de Estoque do usuário autenticado"
+        description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
+                      "Retorna todos os registros de estoque do usuário (apenas com quantidade > 0)."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -66,7 +66,8 @@ public class EstoqueController {
 
     @Operation(
         summary = "Buscar Estoque por ID",
-        description = "Retorna um registro de estoque específico do usuário autenticado"
+        description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
+                      "Retorna um registro de estoque específico (por ID do material) do usuário autenticado."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -88,9 +89,9 @@ public class EstoqueController {
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping("/{id}")
     public ResponseEntity<EstoqueResponseDTO> buscarPorId(
-            @Parameter(description = "ID do estoque (igual ao ID do material)", required = true)
-            @PathVariable Long id,
-            HttpServletRequest request) {
+        @Parameter(description = "ID do estoque (igual ao ID do material)", required = true)
+        @PathVariable Long id,
+        HttpServletRequest request) {
         try {
             Long usuarioId = (Long) request.getAttribute("usuarioId");
             EstoqueResponseDTO estoque = estoqueService.buscarPorId(id, usuarioId);
