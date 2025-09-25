@@ -101,13 +101,42 @@ public class AuthService {
         return usuarioRepository.save(usuario);
     }
 
-@PreAuthorize("hasRole('GERENTE')")
-@Transactional
-public Usuario atualizarRole(Long usuarioId, Role novoRole) {
-    Usuario usuario = usuarioRepository.findById(usuarioId)
+    @PreAuthorize("hasRole('GERENTE')")
+    @Transactional
+    public Usuario atualizarRole(Long usuarioId, Role novoRole) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
             .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-    usuario.setRole(novoRole);
-    return usuarioRepository.save(usuario);
+        usuario.setRole(novoRole);
+        return usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public void modificar(String email, RegistroDTO modificacao) throws Exception {
+        if (!usuarioRepository.existsByEmail(email)) {
+            throw new Exception("Email não encontrado");
+        }
+
+        var user = usuarioRepository.findByEmail(email);
+        if (user.isPresent()) {
+            var modificado = user.get();
+            modificado.setNome(modificacao.getNome());
+            modificado.setEmail(modificacao.getEmail());
+            modificado.setSenha(modificacao.getSenha());
+            usuarioRepository.save(modificado);
+        }
+    }
+
+    @Transactional
+    public void deletar(String email) throws Exception {
+        if (!usuarioRepository.existsByEmail(email)) {
+            throw new Exception("Email não encontrado");
+        }
+
+        var user = usuarioRepository.findByEmail(email);
+        if (user.isPresent()) {
+            var modificado = user.get();
+            usuarioRepository.delete(modificado);
+        }
     }
 }

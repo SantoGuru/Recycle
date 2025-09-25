@@ -1,11 +1,11 @@
 package br.com.recycle.backend.config;
 
+import br.com.recycle.backend.security.CustomAccessDeniedHandler;
 import br.com.recycle.backend.security.JwtAuthenticationFilter;
 import br.com.recycle.backend.security.TenantSecurityFilter;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,17 +22,19 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final TenantSecurityFilter tenantSecurityFilter;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     public SecurityConfig(
         JwtAuthenticationFilter jwtAuthFilter, 
-        TenantSecurityFilter tenantSecurityFilter) {
+        TenantSecurityFilter tenantSecurityFilter,
+        CustomAccessDeniedHandler customAccessDeniedHandler) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.tenantSecurityFilter = tenantSecurityFilter;
+        this.customAccessDeniedHandler = customAccessDeniedHandler;
     }
 
     @Bean
@@ -48,10 +50,14 @@ public class SecurityConfig {
                             "/v3/api-docs/**", 
                             "/swagger-ui/**", 
                             "/swagger-ui.html"
-                        ).permitAll().anyRequest().authenticated()
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(tenantSecurityFilter, JwtAuthenticationFilter.class);
+                .addFilterAfter(tenantSecurityFilter, JwtAuthenticationFilter.class)
+                .exceptionHandling(exception -> {
+                    exception.accessDeniedHandler(customAccessDeniedHandler);
+                });
         return http.build();
     }
 
