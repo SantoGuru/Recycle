@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Log
 @Tag(name = "Materiais", description = "Gerencia os materiais cadastrados pelo usuário")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
@@ -60,10 +62,9 @@ public class MaterialController {
     @PreAuthorize("hasRole('GERENTE')")
     @PostMapping
     public ResponseEntity<MaterialResponseDTO> criar(
-        @Parameter(description = "Dados do material a ser criado", required = true)
-        @Valid @RequestBody MaterialRequestDTO dto,
-        HttpServletRequest request
-    ) {
+            @Parameter(description = "Dados do material a ser criado", required = true)
+            @Valid @RequestBody MaterialRequestDTO dto,
+            HttpServletRequest request) {
         Long usuarioId = (Long) request.getAttribute("usuarioId");
         MaterialResponseDTO materialCriado = materialService.criar(dto, usuarioId);
         return ResponseEntity.status(HttpStatus.CREATED).body(materialCriado);
@@ -164,10 +165,8 @@ public class MaterialController {
     public ResponseEntity<MaterialResponseDTO> atualizar(
         @Parameter(description = "ID do material", required = true)
         @PathVariable Long id,
-
         @Parameter(description = "Novos dados do material", required = true)
         @Valid @RequestBody MaterialRequestDTO dto,
-
         HttpServletRequest request
     ) {
         try {
