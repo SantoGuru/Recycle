@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 
 import java.util.List;
 
@@ -50,6 +52,7 @@ public class EstoqueController {
             content = @Content
         )
     })
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping
     public ResponseEntity<List<EstoqueResponseDTO>> listarTodos(HttpServletRequest request) {
         Long usuarioId = (Long) request.getAttribute("usuarioId");
@@ -82,6 +85,7 @@ public class EstoqueController {
             content = @Content
         )
     })
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping("/{id}")
     public ResponseEntity<EstoqueResponseDTO> buscarPorId(
             @Parameter(description = "ID do estoque (igual ao ID do material)", required = true)

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -22,8 +23,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 
 @Tag(name= "Saídas", description = "Gerencia o registro e listagem de saídas de materiais do estoque")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/saidas")
 public class SaidaController {
@@ -55,7 +59,7 @@ public class SaidaController {
      						content = @Content)  				
      				
      		})
-
+ @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
  @PostMapping
     public ResponseEntity<List<SaidaResponseDTO>> registrarSaida(
             @Parameter(description = "Lista das saídas a serem registradas", required = true)
@@ -84,7 +88,7 @@ public class SaidaController {
     	            content = @Content
     	        )
     	    })
-
+	@PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping
     public ResponseEntity<List<SaidaResponseDTO>> listarSaidas(
         @Parameter(hidden = true) @AuthenticationPrincipal Long usuarioId){
