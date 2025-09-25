@@ -12,6 +12,8 @@ import br.com.recycle.backend.repository.SaidaRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +29,7 @@ public class SaidaService {
         this.estoqueRepository = estoqueRepository;
         this.materialRepository = materialRepository;
     }
-
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional
     public SaidaResponseDTO registrarSaida(SaidaRequestDTO dto, Long usuarioId) {
         Material material = materialRepository.findByIdAndUsuarioId(dto.getMaterialId(), usuarioId)
@@ -56,7 +58,7 @@ public class SaidaService {
 
         return SaidaResponseDTO.fromEntity(saidaRepository.save(saida));
     }
-
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional
     public List<SaidaResponseDTO> registrarSaidas(List<SaidaRequestDTO> dtos, Long usuarioId) {
         // Validação inicial de todos os DTOs
@@ -77,7 +79,7 @@ public class SaidaService {
 
         return resultados;
     }
-
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional(readOnly = true)
     public List<SaidaResponseDTO> listarSaidas(Long usuarioId) {
         List<Saida> saidas = saidaRepository.findByUsuarioId(usuarioId);

@@ -5,6 +5,7 @@ import br.com.recycle.backend.dto.EntradaResponseDTO;
 import br.com.recycle.backend.dto.EstoqueResponseDTO;
 import br.com.recycle.backend.service.EntradaService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,11 +20,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 
 import java.util.List;
 
 @Tag(name = "Entradas", description = "Endpoints relacionados ao registro e listagem de entradas de materiais")
 @RestController
+@SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/entradas")
 public class EntradaController {
 
@@ -55,6 +59,7 @@ public class EntradaController {
             content = @Content
         )
     })
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @PostMapping
     public ResponseEntity<List<EstoqueResponseDTO>> registrarEntrada(
             @Parameter(description = "Lista de entradas a serem registradas", required = true)
@@ -83,6 +88,7 @@ public class EntradaController {
             content = @Content
         )
     })
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping
     public ResponseEntity<List<EntradaResponseDTO>> listarEntradas(
         @Parameter(hidden = true) @AuthenticationPrincipal Long usuarioId) {

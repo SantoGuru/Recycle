@@ -17,6 +17,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 
 
 @Tag(name = "Dashboard", description = "Fornece um resumo geral do sistema para o usuário autenticado")
@@ -50,6 +52,7 @@ description = "Não autorizado - token ausente ou inválido",
 content = @Content
 )
 })
+@PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
 @GetMapping("/resumo")
 public ResponseEntity<DashboardDTO> getResumoDashboard(
 @Parameter(hidden = true) @AuthenticationPrincipal Long usuarioId) {

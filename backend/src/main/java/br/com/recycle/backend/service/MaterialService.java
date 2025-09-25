@@ -13,6 +13,7 @@ import br.com.recycle.backend.repository.SaidaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +37,7 @@ public class MaterialService {
         this.entradaRepository = entradaRepository;
         this.saidaRepository = saidaRepository;
     }
-
+    @PreAuthorize("hasRole('GERENTE')")
     public MaterialResponseDTO criar(MaterialRequestDTO dto, Long usuarioId) {
 
         if (materialRepository.existsByNomeAndUsuarioId(dto.getNome(), usuarioId)) {
@@ -52,7 +53,7 @@ public class MaterialService {
         Material materialSalvo = materialRepository.save(material);
         return MaterialResponseDTO.fromEntity(materialSalvo);
     }
-
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public MaterialResponseDTO buscarPorId(Long id, Long usuarioId) {
 
         Material material = materialRepository.findByIdAndUsuarioId(id, usuarioId)
@@ -60,7 +61,7 @@ public class MaterialService {
 
         return MaterialResponseDTO.fromEntity(material);
     }
-
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public List<MaterialResponseDTO> listarTodos(Long usuarioId) {
 
         List<Material> materiais = materialRepository.findAllByUsuarioId(usuarioId);
@@ -69,7 +70,7 @@ public class MaterialService {
                 .map(MaterialResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
-
+    @PreAuthorize("hasRole('GERENTE')")
     public MaterialResponseDTO atualizar(Long id, MaterialRequestDTO dto, Long usuarioId) {
         Material material = materialRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Material não encontrado"));
@@ -86,7 +87,7 @@ public class MaterialService {
         Material materialAtualizado = materialRepository.save(material);
         return MaterialResponseDTO.fromEntity(materialAtualizado);
     }
-
+    @PreAuthorize("hasRole('GERENTE')")
     @Transactional
     public void delete(Long id, Long usuarioId) {
         Material material = materialRepository.findByIdAndUsuarioId(id, usuarioId)

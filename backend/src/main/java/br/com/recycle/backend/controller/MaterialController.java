@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 
 
 @Tag(name = "Materiais", description = "Gerencia os materiais cadastrados pelo usuário")
@@ -55,6 +57,7 @@ public class MaterialController {
             content = @Content
         )
     })
+    @PreAuthorize("hasRole('GERENTE')")
     @PostMapping
     public ResponseEntity<MaterialResponseDTO> criar(
             @Parameter(description = "Dados do material a ser criado", required = true)
@@ -83,6 +86,7 @@ public class MaterialController {
             content = @Content
         )
     })
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping
     public ResponseEntity<List<MaterialResponseDTO>> listarTodos(HttpServletRequest request) {
         Long usuarioId = (Long) request.getAttribute("usuarioId");
@@ -112,7 +116,7 @@ public class MaterialController {
             content = @Content
         )
     })
-
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping("/{id}")
     public ResponseEntity<MaterialResponseDTO> buscarPorId(
             @Parameter(description = "ID do material", required = true)
@@ -153,6 +157,7 @@ public class MaterialController {
             content = @Content
         )
     })
+    @PreAuthorize("hasRole('GERENTE')")
     @PutMapping("/{id}")
     public ResponseEntity<MaterialResponseDTO> atualizar(
             @Parameter(description = "ID do material", required = true)
@@ -194,7 +199,7 @@ public class MaterialController {
             content = @Content
         )
     })
-
+    @PreAuthorize("hasRole('GERENTE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(
             @Parameter(description = "ID do material", required = true)
