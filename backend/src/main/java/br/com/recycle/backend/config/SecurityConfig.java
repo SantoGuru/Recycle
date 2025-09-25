@@ -1,6 +1,8 @@
 package br.com.recycle.backend.config;
 
 import br.com.recycle.backend.security.JwtAuthenticationFilter;
+import br.com.recycle.backend.security.TenantSecurityFilter;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,9 +24,13 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final TenantSecurityFilter tenantSecurityFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
+    public SecurityConfig(
+        JwtAuthenticationFilter jwtAuthFilter, 
+        TenantSecurityFilter tenantSecurityFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.tenantSecurityFilter = tenantSecurityFilter;
     }
 
     @Bean
@@ -43,7 +49,8 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(tenantSecurityFilter, JwtAuthenticationFilter.class);
         return http.build();
     }
 
