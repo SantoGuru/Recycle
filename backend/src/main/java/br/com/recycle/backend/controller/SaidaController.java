@@ -1,8 +1,5 @@
 package br.com.recycle.backend.controller;
 
-import br.com.recycle.backend.dto.EntradaRequestDTO;
-import br.com.recycle.backend.dto.EntradaResponseDTO;
-import br.com.recycle.backend.dto.EstoqueResponseDTO;
 import br.com.recycle.backend.dto.SaidaRequestDTO;
 import br.com.recycle.backend.dto.SaidaResponseDTO;
 import br.com.recycle.backend.service.SaidaService;
@@ -12,18 +9,19 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-@Tag(name= "Saídas", description = "Gerencia o registro e listagem de saídas de materiais do estoque")
+@Tag(name = "Saídas", description = "Gerencia o registro e listagem de saídas de materiais do estoque")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/saidas")
 public class SaidaController {
@@ -34,67 +32,80 @@ public class SaidaController {
         this.saidaService = saidaService;
     }
 
-     @Operation(
+    @Operation(
         summary = "Registrar saída(s) de material",
-        description = "Registra uma ou mais saídas de materiais para o usuário autenticado"
-    		 )
-     		@ApiResponses(value = {
-     				@ApiResponse(
-     						responseCode = "201",
-     						description = "Sáida registrada com sucesso",
-     						content = @Content(schema = @Schema(implementation = SaidaResponseDTO.class))
-     					),
-     				@ApiResponse(
-     			            responseCode = "400",
-     			            description = "Dados inválidos",
-     			            content = @Content
-     			    ),
-     				@ApiResponse(
-     						responseCode = "401",
-     						description = "Não autorizado",
-     						content = @Content)  				
-     				
-     		})
+        description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
+                      "Registra uma ou mais saídas de materiais para o usuário autenticado."
+    )
 
- @PostMapping
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "201",
+            description = "Saída registrada com sucesso",
+            content = @Content(schema = @Schema(implementation = SaidaResponseDTO.class))
+        ),
+
+        @ApiResponse(
+            responseCode = "400",
+            description = "Dados inválidos",
+            content = @Content
+        ),
+
+        @ApiResponse(
+            responseCode = "401",
+            description = "Não autorizado",
+            content = @Content
+        )
+    })
+
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
+    @PostMapping
     public ResponseEntity<List<SaidaResponseDTO>> registrarSaida(
-            @Parameter(description = "Lista das saídas a serem registradas", required = true)
-            @Valid @RequestBody List<SaidaRequestDTO> saidas,
-            @Parameter(hidden = true) @AuthenticationPrincipal Long usuarioId){
+        @Parameter(description = "Lista das saídas a serem registradas", required = true)
+        @Valid @RequestBody List<SaidaRequestDTO> saidas,
+        HttpServletRequest request
+    ) {
+        Long usuarioId = (Long) request.getAttribute("usuarioId");
         if (usuarioId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
         List<SaidaResponseDTO> resultados = saidaService.registrarSaidas(saidas, usuarioId);
         return ResponseEntity.status(HttpStatus.CREATED).body(resultados);
     }
-  
-     @Operation(
-    	        summary = "Listar todas as saídas do usuário",
-    	        description = "Retorna uma lista com todas as saídas registradas pelo usuário autenticado"
-    	    )
-    	    @ApiResponses(value = {
-    	        @ApiResponse(
-    	            responseCode = "200",
-    	            description = "Saídas listadas com sucesso",
-    	            content = @Content(schema = @Schema(implementation = SaidaResponseDTO.class))
-    	        ),
-    	        @ApiResponse(
-    	            responseCode = "401",
-    	            description = "Não autorizado",
-    	            content = @Content
-    	        )
-    	    })
 
+    @Operation(
+        summary = "Listar todas as saídas do usuário",
+        description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
+                      "Retorna uma lista com todas as saídas registradas pelo usuário autenticado."
+    )
+
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Saídas listadas com sucesso",
+            content = @Content(schema = @Schema(implementation = SaidaResponseDTO.class))
+        ),
+
+        @ApiResponse(
+            responseCode = "401",
+            description = "Não autorizado",
+            content = @Content
+        )
+    })
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping
-    public ResponseEntity<List<SaidaResponseDTO>> listarSaidas(
-        @Parameter(hidden = true) @AuthenticationPrincipal Long usuarioId){
+    public ResponseEntity<List<SaidaResponseDTO>> listarSaidas(HttpServletRequest request) {
+        Long usuarioId = (Long) request.getAttribute("usuarioId");
         if (usuarioId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
         List<SaidaResponseDTO> saidas = saidaService.listarSaidas(usuarioId);
         if (saidas.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
+
         return ResponseEntity.ok(saidas);
     }
 }
