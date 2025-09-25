@@ -1,4 +1,4 @@
-package br.com.recycle.backend.security.tenant;
+package br.com.recycle.backend.security;
 
 import br.com.recycle.backend.model.Entrada;
 import br.com.recycle.backend.model.Material;
@@ -100,8 +100,6 @@ public class TenantSecurityFilter extends OncePerRequestFilter {
         Object entity = entityOptional.get();
         Long entityEmpresaId = getEmpresaIdFromEntity(entity);
 
-        // Se a entidade não tiver um usuário associado (e, portanto, uma empresa),
-        // consideramos como um erro de dados e negamos o acesso para segurança.
         if (entityEmpresaId == null) {
             return false;
         }
@@ -109,10 +107,6 @@ public class TenantSecurityFilter extends OncePerRequestFilter {
         return userEmpresaId.equals(entityEmpresaId);
     }
 
-    /**
-     * Extrai o ID da Empresa da entidade através do relacionamento com o Usuário.
-     * Esta é a versão CORRETA baseada nos seus modelos.
-     */
     private Long getEmpresaIdFromEntity(Object entity) {
         Usuario usuarioDaEntidade = null;
 
@@ -130,7 +124,6 @@ public class TenantSecurityFilter extends OncePerRequestFilter {
             return usuarioDaEntidade.getEmpresa().getId();
         }
 
-        // Retorna null se a entidade não tiver um usuário ou empresa associada.
         return null;
     }
 
