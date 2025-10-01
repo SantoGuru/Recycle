@@ -16,6 +16,8 @@ export default function Signup() {
   }, [loading, isLogged]);
 
   const [nome, setNome] = useState("");
+  const [nomeFantasia, setNomeFantasia] = useState("");
+  const [cnpj, setCnpj] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
@@ -44,7 +46,7 @@ export default function Signup() {
     setMensagemErro("");
 
     try {
-      const response = await createAccountFunction({ nome, email, senha });
+      const response = await createAccountFunction({ nome, email, nomeFantasia, cnpj, senha });
 
       if (!response.ok) {
         setMensagemErro("Email já cadastrado!");
@@ -59,8 +61,8 @@ export default function Signup() {
   };
 
   return (
-    <section className="flex flex-col justify-center items-center h-screen bg-slate-100">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">
+    <section className="flex flex-col justify-center items-center bg-slate-100">
+      <h1 className="text-3xl font-bold text-gray-900 mb-2 mt-15">
         Criar Nova Conta
       </h1>
       <p className="text-gray-600">Preencha os dados abaixo para começar</p>
@@ -93,6 +95,28 @@ export default function Signup() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <Input
+            required
+            label="Nome Fantasia"
+            name="nomeFantasia"
+            id="nomeFantasia"
+            type="text"
+            placeholder="Digite o nome fantasia..."
+            value={nomeFantasia}
+            onChange={(e) => setNomeFantasia(e.target.value)}
+          />
+
+          <Input
+            required
+            label="CNPJ"
+            name="cnpj"
+            id="cnpj"
+            type="text"
+            placeholder="Digite CNPJ da empresa..."
+            value={cnpj}
+            onChange={(e) => setCnpj(e.target.value)}
           />
 
           <Input
