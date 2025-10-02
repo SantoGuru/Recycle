@@ -24,14 +24,14 @@ interface AuthContextType {
   isLoading: boolean;
   signIn: (email: string, senha: string) => Promise<SignInResult>;
   signOut: () => void;
-  session: UserSession | null; 
+  session: UserSession | null;
 }
 
 const AuthContext = createContext<AuthContextType>({
   isLoading: false,
   signIn: async () => Promise.resolve({ success: false, error: "Contexto não provido" }),
-  signOut: () => {},
-  session: null, 
+  signOut: () => { },
+  session: null,
 });
 
 export const useAuth = () => {
@@ -81,6 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setSession(null);
     await SecureStore.deleteItemAsync("userSession");
   };
+
 
   return (
     <AuthContext.Provider value={{ isLoading, signIn, signOut, session }}>

@@ -23,3 +23,5 @@ export const loginFunction = async (
     return { success: false, error: 'Não foi possível conectar ao servidor' };
   }
 };
+
+

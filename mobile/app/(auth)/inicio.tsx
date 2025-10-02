@@ -28,7 +28,8 @@ export default function Inicio() {
             <Button
                 style={[styles.button, { backgroundColor: iconColor }]}
                 labelStyle={{ color: backgroundColor }}
-                onPress={() => router.push("/(auth)/login")}
+                //onPress={() => router.push("/(auth)/login")}
+                onPress={() => router.push("/(auth)/cadastroFuncionario")}
             >Começar</Button>
         </View>
     )

@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import IconCard from "@/components/ui/IconCard";
 
 import { useAuth } from "@/context/AuthContext";
+import { router } from "expo-router";
 
 
 export default function HomeScreen() {
@@ -43,7 +44,7 @@ export default function HomeScreen() {
             <IconCard
               iconName="person-add"
               title="Cadastrar Funcionário"
-              onPress={() => console.log("Início")}
+              onPress={() => router.push("/(tabs)/cadastroFuncionario")}
             /> </>
         )}
 
