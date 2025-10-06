@@ -7,9 +7,9 @@ import { useAuth } from '@/context/AuthContext';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { router } from 'expo-router';
 
-import { API_URL } from "../../config";
+import { API_URL } from "../../../config";
 
-export default function cadastroFuncionario() {
+export default function CadastroFuncionario() {
   const { session } = useAuth();
   const role = session?.role;
 
