@@ -5,11 +5,24 @@ import { TextInput, Button } from 'react-native-paper';
 
 import { useAuth } from '@/context/AuthContext';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { router } from 'expo-router';
 
-export default function LoginScreen() {
-  const { signIn } = useAuth();
+import { API_URL } from "../../config";
+
+export default function cadastroFuncionario() {
+  const { session } = useAuth();
+  const role = session?.role;
+
+  if (role != "GERENTE") {
+    router.push("/")
+  }
+
+  const [nome, setNome] = useState('');
+
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [confirmaSenha, setConfirmaSenha] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -22,9 +35,15 @@ export default function LoginScreen() {
 
   const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
 
-  const handleLogin = async () => {
-    if (!email || !senha) {
-      setMessage('Preencha email e senha');
+  const handleCreateFuncionario = async () => {
+    if (!email || !senha || !nome || !confirmaSenha) {
+      setMessage('Preencha todos os campos');
+      setMessageType('error');
+      return;
+    }
+
+    if (senha != confirmaSenha) {
+      setMessage('Senha e confirmar senha devem ser iguais');
       setMessageType('error');
       return;
     }
@@ -33,21 +52,44 @@ export default function LoginScreen() {
     setMessage('');
     setMessageType('');
 
-    const result = await signIn(email, senha);
+    try {
+      const response = await fetch(`${API_URL}/api/auth/cadastroFuncionario`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, email, senha }),
+      });
 
-    if (result.success) {
-      setMessage('Login realizado com sucesso!');
-      setMessageType('success');
-    } else {
-      setMessage(`Erro: ${result.error}`);
-      setMessageType('error');
+      if (response.ok) {
+        setMessage('Cadastro de funcionário realizado com sucesso!');
+        setMessageType('success');
+      } else {
+        setMessage('Erro ao cadastrar funcionario');
+        setMessageType('error');
+      }
+    } catch (err) {
+      setMessage('Não foi possível conectar ao servidor');
+      setMessageType('error')
+      return { error: 'Não foi possível conectar ao servidor' };
     }
+
     setLoading(false);
+
   };
+
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
-      <Text style={[styles.title, { color: textColor }]}>Login</Text>
+      <Text style={[styles.title, { color: textColor }]}>Cadastro de Funcionário</Text>
+
+      <TextInput
+        mode="flat"
+        style={[styles.input, { color: textColor }]}
+        placeholder="Nome"
+        placeholderTextColor={textColor}
+        value={nome}
+        onChangeText={setNome}
+        autoCapitalize="none"
+      />
 
       <TextInput
         mode="flat"
@@ -77,6 +119,23 @@ export default function LoginScreen() {
         }
       />
 
+      <TextInput
+        mode="flat"
+        style={[styles.input, { color: textColor }]}
+        placeholder="Confirmar Senha"
+        placeholderTextColor={textColor}
+        value={confirmaSenha}
+        onChangeText={setConfirmaSenha}
+        secureTextEntry={!mostrarSenha}
+        right={
+          <TextInput.Icon
+            icon={mostrarSenha ? "eye-off" : "eye"}
+            color={iconColor}
+            onPress={() => setMostrarSenha(!mostrarSenha)}
+          />
+        }
+      />
+
 
 
 
@@ -84,10 +143,10 @@ export default function LoginScreen() {
         mode="contained"
         style={{ backgroundColor: tintColor }}
         labelStyle={{ color: backgroundColor }}
-        onPress={handleLogin}
+        onPress={handleCreateFuncionario}
         disabled={loading}
       >
-        {loading ? "Entrando..." : "Login"}
+        {loading ? "Cadastrando..." : "Cadastrar Funcionário"}
       </Button>
 
 
