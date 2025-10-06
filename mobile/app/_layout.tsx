@@ -34,7 +34,7 @@ function RootLayout() {
     const inAuthGroup = segments[0] === "(auth)";
 
     if (session && inAuthGroup) {
-      router.replace({ pathname: "/(tabs)" });
+      router.replace({ pathname: "/(tabs)/(home)" });
     } else if (!session && !inAuthGroup) {
       router.replace({ pathname: "/inicio" });
     }

@@ -44,7 +44,7 @@ export default function HomeScreen() {
             <IconCard
               iconName="person-add"
               title="Cadastrar Funcionário"
-              onPress={() => router.push("/(tabs)/cadastroFuncionario")}
+              onPress={() => router.push("/(tabs)/(home)/cadastroFuncionario")}
             /> </>
         )}
 
