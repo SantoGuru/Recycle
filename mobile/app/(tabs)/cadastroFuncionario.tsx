@@ -35,7 +35,7 @@ export default function cadastroFuncionario() {
 
   const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
 
-  const handleLogin = async () => {
+  const handleCreateFuncionario = async () => {
     if (!email || !senha || !nome || !confirmaSenha) {
       setMessage('Preencha todos os campos');
       setMessageType('error');
@@ -143,7 +143,7 @@ export default function cadastroFuncionario() {
         mode="contained"
         style={{ backgroundColor: tintColor }}
         labelStyle={{ color: backgroundColor }}
-        onPress={handleLogin}
+        onPress={handleCreateFuncionario}
         disabled={loading}
       >
         {loading ? "Cadastrando..." : "Cadastrar Funcionário"}
