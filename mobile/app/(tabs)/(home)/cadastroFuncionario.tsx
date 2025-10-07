@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { useState } from "react";
+import { View, Text, StyleSheet } from "react-native";
 
-import { TextInput, Button } from 'react-native-paper';
+import { TextInput, Button } from "react-native-paper";
 
-import { useAuth } from '@/context/AuthContext';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { router } from 'expo-router';
+import { useAuth } from "@/context/AuthContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { router } from "expo-router";
 
 import { API_URL } from "../../../config";
 
@@ -13,18 +13,19 @@ export default function CadastroFuncionario() {
   const { session } = useAuth();
   const role = session?.role;
 
-  if (role != "GERENTE") {
-    router.push("/")
+/*   if (role != "GERENTE") {
+    router.push("/");
   }
+*/
 
-  const [nome, setNome] = useState('');
+  const [nome, setNome] = useState("");
 
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [confirmaSenha, setConfirmaSenha] = useState('');
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [confirmaSenha, setConfirmaSenha] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
   const textColor = useThemeColor({}, "text");
@@ -32,54 +33,53 @@ export default function CadastroFuncionario() {
   const tintColor = useThemeColor({}, "tint");
   const iconColor = useThemeColor({}, "icon");
 
-
-  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
   const handleCreateFuncionario = async () => {
     if (!email || !senha || !nome || !confirmaSenha) {
-      setMessage('Preencha todos os campos');
-      setMessageType('error');
+      setMessage("Preencha todos os campos");
+      setMessageType("error");
       return;
     }
 
     if (senha != confirmaSenha) {
-      setMessage('Senha e confirmar senha devem ser iguais');
-      setMessageType('error');
+      setMessage("Senha e confirmar senha devem ser iguais");
+      setMessageType("error");
       return;
     }
 
     setLoading(true);
-    setMessage('');
-    setMessageType('');
+    setMessage("");
+    setMessageType("");
 
     try {
       const response = await fetch(`${API_URL}/api/auth/cadastroFuncionario`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome, email, senha }),
       });
 
       if (response.ok) {
-        setMessage('Cadastro de funcionário realizado com sucesso!');
-        setMessageType('success');
+        setMessage("Cadastro de funcionário realizado com sucesso!");
+        setMessageType("success");
       } else {
-        setMessage('Erro ao cadastrar funcionario');
-        setMessageType('error');
+        setMessage("Erro ao cadastrar funcionario");
+        setMessageType("error");
       }
     } catch (err) {
-      setMessage('Não foi possível conectar ao servidor');
-      setMessageType('error')
-      return { error: 'Não foi possível conectar ao servidor' };
+      setMessage("Não foi possível conectar ao servidor");
+      setMessageType("error");
+      return { error: "Não foi possível conectar ao servidor" };
     }
 
     setLoading(false);
-
   };
-
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
-      <Text style={[styles.title, { color: textColor }]}>Cadastro de Funcionário</Text>
+      <Text style={[styles.title, { color: textColor }]}>
+        Cadastro de Funcionário
+      </Text>
 
       <TextInput
         mode="flat"
@@ -136,9 +136,6 @@ export default function CadastroFuncionario() {
         }
       />
 
-
-
-
       <Button
         mode="contained"
         style={{ backgroundColor: tintColor }}
@@ -149,12 +146,11 @@ export default function CadastroFuncionario() {
         {loading ? "Cadastrando..." : "Cadastrar Funcionário"}
       </Button>
 
-
       {message ? (
         <Text
           style={[
             styles.message,
-            messageType === 'success' ? styles.success : styles.error,
+            messageType === "success" ? styles.success : styles.error,
           ]}
         >
           {message}
@@ -167,32 +163,32 @@ export default function CadastroFuncionario() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 20,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 40,
-    textAlign: 'center',
+    textAlign: "center",
   },
   input: {
     height: 50,
     borderWidth: 1,
-    borderColor: '#999',
+    borderColor: "#999",
     borderRadius: 8,
     paddingHorizontal: 15,
     marginBottom: 20,
   },
   message: {
     marginTop: 20,
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 16,
   },
   success: {
-    color: 'green',
+    color: "green",
   },
   error: {
-    color: 'red',
+    color: "red",
   },
 });

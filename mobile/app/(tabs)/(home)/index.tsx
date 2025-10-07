@@ -34,7 +34,7 @@ export default function HomeScreen() {
         />
 
 
-        {isAdmin && (
+        {true && (
           <>
             <IconCard
               iconName="new-label"
@@ -42,7 +42,7 @@ export default function HomeScreen() {
               onPress={() => console.log("Início")}
             />
             <IconCard
-              iconName="person-add"
+              iconName="person"
               title="Cadastrar Funcionário"
               onPress={() => router.push("/(tabs)/(home)/cadastroFuncionario")}
             /> </>
