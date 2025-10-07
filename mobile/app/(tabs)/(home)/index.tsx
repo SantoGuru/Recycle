@@ -12,7 +12,7 @@ export default function HomeScreen() {
 
 
   let isAdmin;
-  if (role == "GERENTE") {
+  if (role === "GERENTE") {
     isAdmin = true;
   }
   else {
@@ -34,7 +34,8 @@ export default function HomeScreen() {
         />
 
 
-        {isAdmin && (
+        {/* tofix: trocar este true por isAdmin após integração com backend */}
+        {true && (
           <>
             <IconCard
               iconName="new-label"
@@ -42,9 +43,9 @@ export default function HomeScreen() {
               onPress={() => console.log("Início")}
             />
             <IconCard
-              iconName="person-add"
-              title="Cadastrar Funcionário"
-              onPress={() => router.push("/(tabs)/(home)/cadastroFuncionario")}
+              iconName="person"
+              title="Funcionários"
+              onPress={() => router.push("/(tabs)/(home)/funcionarios")}
             /> </>
         )}
 
@@ -60,7 +61,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   grid: {
-    width: "100%",
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
