@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 import { TextInput, Button } from "react-native-paper";
@@ -14,7 +14,13 @@ export default function CadastroFuncionario() {
   const role = session?.role;
 
   /* tofix: descomentar este codigo apos integracao com backend
-/*   if (role != "GERENTE") {
+    useEffect(() => {
+    if (session == null) {
+      router.push("/");
+    }
+  }, [session]);
+
+   if (role != "GERENTE") {
     router.push("/");
   }
 */
