@@ -13,6 +13,7 @@ export default function CadastroFuncionario() {
   const { session } = useAuth();
   const role = session?.role;
 
+  /* tofix: descomentar este codigo apos integracao com backend
 /*   if (role != "GERENTE") {
     router.push("/");
   }

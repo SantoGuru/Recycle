@@ -34,6 +34,7 @@ export default function HomeScreen() {
         />
 
 
+        {/* tofix: trocar este true por isAdmin após integração com backend */}
         {true && (
           <>
             <IconCard
@@ -60,7 +61,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   grid: {
-    width: "100%",
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
