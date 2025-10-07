@@ -1,6 +1,7 @@
 import { Card, Text } from "react-native-paper";
-import { TouchableOpacity, StyleSheet, } from "react-native";
+import { TouchableOpacity, StyleSheet } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useTheme } from "react-native-paper";
 
 export default function IconCard({
   iconName,
@@ -11,11 +12,17 @@ export default function IconCard({
   title: string;
   onPress: () => void;
 }) {
+  const theme = useTheme();
+
   return (
     <TouchableOpacity onPress={onPress} style={styles.touchable}>
       <Card style={styles.card}>
         <Card.Content style={styles.content}>
-          <MaterialIcons name={iconName as any} size={36} color="#6200ee" />
+          <MaterialIcons
+            name={iconName as any}
+            size={36}
+            color={theme.colors.primary}
+          />
           <Text style={styles.title}>{title}</Text>
         </Card.Content>
       </Card>

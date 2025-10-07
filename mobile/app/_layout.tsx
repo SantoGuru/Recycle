@@ -15,7 +15,7 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { PaperProvider } from "react-native-paper";
+import { PaperProvider, MD3DarkTheme, MD3LightTheme } from "react-native-paper";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 function RootLayout() {
@@ -27,6 +27,7 @@ function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
+  const theme = colorScheme === "dark" ? MD3DarkTheme : MD3LightTheme;
 
   useEffect(() => {
     if (!navigationState?.key || isLoading) return;
@@ -52,7 +53,7 @@ function RootLayout() {
   }
 
   return (
-    <PaperProvider>
+    <PaperProvider theme={theme}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(auth)" options={{ headerShown: false }}/>

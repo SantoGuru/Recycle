@@ -12,7 +12,7 @@ export default function HomeScreen() {
 
 
   let isAdmin;
-  if (role == "GERENTE") {
+  if (role === "GERENTE") {
     isAdmin = true;
   }
   else {
@@ -43,8 +43,8 @@ export default function HomeScreen() {
             />
             <IconCard
               iconName="person"
-              title="Cadastrar Funcionário"
-              onPress={() => router.push("/(tabs)/(home)/cadastroFuncionario")}
+              title="Funcionários"
+              onPress={() => router.push("/(tabs)/(home)/funcionarios")}
             /> </>
         )}
 
