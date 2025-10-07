@@ -11,9 +11,15 @@ export default function Funcionarios() {
   const [itemsPerPage, onItemsPerPageChange] = useState(
     numberOfItemsPerPageList[0]
   );
+  const filteredItemsPerPageList = useMemo(
+    () => numberOfItemsPerPageList.filter((n) => n !== itemsPerPage),
+    [numberOfItemsPerPageList, itemsPerPage]
+  );
 
   const handleItemsPerPageChange = (value: number) => {
-    setTimeout(() => onItemsPerPageChange(value), 150);
+    if (value !== itemsPerPage) {
+      setTimeout(() => onItemsPerPageChange(value), 150);
+    }
   };
 
   const [items] = useState([
@@ -100,7 +106,7 @@ export default function Funcionarios() {
           numberOfPages={Math.ceil(items.length / itemsPerPage)}
           onPageChange={(page) => setPage(page)}
           label={`${from + 1}-${to} de ${items.length}`}
-          numberOfItemsPerPageList={numberOfItemsPerPageList}
+          numberOfItemsPerPageList={filteredItemsPerPageList}
           numberOfItemsPerPage={itemsPerPage}
           onItemsPerPageChange={handleItemsPerPageChange}
           showFastPaginationControls
