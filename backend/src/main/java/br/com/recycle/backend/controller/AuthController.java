@@ -62,24 +62,59 @@ public class AuthController {
     }
 
     @Operation(
-        summary = "Registro de usuário",
-        description = "Acesso público. Registra um novo usuário (cria a empresa se necessário) e retorna token JWT (Bearer)."
+        summary = "Cadastro de usuário pelo Gerente",
+        description = "Acesso restrito. Gerente cadastra um novo usuário com o cargo Operador (relacionando-o na sua empresa) e retorna token JWT (Bearer)."
     )
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
-            description = "Usuário registrado com sucesso",
+            description = "Usuário cadastrado com sucesso",
             content = @Content(schema = @Schema(implementation = TokenDTO.class))
         ),
         @ApiResponse(
             responseCode = "400",
             description = "Dados de registro inválidos ou email já existente",
             content = @Content
+        ),
+        @ApiResponse(
+        	responseCode = "403",
+        	description = "Acesso negado pelo servidor",
+        	content = @Content
         )
     })
     @PreAuthorize("hasRole('GERENTE')")
-    @PostMapping("/registro")
-    public ResponseEntity<TokenDTO> registro(
+    @PostMapping("/cadastro")
+    public ResponseEntity<TokenDTO> cadastro(
+        @Parameter(description = "Dados do novo usuário (nome, email, senha e cnpj)", required = true)
+        @Valid @RequestBody RegistroDTO registroDTO) {
+        Usuario usuario = authService.registrar(registroDTO);
+
+        LoginDTO loginDTO = new LoginDTO();
+        loginDTO.setEmail(registroDTO.getEmail());
+        loginDTO.setSenha(registroDTO.getSenha());
+        
+        TokenDTO tokenDTO = authService.login(loginDTO);
+        return ResponseEntity.ok(tokenDTO);
+    }
+    
+    @Operation(
+            summary = "Registro de usuário",
+            description = "Acesso público. Registra um novo usuário (cria a empresa se necessário) e retorna token JWT (Bearer)."
+        )
+        @ApiResponses(value = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Usuário registrado com sucesso",
+                content = @Content(schema = @Schema(implementation = TokenDTO.class))
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Dados de registro inválidos ou email já existente",
+                content = @Content
+            )
+        })
+    	@PostMapping("/registro")
+    	public ResponseEntity<TokenDTO> registro(
         @Parameter(description = "Dados do novo usuário (nome, email, senha e cnpj)", required = true)
         @Valid @RequestBody RegistroDTO registroDTO) {
         Usuario usuario = authService.registrar(registroDTO);
