@@ -73,6 +73,30 @@ public class AuthService {
         }
     }
 
+    @PreAuthorize("hasRole('GERENTE')")
+    @Transactional 
+    public Usuario cadastrar(RegistroDTO registroDTO) {
+
+        if (usuarioRepository.existsByEmail(registroDTO.getEmail())) {
+            throw new RuntimeException("Email já cadastrado");
+        }
+
+        Empresa empresa = empresaRepository.findByCnpj(registroDTO.getCnpj())
+                .orElseThrow(() -> {
+                   throw new IllegalArgumentException("O nome fantasia é obrigatório para cadastrar uma nova empresa.");
+                });
+
+        Usuario usuario = new Usuario();
+        usuario.setNome(registroDTO.getNome());
+        usuario.setEmail(registroDTO.getEmail());
+        usuario.setSenha(passwordEncoder.encode(registroDTO.getSenha()));
+        usuario.setRole(Role.OPERADOR);
+        usuario.setEmpresa(empresa);
+
+        return usuarioRepository.save(usuario);
+    }
+    
+    
     @Transactional 
     public Usuario registrar(RegistroDTO registroDTO) {
 
@@ -111,6 +135,7 @@ public class AuthService {
         return usuarioRepository.save(usuario);
     }
 
+    @PreAuthorize("hasRole('GERENTE')")
     @Transactional
     public void modificar(String email, RegistroDTO modificacao) throws Exception {
         if (!usuarioRepository.existsByEmail(email)) {
@@ -127,6 +152,7 @@ public class AuthService {
         }
     }
 
+    @PreAuthorize("hasRole('GERENTE')")
     @Transactional
     public void deletar(String email) throws Exception {
         if (!usuarioRepository.existsByEmail(email)) {
