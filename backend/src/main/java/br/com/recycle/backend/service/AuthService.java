@@ -64,10 +64,13 @@ public class AuthService {
 
             Usuario usuario = usuarioRepository.findByEmail(loginDTO.getEmail())
                     .orElseThrow(() -> new BadCredentialsException("Credenciais inválidas"));
-
             String token = jwtTokenProvider.generateToken(userDetails);
             loginAttemptService.loginSucceeded(ip);
-            return new TokenDTO(token, usuario.getNome(), usuario.getId());
+
+            return new TokenDTO(token, usuario.getNome(), usuario.getId(), usuario.getRole().name(),
+            usuario.getEmpresa() != null ? usuario.getEmpresa().getId() : null,
+            usuario.getEmpresa() != null ? usuario.getEmpresa().getNomeFantasia() : null
+            );
         } catch (Exception e) {
             throw new BadCredentialsException("Credenciais inválidas");
         }
