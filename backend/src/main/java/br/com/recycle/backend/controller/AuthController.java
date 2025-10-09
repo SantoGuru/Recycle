@@ -77,7 +77,6 @@ public class AuthController {
             content = @Content
         )
     })
-    @PreAuthorize("hasRole('GERENTE')")
     @PostMapping("/registro")
     public ResponseEntity<TokenDTO> registro(
         @Parameter(description = "Dados do novo usuário (nome, email, senha e cnpj)", required = true)
