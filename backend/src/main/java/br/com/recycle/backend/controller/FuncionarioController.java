@@ -14,6 +14,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -73,4 +77,20 @@ public class FuncionarioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(UsuarioResponseDTO.fromEntity(criado));
     }
 
+    @PreAuthorize("hasRole('GERENTE')")
+    @GetMapping
+    public ResponseEntity<List<UsuarioResponseDTO>> buscarFuncionarios(HttpServletRequest request) {
+        Long gerenteId = (Long) request.getAttribute("usuarioId");
+        if (gerenteId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<Usuario> funcionarios = funcionarioService.buscarFuncionarios(gerenteId);
+
+        List<UsuarioResponseDTO> dtos = funcionarios.stream()
+                .map(UsuarioResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtos);
+    }
 }
