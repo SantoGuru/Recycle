@@ -72,4 +72,5 @@ public class FuncionarioController {
         Usuario criado = funcionarioService.criarFuncionario(gerenteId, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(UsuarioResponseDTO.fromEntity(criado));
     }
+
 }
