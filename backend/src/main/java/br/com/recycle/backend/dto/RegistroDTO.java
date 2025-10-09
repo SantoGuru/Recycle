@@ -16,18 +16,16 @@ public class RegistroDTO {
     @Size(max = 255, message = "O email não pode exceder 255 caracteres.")
     private String email;
 
+    private String nomeFantasia;
+
+    private String cnpj;
+
     @NotBlank(message = "A senha é obrigatória")
     @Size(min = 6, max = 50, message = "A senha deve ter entre 6 e 50 caracteres.")
     @Pattern(
         regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).*$",
         message = "A senha deve conter pelo menos uma letra maiúscula, uma minúscula e um dígito."
     )
-
-    private String nomeFantasia;
-
-    private String cnpj;
-
-
     private String senha;
 
     public String getNome() {
