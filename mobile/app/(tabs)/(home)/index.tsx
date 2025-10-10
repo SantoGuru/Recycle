@@ -1,26 +1,68 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Dimensions } from "react-native";
 
 import IconCard from "@/components/ui/IconCard";
 
 import { useAuth } from "@/context/AuthContext";
 import { router } from "expo-router";
+import { Avatar, Surface, Text, useTheme } from "react-native-paper";
 
+const { width } = Dimensions.get("window");
 
 export default function HomeScreen() {
+  const theme = useTheme();
   const { session } = useAuth();
   const role = session?.role;
-
+  const nome = session?.nome.split(" ")[0];
+  const empresaNome = session?.empresaNome;
 
   let isAdmin;
   if (role === "GERENTE") {
     isAdmin = true;
-  }
-  else {
+  } else {
     isAdmin = false;
   }
 
   return (
     <View style={styles.body}>
+      <Surface style={styles.header} elevation={2}>
+        <Avatar.Image
+          size={48}
+          source={require("@/assets/images/recycle-logo.png")}
+          style={{
+            backgroundColor: theme.colors.surface,
+          }}
+        />
+        <View>
+          <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
+            Bem-vindo, {nome}!
+          </Text>
+          <Text
+            variant="bodyMedium"
+            style={{ color: theme.colors.onSurfaceVariant }}
+          >
+            Empresa: {empresaNome}
+          </Text>
+        </View>
+      </Surface>
+      <View style={styles.resume}>
+        <Surface elevation={2} style={styles.card}>
+          <View style={styles.materialContent}>
+            <Text variant="displayMedium">32</Text>
+            <Text variant="bodySmall" style={{ color: 'rgb(56, 107, 1)' }}>(R$ 20,40)</Text>
+          </View>
+          <Text variant="labelMedium">Total de Materiais</Text>
+        </Surface>
+        <Surface elevation={2} style={styles.card}>
+          <View style={styles.materialContent}>
+            <Text variant="displayMedium" style={{ color: theme.colors.error }}>
+              2
+            </Text>
+            <Text variant="bodySmall"> </Text>
+          </View>
+          <Text variant="labelMedium">Itens em Baixa</Text>
+        </Surface>
+      </View>
+
       <View style={styles.grid}>
         <IconCard
           iconName="add"
@@ -32,10 +74,7 @@ export default function HomeScreen() {
           title="Saída"
           onPress={() => console.log("Início")}
         />
-
-
-        {/* tofix: trocar este true por isAdmin após integração com backend */}
-        {true && (
+        {isAdmin && (
           <>
             <IconCard
               iconName="new-label"
@@ -46,9 +85,9 @@ export default function HomeScreen() {
               iconName="person"
               title="Funcionários"
               onPress={() => router.push("/(tabs)/(home)/funcionarios")}
-            /> </>
+            />
+          </>
         )}
-
       </View>
     </View>
   );
@@ -57,7 +96,41 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   body: {
     flex: 1,
+    justifyContent: "space-evenly",
+    alignItems: "center",
+  },
+  header: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    gap: width * 0.08,
+    width: "100%",
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  resume: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "center",
+    alignContent: "space-between",
+    gap: width * 0.03,
+  },
+  card: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    width: width * 0.45,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  materialContent: {
+    display: "flex",
+    minHeight: 60,
+    gap: 0,
+    flexDirection: "column",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   grid: {
@@ -66,6 +139,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignContent: "space-between",
     gap: 8,
+    marginBottom: 20,
   },
   headerImage: {
     color: "#808080",
