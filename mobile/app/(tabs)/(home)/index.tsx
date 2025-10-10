@@ -44,6 +44,22 @@ export default function HomeScreen() {
           </Text>
         </View>
       </Surface>
+      <View style={styles.resume}>
+        <Surface elevation={2} style={styles.card}>
+          <View style={styles.materialContent}>
+            <Text variant="displayMedium">32</Text>
+            <Text variant="bodySmall">(R$ 20,40)</Text>
+          </View>
+          <Text variant="labelMedium">Total de Materiais</Text>
+        </Surface>
+        <Surface elevation={2} style={styles.card}>
+          <Text variant="displayMedium" style={{ color: theme.colors.error }}>
+            2
+          </Text>
+          <Text variant="labelMedium">Itens em Baixa</Text>
+        </Surface>
+      </View>
+
       <View style={styles.grid}>
         <IconCard
           iconName="add"
@@ -85,9 +101,32 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     gap: width * 0.08,
-    width: "90%",
+    width: "100%",
     padding: 16,
     borderRadius: 12,
+    alignItems: "center",
+  },
+  resume: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    alignContent: "space-between",
+    gap: width * 0.03,
+  },
+  card: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+    width: width * 0.45,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  materialContent: {
+    display: "flex",
+    gap: 0,
+    flexDirection: "column",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   grid: {
@@ -96,6 +135,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignContent: "space-between",
     gap: 8,
+    marginBottom: 20,
   },
   headerImage: {
     color: "#808080",
