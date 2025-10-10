@@ -12,18 +12,17 @@ import { API_URL } from "../../../config";
 export default function CadastroFuncionario() {
   const { session } = useAuth();
   const role = session?.role;
+  const token = session?.token;
 
-  /* tofix: descomentar este codigo apos integracao com backend
-    useEffect(() => {
+  useEffect(() => {
     if (session == null) {
       router.push("/");
     }
   }, [session]);
 
-   if (role != "GERENTE") {
+  if (role != "GERENTE") {
     router.push("/");
   }
-*/
 
   const [nome, setNome] = useState("");
 
@@ -60,9 +59,12 @@ export default function CadastroFuncionario() {
     setMessageType("");
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/cadastroFuncionario`, {
+      const response = await fetch(`${API_URL}/api/usuarios/funcionarios`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ nome, email, senha }),
       });
 
