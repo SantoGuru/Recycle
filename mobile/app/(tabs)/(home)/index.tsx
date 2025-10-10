@@ -53,9 +53,12 @@ export default function HomeScreen() {
           <Text variant="labelMedium">Total de Materiais</Text>
         </Surface>
         <Surface elevation={2} style={styles.card}>
-          <Text variant="displayMedium" style={{ color: theme.colors.error }}>
-            2
-          </Text>
+          <View style={styles.materialContent}>
+            <Text variant="displayMedium" style={{ color: theme.colors.error }}>
+              2
+            </Text>
+            <Text variant="bodySmall"> </Text>
+          </View>
           <Text variant="labelMedium">Itens em Baixa</Text>
         </Surface>
       </View>
@@ -116,7 +119,7 @@ const styles = StyleSheet.create({
   card: {
     display: "flex",
     flexDirection: "column",
-    justifyContent: "flex-end",
+    justifyContent: "center",
     width: width * 0.45,
     padding: 16,
     borderRadius: 12,
@@ -124,6 +127,7 @@ const styles = StyleSheet.create({
   },
   materialContent: {
     display: "flex",
+    minHeight: 60,
     gap: 0,
     flexDirection: "column",
     justifyContent: "flex-start",
