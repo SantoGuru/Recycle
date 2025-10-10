@@ -48,7 +48,7 @@ export default function HomeScreen() {
         <Surface elevation={2} style={styles.card}>
           <View style={styles.materialContent}>
             <Text variant="displayMedium">32</Text>
-            <Text variant="bodySmall">(R$ 20,40)</Text>
+            <Text variant="bodySmall" style={{ color: 'rgb(56, 107, 1)' }}>(R$ 20,40)</Text>
           </View>
           <Text variant="labelMedium">Total de Materiais</Text>
         </Surface>
