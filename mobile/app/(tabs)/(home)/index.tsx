@@ -1,25 +1,49 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Dimensions } from "react-native";
 
 import IconCard from "@/components/ui/IconCard";
 
 import { useAuth } from "@/context/AuthContext";
 import { router } from "expo-router";
+import { Avatar, Surface, Text, useTheme } from "react-native-paper";
 
+const { width } = Dimensions.get("window");
 
 export default function HomeScreen() {
+  const theme = useTheme();
   const { session } = useAuth();
   const role = session?.role;
+  const nome = session?.nome.split(" ")[0];
+  const empresaNome = session?.empresaNome;
 
   let isAdmin;
   if (role === "GERENTE") {
     isAdmin = true;
-  }
-  else {
+  } else {
     isAdmin = false;
   }
 
   return (
     <View style={styles.body}>
+      <Surface style={styles.header} elevation={2}>
+        <Avatar.Image
+          size={48}
+          source={require("@/assets/images/recycle-logo.png")}
+          style={{
+            backgroundColor: theme.colors.surface,
+          }}
+        />
+        <View>
+          <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
+            Bem-vindo, {nome}!
+          </Text>
+          <Text
+            variant="bodyMedium"
+            style={{ color: theme.colors.onSurfaceVariant }}
+          >
+            Empresa: {empresaNome}
+          </Text>
+        </View>
+      </Surface>
       <View style={styles.grid}>
         <IconCard
           iconName="add"
@@ -31,7 +55,6 @@ export default function HomeScreen() {
           title="Saída"
           onPress={() => console.log("Início")}
         />
-
         {isAdmin && (
           <>
             <IconCard
@@ -43,9 +66,9 @@ export default function HomeScreen() {
               iconName="person"
               title="Funcionários"
               onPress={() => router.push("/(tabs)/(home)/funcionarios")}
-            /> </>
+            />
+          </>
         )}
-
       </View>
     </View>
   );
@@ -54,7 +77,17 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   body: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+  },
+  header: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    gap: width * 0.08,
+    width: "90%",
+    padding: 16,
+    borderRadius: 12,
     alignItems: "center",
   },
   grid: {
