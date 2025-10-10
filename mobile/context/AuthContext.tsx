@@ -10,9 +10,12 @@ import { loginFunction } from "@/http";
 
 interface UserSession {
   token: string;
+  tipo: string;
   nome: string;
-  role: string;
   id: number;
+  role: string;
+  empresaId: number;
+  empresaNome: string;
 }
 
 interface SignInResult {
