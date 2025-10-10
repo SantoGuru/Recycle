@@ -10,7 +10,6 @@ export default function HomeScreen() {
   const { session } = useAuth();
   const role = session?.role;
 
-
   let isAdmin;
   if (role === "GERENTE") {
     isAdmin = true;
@@ -33,9 +32,7 @@ export default function HomeScreen() {
           onPress={() => console.log("Início")}
         />
 
-
-        {/* tofix: trocar este true por isAdmin após integração com backend */}
-        {true && (
+        {isAdmin && (
           <>
             <IconCard
               iconName="new-label"
