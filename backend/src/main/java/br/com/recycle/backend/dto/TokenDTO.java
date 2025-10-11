@@ -10,6 +10,8 @@ public class TokenDTO {
     private Long empresaId;
     private String empresaNome;
 
+    public TokenDTO() {}
+
     // Construtor padrão usado no AuthService
     public TokenDTO(String token, String nome, Long id, String role, Long empresaId, String empresaNome) {
         this.token = token;
