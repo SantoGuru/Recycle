@@ -4,12 +4,14 @@ import IconCard from "@/components/ui/IconCard";
 
 import { useAuth } from "@/context/AuthContext";
 import { router } from "expo-router";
-import { Avatar, Surface, Text, useTheme } from "react-native-paper";
+import { Avatar, MD3Theme, Surface, Text, useTheme } from "react-native-paper";
+import { useMemo } from "react";
 
 const { width } = Dimensions.get("window");
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const style = useMemo(() => styles(theme), [theme]);
   const { session } = useAuth();
   const role = session?.role;
   const nome = session?.nome.split(" ")[0];
@@ -23,8 +25,8 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={styles.body}>
-      <Surface style={styles.header} elevation={2}>
+    <View style={style.body}>
+      <View style={style.header}>
         <Avatar.Image
           size={48}
           source={require("@/assets/images/recycle-logo.png")}
@@ -43,17 +45,19 @@ export default function HomeScreen() {
             Empresa: {empresaNome}
           </Text>
         </View>
-      </Surface>
-      <View style={styles.resume}>
-        <Surface elevation={2} style={styles.card}>
-          <View style={styles.materialContent}>
+      </View>
+      <View style={style.resume}>
+        <Surface elevation={1} style={style.card}>
+          <View style={style.materialContent}>
             <Text variant="displayMedium">32</Text>
-            <Text variant="bodySmall" style={{ color: 'rgb(56, 107, 1)' }}>(R$ 20,40)</Text>
+            <Text variant="bodySmall" style={{ color: "rgb(56, 107, 1)" }}>
+              (R$ 20,40)
+            </Text>
           </View>
           <Text variant="labelMedium">Total de Materiais</Text>
         </Surface>
-        <Surface elevation={2} style={styles.card}>
-          <View style={styles.materialContent}>
+        <Surface elevation={1} style={style.card}>
+          <View style={style.materialContent}>
             <Text variant="displayMedium" style={{ color: theme.colors.error }}>
               2
             </Text>
@@ -63,7 +67,7 @@ export default function HomeScreen() {
         </Surface>
       </View>
 
-      <View style={styles.grid}>
+      <View style={style.grid}>
         <IconCard
           iconName="add"
           title="Entrada"
@@ -93,67 +97,72 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-    justifyContent: "space-evenly",
-    alignItems: "center",
-  },
-  header: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    gap: width * 0.08,
-    width: "100%",
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  resume: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    alignContent: "space-between",
-    gap: width * 0.03,
-  },
-  card: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    width: width * 0.45,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  materialContent: {
-    display: "flex",
-    minHeight: 60,
-    gap: 0,
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    alignItems: "center",
-  },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    alignContent: "space-between",
-    gap: 8,
-    marginBottom: 20,
-  },
-  headerImage: {
-    color: "#808080",
-    bottom: -90,
-    left: -35,
-    position: "absolute",
-  },
-  titleContainer: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  button: {
-    alignItems: "center",
-    width: 100,
-    height: 100,
-  },
-});
+const styles = (theme: MD3Theme) =>
+  StyleSheet.create({
+    body: {
+      flex: 1,
+      justifyContent: "space-evenly",
+      alignItems: "center",
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "flex-start",
+      gap: width * 0.08,
+      width: "100%",
+      padding: 16,
+      borderRadius: 12,
+      alignItems: "center",
+      borderBottomColor: theme.colors.outline,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      backgroundColor: theme.colors.surface,
+    },
+    resume: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "center",
+      alignContent: "space-between",
+      gap: width * 0.03,
+    },
+    card: {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      width: width * 0.45,
+      padding: 16,
+      borderRadius: 12,
+      alignItems: "center",
+    },
+    materialContent: {
+      display: "flex",
+      minHeight: 60,
+      gap: 0,
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      alignItems: "center",
+    },
+    grid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "center",
+      alignContent: "space-between",
+      gap: 8,
+      marginBottom: 20,
+    },
+    headerImage: {
+      color: "#808080",
+      bottom: -90,
+      left: -35,
+      position: "absolute",
+    },
+    titleContainer: {
+      flexDirection: "row",
+      gap: 8,
+    },
+    button: {
+      alignItems: "center",
+      width: 100,
+      height: 100,
+    },
+  });
