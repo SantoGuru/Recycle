@@ -5,17 +5,55 @@ import IconCard from "@/components/ui/IconCard";
 import { useAuth } from "@/context/AuthContext";
 import { router } from "expo-router";
 import { Avatar, MD3Theme, Surface, Text, useTheme } from "react-native-paper";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
+import { API_URL } from "@/config";
 
 const { width } = Dimensions.get("window");
+
+interface Dashboard {
+  materiaisComEstoqueBaixo: number;
+  quantidadeTotalKg: number;
+  totalMateriais: number;
+  valorTotalEstoque: number;
+}
 
 export default function HomeScreen() {
   const theme = useTheme();
   const style = useMemo(() => styles(theme), [theme]);
   const { session } = useAuth();
   const role = session?.role;
+  const token = session?.token;
   const nome = session?.nome.split(" ")[0];
   const empresaNome = session?.empresaNome;
+  const [dashboard, setDashboard] = useState<Dashboard>({
+    materiaisComEstoqueBaixo: 0,
+    quantidadeTotalKg: 0,
+    totalMateriais: 0,
+    valorTotalEstoque: 0,
+  });
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/dashboard/resumo`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        console.log(data);
+        if (response.ok) {
+          setDashboard(data);
+        }
+      } catch (e) {
+        return { error: "Não foi possível conectar ao servidor" };
+      }
+    };
+
+    fetchDashboard();
+  }, [token]);
 
   let isAdmin;
   if (role === "GERENTE") {
@@ -47,11 +85,11 @@ export default function HomeScreen() {
         </View>
       </View>
       <View style={style.resume}>
-        <Surface elevation={1} style={style.card}>
+        <Surface elevation={2} style={style.card}>
           <View style={style.materialContent}>
-            <Text variant="displayMedium">32</Text>
+            <Text variant="displayMedium">{dashboard.totalMateriais}</Text>
             <Text variant="bodySmall" style={{ color: "rgb(56, 107, 1)" }}>
-              (R$ 20,40)
+              R$ {dashboard.valorTotalEstoque}
             </Text>
           </View>
           <Text variant="labelMedium">Total de Materiais</Text>
@@ -59,7 +97,7 @@ export default function HomeScreen() {
         <Surface elevation={1} style={style.card}>
           <View style={style.materialContent}>
             <Text variant="displayMedium" style={{ color: theme.colors.error }}>
-              2
+              {dashboard.materiaisComEstoqueBaixo}
             </Text>
             <Text variant="bodySmall"> </Text>
           </View>
