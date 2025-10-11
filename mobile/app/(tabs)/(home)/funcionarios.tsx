@@ -21,6 +21,14 @@ interface Funcionario {
   saidas: number;
 }
 
+interface FuncionarioComMovimentacoes {
+  funcionario: Funcionario;
+  entradas: any[];
+  saidas: any[];
+  totalEntradas: number;
+  totalSaidas: number;
+}
+
 export default function Funcionarios() {
   const { session } = useAuth();
   const token = session?.token;
@@ -29,7 +37,7 @@ export default function Funcionarios() {
   const theme = useTheme();
   const style = useMemo(() => styles(theme), [theme]);
   const [page, setPage] = useState<number>(0);
-  const [items, setItems] = useState<Funcionario[]>([]);
+  const [items, setItems] = useState<FuncionarioComMovimentacoes[]>([]);
   const numberOfItemsPerPageList = useMemo(() => [1, 2, 5, 10], []);
   const [itemsPerPage, onItemsPerPageChange] = useState(
     numberOfItemsPerPageList[0]
@@ -46,7 +54,6 @@ export default function Funcionarios() {
   };
 
   useEffect(() => {
-    // fix: o backend no momento nao retorna entradas e saidas
     const fetchFuncionarios = async () => {
       try {
         const response = await fetch(`${API_URL}/api/usuarios/funcionarios`, {
@@ -57,7 +64,6 @@ export default function Funcionarios() {
           },
         });
         const data = await response.json();
-
         if (response.ok) {
           setItems(data);
         }
@@ -107,10 +113,10 @@ export default function Funcionarios() {
           <DataTable.Title numeric>Saídas</DataTable.Title>
         </DataTable.Header>
         {items.slice(from, to).map((item) => (
-          <DataTable.Row key={item.id}>
-            <DataTable.Cell>{item.nome}</DataTable.Cell>
-            <DataTable.Cell numeric>{item.entradas}</DataTable.Cell>
-            <DataTable.Cell numeric>{item.saidas}</DataTable.Cell>
+          <DataTable.Row key={item.funcionario.id}>
+            <DataTable.Cell>{item.funcionario.nome}</DataTable.Cell>
+            <DataTable.Cell numeric>{item.totalEntradas}</DataTable.Cell>
+            <DataTable.Cell numeric>{item.totalSaidas}</DataTable.Cell>
           </DataTable.Row>
         ))}
 
