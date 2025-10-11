@@ -24,11 +24,13 @@ public class SaidaService {
     private final EstoqueRepository estoqueRepository;
     private final MaterialRepository materialRepository;
 
-    public SaidaService(SaidaRepository saidaRepository, EstoqueRepository estoqueRepository, MaterialRepository materialRepository) {
+    public SaidaService(SaidaRepository saidaRepository, EstoqueRepository estoqueRepository,
+            MaterialRepository materialRepository) {
         this.saidaRepository = saidaRepository;
         this.estoqueRepository = estoqueRepository;
         this.materialRepository = materialRepository;
     }
+
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional
     public SaidaResponseDTO registrarSaida(SaidaRequestDTO dto, Long usuarioId) {
@@ -58,10 +60,10 @@ public class SaidaService {
 
         return SaidaResponseDTO.fromEntity(saidaRepository.save(saida));
     }
+
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional
     public List<SaidaResponseDTO> registrarSaidas(List<SaidaRequestDTO> dtos, Long usuarioId) {
-        // Validação inicial de todos os DTOs
         for (SaidaRequestDTO dto : dtos) {
             if (dto.getMaterialId() == null || dto.getQuantidade() == null || dto.getQuantidade() <= 0) {
                 throw new RuntimeException("Dados inválidos para registro de saída");
@@ -79,6 +81,7 @@ public class SaidaService {
 
         return resultados;
     }
+
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional(readOnly = true)
     public List<SaidaResponseDTO> listarSaidas(Long usuarioId) {
