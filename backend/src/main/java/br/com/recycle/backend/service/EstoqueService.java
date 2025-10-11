@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import br.com.recycle.backend.dto.EstoqueResponseDTO;
+import br.com.recycle.backend.model.Empresa;
 import br.com.recycle.backend.model.Estoque;
 import br.com.recycle.backend.repository.EstoqueRepository;
 
@@ -16,11 +17,14 @@ import br.com.recycle.backend.repository.EstoqueRepository;
 public class EstoqueService {
 
     private final EstoqueRepository estoqueRepository;
+    private final FuncionarioService funcionarioService;
 
     @Autowired
-    public EstoqueService(EstoqueRepository estoqueRepository) {
+    public EstoqueService(EstoqueRepository estoqueRepository, FuncionarioService funcionarioService) {
         this.estoqueRepository = estoqueRepository;
+        this.funcionarioService = funcionarioService;
     }
+
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public EstoqueResponseDTO buscarPorId(Long id, Long usuarioId) {
 
@@ -41,7 +45,8 @@ public class EstoqueService {
     }
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public DashboardDTO gerarResumoDashboard(Long usuarioId) {
-        List<Estoque> estoques = estoqueRepository.findAllByMaterial_UsuarioId(usuarioId);
+        Empresa empresa = funcionarioService.getEmpresaUsuario(usuarioId);
+        List<Estoque> estoques = estoqueRepository.findAllByMaterial_Usuario_Empresa(empresa);
 
         Float valorTotal = estoques.stream()
                 .map(Estoque::getValorTotal)
