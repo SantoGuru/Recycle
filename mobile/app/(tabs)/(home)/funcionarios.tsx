@@ -8,7 +8,6 @@ import {
   Avatar,
   DataTable,
   MD3Theme,
-  Surface,
   Text,
   useTheme,
 } from "react-native-paper";
@@ -102,6 +101,7 @@ export default function Funcionarios() {
           <IconCard
             iconName="person-add"
             title="Cadastrar Funcionário"
+            description="Adicione um novo funcionário"
             onPress={() => router.push("/(tabs)/(home)/cadastroFuncionario")}
           />
         </View>
@@ -112,13 +112,14 @@ export default function Funcionarios() {
           <DataTable.Title numeric>Entradas</DataTable.Title>
           <DataTable.Title numeric>Saídas</DataTable.Title>
         </DataTable.Header>
-        {items.slice(from, to).map((item) => (
-          <DataTable.Row key={item.funcionario.id}>
-            <DataTable.Cell>{item.funcionario.nome}</DataTable.Cell>
-            <DataTable.Cell numeric>{item.totalEntradas}</DataTable.Cell>
-            <DataTable.Cell numeric>{item.totalSaidas}</DataTable.Cell>
-          </DataTable.Row>
-        ))}
+        {items.length > 0 &&
+          items.slice(from, to).map((item) => (
+            <DataTable.Row key={item.funcionario.id}>
+              <DataTable.Cell>{item.funcionario.nome}</DataTable.Cell>
+              <DataTable.Cell numeric>{item.totalEntradas}</DataTable.Cell>
+              <DataTable.Cell numeric>{item.totalSaidas}</DataTable.Cell>
+            </DataTable.Row>
+          ))}
 
         <DataTable.Pagination
           key={itemsPerPage}

@@ -109,11 +109,13 @@ export default function HomeScreen() {
         <IconCard
           iconName="add"
           title="Entrada"
+          description="Gerencie entradas"
           onPress={() => console.log("Início")}
         />
         <IconCard
           iconName="remove"
           title="Saída"
+          description="Gerencie saídas"
           onPress={() => console.log("Início")}
         />
         {isAdmin && (
@@ -121,11 +123,13 @@ export default function HomeScreen() {
             <IconCard
               iconName="new-label"
               title="Novo Item"
+              description="Gerencie seus itens"
               onPress={() => console.log("Início")}
             />
             <IconCard
               iconName="person"
               title="Funcionários"
+              description="gerencie pessoas"
               onPress={() => router.push("/(tabs)/(home)/funcionarios")}
             />
           </>
@@ -185,8 +189,8 @@ const styles = (theme: MD3Theme) =>
       flexWrap: "wrap",
       justifyContent: "center",
       alignContent: "space-between",
-      gap: 8,
-      marginBottom: 20,
+      gap: 20,
+      marginBottom: 24,
     },
     headerImage: {
       color: "#808080",
