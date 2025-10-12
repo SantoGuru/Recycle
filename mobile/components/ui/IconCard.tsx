@@ -1,32 +1,56 @@
-import { Card, Text } from "react-native-paper";
-import { TouchableOpacity, StyleSheet } from "react-native";
+import { Avatar, Card, Text, useTheme } from "react-native-paper";
+import { TouchableOpacity, StyleSheet, View, Dimensions } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useTheme } from "react-native-paper";
+const { width, height } = Dimensions.get("window");
 
 export default function IconCard({
   iconName,
   title,
+  description,
   onPress,
 }: {
-  iconName: string;
+  iconName: keyof typeof MaterialIcons.glyphMap;
   title: string;
+  description: string;
   onPress: () => void;
 }) {
   const theme = useTheme();
 
   return (
-    <TouchableOpacity onPress={onPress} style={styles.touchable}>
-      <Card style={styles.card}>
-        <Card.Content style={styles.content}>
-          <MaterialIcons
-            name={iconName as any}
-            size={36}
-            color={theme.colors.primary}
+    <Card style={styles.card}>
+      <Card.Content style={styles.content}>
+        <View style={styles.cardHeader}>
+          <Avatar.Icon
+            size={48}
+            style={{ backgroundColor: "transparent" }}
+            icon={() => (
+              <MaterialIcons
+                name={iconName}
+                size={24}
+                color={theme.colors.primary}
+              />
+            )}
           />
-          <Text style={styles.title}>{title}</Text>
-        </Card.Content>
-      </Card>
-    </TouchableOpacity>
+          <TouchableOpacity onPress={onPress}>
+            <Avatar.Icon
+              size={40}
+              icon={({ size, color }) => (
+                <MaterialIcons name="north-east" size={24} color={color} />
+              )}
+            />
+          </TouchableOpacity>
+        </View>
+
+        <View>
+          <Text variant="titleMedium" style={styles.text}>
+            {title}
+          </Text>
+          <Text variant="bodySmall" style={styles.text}>
+            {description}
+          </Text>
+        </View>
+      </Card.Content>
+    </Card>
   );
 }
 
@@ -35,21 +59,26 @@ const styles = StyleSheet.create({
     margin: 8,
   },
   card: {
-    width: 150,
-    height: 120,
+    width: width * 0.4,
+    height: height * 0.2,
     borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "flex-start",
+    alignItems: "baseline",
     elevation: 4,
+  },
+  cardHeader: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: "2%",
   },
   content: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "space-between",
     gap: 8,
   },
-  title: {
-    fontSize: 14,
-    textAlign: "center",
+  text: {
+    textAlign: "left",
   },
 });
