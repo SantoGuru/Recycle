@@ -16,7 +16,7 @@ export default function Navbar() {
   };
 
   return (
-    <div className="fixed top-0 left-0 z-50 w-[100%] flex justify-between items-center bg-blue-500 drop-shadow-xl py-1 px-5">
+    <div className="fixed top-0 left-0 z-50 w-[100%] flex justify-between items-center bg-primary drop-shadow-xl py-1 px-5">
       {isLogged ? (
         <>
           <ul className="flex items-center gap-7 mr-5">
@@ -39,7 +39,7 @@ export default function Navbar() {
           </ul>
           <button
             onClick={handleLogout}
-            className="cursor-pointer mr-5 bg-gray-100 text-blue-500 hover:bg-gray-300 px-3 py-1 rounded drop-shadow-md"
+            className="cursor-pointer mr-5 bg-gray-100 hover:bg-gray-300 px-3 py-1 rounded drop-shadow-md"
           >
             Sair
           </button>
@@ -47,21 +47,21 @@ export default function Navbar() {
       ) : (
         <>
           <Link to="/">
-            <span className="cursor-pointer text-3xl text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.6)]">
+            <span className="cursor-pointer text-3xl text-on-primary drop-shadow-[3px_3px_6px_rgba(0,0,0,0.6)]">
               Recycle
             </span>
           </Link>
           <ul className="flex items-center gap-3 mr-5">
             {!currentOnLogin && (
               <Link className="align-middle" to="/login">
-                <li className="click text-zinc-50 hover:text-zinc-300">
+                <li className="click text-on-primary hover:text-on-primary-hover">
                   Login
                 </li>
               </Link>
             )}
             {!currentOnSignup && (
               <Link className="align-middle" to="signup">
-                <li className="click bg-gray-100 text-blue-500 hover:bg-gray-300 px-2 py-1 rounded shadow-md">
+                <li className="click bg-surface text-on-surface hover:bg-surface-hover px-2 py-1 rounded shadow-md">
                   Registrar
                 </li>
               </Link>

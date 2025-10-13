@@ -121,7 +121,7 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="bg-blue-700 px-6 py-4">
+      <div className="bg-primary px-6 py-4">
         <h1 className="text-2xl font-bold text-white">
           Registrar Entrada de Material
         </h1>
@@ -252,14 +252,14 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
         <div className="flex justify-end space-x-4 mt-6">
           <button
             type="button"
-            className="bg-red-500 hover:bg-red-600 cursor-pointer rounded px-4 py-2 text-white"
+            className="bg-tertiary-container hover:bg-tertiary-container-hover cursor-pointer rounded px-4 py-2 text-on-tertiary-container"
             onClick={handleCancel}
           >
             Cancelar
           </button>
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 cursor-pointer rounded px-4 py-2 text-white"
+            className="bg-primary hover:bg-primary-hover cursor-pointer rounded px-4 py-2 text-on-primary"
           >
             Registrar
           </button>

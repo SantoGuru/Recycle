@@ -69,7 +69,7 @@ export default function Signup() {
 
       <div className="bg-white rounded-lg shadow-xl p-8 md:w-2xl mt-4">
         {mensagemErro && (
-          <div className="w-50 flex items-center justify-center justify-self-center px-4 text-red-700 border border-red-700 text-center rounded-md mb-4">
+          <div className="w-50 flex items-center justify-center justify-self-center px-4 text-error border border-error text-center rounded-md mb-4">
             <p className="line-clamp-2">{mensagemErro}</p>
           </div>
         )}
@@ -144,7 +144,7 @@ export default function Signup() {
           />
           <button
             type="submit"
-            className="cursor-pointer w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            className="cursor-pointer w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-on-primary bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
           >
             Criar conta
           </button>
@@ -165,7 +165,7 @@ export default function Signup() {
           <div className="mt-6">
             <Link
               to="/login"
-              className="w-full flex justify-center py-2 px-4 border-1 border-blue-600 text-sm font-bold text-blue-600 hover:bg-blue-50 rounded-sm transition-colors duration-300"
+              className="w-full flex justify-center py-2 px-4 border-1 border-primary-variant text-sm font-bold text-primary-variant hover:bg-surface-hover rounded-sm transition-colors duration-300"
             >
               Fazer Login
             </Link>
