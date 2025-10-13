@@ -34,12 +34,15 @@ public class FuncionarioService {
         this.saidaService = saidaService;
     }
 
+    public Empresa getEmpresaUsuario(Long usuarioId) {
+        return usuarioRepository.findById(usuarioId)
+            .map(usuario -> usuario.getEmpresa())
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
+
     @Transactional
     public Usuario criarFuncionario(Long gerenteId, FuncionarioDTO dto) {
-        Usuario gerente = usuarioRepository.findById(gerenteId)
-                .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
-
-        Empresa empresa = gerente.getEmpresa();
+        Empresa empresa = getEmpresaUsuario(gerenteId);
 
         if (usuarioRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("Email já cadastrado");
