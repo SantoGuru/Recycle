@@ -85,7 +85,7 @@ export default function Login() {
           />
           <button
             type="submit"
-            className="cursor-pointer w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            className="cursor-pointer w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
           >
             Entrar
           </button>
@@ -105,7 +105,7 @@ export default function Login() {
           <div className="mt-6">
             <Link
               to="/signup"
-              className="w-full flex justify-center py-2 px-4 border-1 border-blue-600 text-sm font-bold text-blue-600 hover:bg-blue-50 rounded-sm transition-colors duration-300"
+              className="w-full flex justify-center py-2 px-4 border-1 border-primary text-sm font-bold text-primary hover:bg-surface-hover rounded-sm transition-colors duration-300"
             >
               Criar Conta
             </Link>

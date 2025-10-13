@@ -21,22 +21,23 @@ export default function LandPage() {
           <p className="text-lg text-zinc-800 max-w-xl leading-relaxed">
             Gerencie entradas, saídas e níveis de materiais com praticidade e
             agilidade.
-            <span className="font-semibold text-blue-500"> Otimize</span> o controle,
-            <span className="font-semibold text-blue-500"> evite</span> desperdícios e
-            tome decisões com mais
-            <span className="font-semibold text-blue-500"> segurança</span>.
+            <span className="font-semibold text-primary"> Otimize</span> o
+            controle,
+            <span className="font-semibold text-primary"> evite</span>{" "}
+            desperdícios e tome decisões com mais
+            <span className="font-semibold text-primary"> segurança</span>.
           </p>
 
           <div className="flex justify-end gap-4 mt-2">
             <Link
               to="/Login"
-              className="flex items-center justify-center p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center justify-center p-3 bg-primary text-on-primary rounded-lg hover:bg-primary-hover transition-colors"
             >
               <h3 className="text-lg font-semibold">Fazer Login</h3>
             </Link>
             <Link
               to="/Signup"
-              className="flex items-center justify-center p-3 bg-blue-100 text-blue-900 rounded-lg hover:bg-blue-200 transition-colors"
+              className="flex items-center justify-center p-3 bg-light-container text-on-light-container hover:text-on-light-container-hover rounded-lg hover:bg-light-container-hover transition-colors"
             >
               <h3 className="text-lg font-semibold">Criar Conta</h3>
             </Link>
