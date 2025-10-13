@@ -85,7 +85,7 @@ export default function HomeScreen() {
         </View>
       </View>
       <View style={style.resume}>
-        <Surface elevation={2} style={style.card}>
+        <Surface elevation={1} style={style.card}>
           <View style={style.materialContent}>
             <Text variant="displayMedium">{dashboard.totalMateriais}</Text>
             <Text variant="bodySmall" style={{ color: "rgb(56, 107, 1)" }}>
