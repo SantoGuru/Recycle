@@ -1,5 +1,6 @@
 package br.com.recycle.backend.controller;
 
+import br.com.recycle.backend.dto.FuncionarioComMovimentacoesDTO;
 import br.com.recycle.backend.dto.FuncionarioDTO;
 import br.com.recycle.backend.dto.UsuarioResponseDTO;
 import br.com.recycle.backend.model.Usuario;
@@ -35,38 +36,18 @@ public class FuncionarioController {
         this.funcionarioService = funcionarioService;
     }
 
-    @Operation(
-        summary = "Criar funcionário (OPERADOR)",
-        description = "Permite que apenas GERENTE crie funcionário vinculado à sua empresa"
-    )
+    @Operation(summary = "Criar funcionário (OPERADOR)", description = "Permite que apenas GERENTE crie funcionário vinculado à sua empresa")
     @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "201",
-            description = "Funcionário criado com sucesso",
-            content = @Content(schema = @Schema(implementation = UsuarioResponseDTO.class))
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Dados inválidos",
-            content = @Content
-        ),
-        @ApiResponse(
-            responseCode = "401",
-            description = "Não autorizado",
-            content = @Content
-        ),
-        @ApiResponse(
-            responseCode = "403",
-            description = "Proibido",
-            content = @Content
-        )
+            @ApiResponse(responseCode = "201", description = "Funcionário criado com sucesso", content = @Content(schema = @Schema(implementation = UsuarioResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Não autorizado", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Proibido", content = @Content)
     })
     @PreAuthorize("hasRole('GERENTE')")
     @PostMapping
     public ResponseEntity<UsuarioResponseDTO> criarFuncionario(
-        @Parameter(description = "Dados do funcionário a ser criado", required = true)
-        @Valid @RequestBody FuncionarioDTO dto,
-        HttpServletRequest request) {
+            @Parameter(description = "Dados do funcionário a ser criado", required = true) @Valid @RequestBody FuncionarioDTO dto,
+            HttpServletRequest request) {
 
         Long gerenteId = (Long) request.getAttribute("usuarioId");
         if (gerenteId == null) {
@@ -79,18 +60,14 @@ public class FuncionarioController {
 
     @PreAuthorize("hasRole('GERENTE')")
     @GetMapping
-    public ResponseEntity<List<UsuarioResponseDTO>> buscarFuncionarios(HttpServletRequest request) {
+    public ResponseEntity<List<FuncionarioComMovimentacoesDTO>> buscarFuncionarios(HttpServletRequest request) {
         Long gerenteId = (Long) request.getAttribute("usuarioId");
         if (gerenteId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        List<Usuario> funcionarios = funcionarioService.buscarFuncionarios(gerenteId);
+        List<FuncionarioComMovimentacoesDTO> funcionarios = funcionarioService.buscarFuncionarios(gerenteId);
 
-        List<UsuarioResponseDTO> dtos = funcionarios.stream()
-                .map(UsuarioResponseDTO::fromEntity)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(funcionarios);
     }
 }
