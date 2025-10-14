@@ -124,7 +124,7 @@ export default function HomeScreen() {
               iconName="new-label"
               title="Novo Item"
               description="Gerencie seus itens"
-              onPress={() => console.log("Início")}
+              onPress={() => router.push("/(tabs)/(home)/cadastroMaterial")}
             />
             <IconCard
               iconName="person"
