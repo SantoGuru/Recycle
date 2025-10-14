@@ -17,6 +17,8 @@ export default function HomeStackLayout() {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="cadastroFuncionario" options={{ title: "Cadastro" }} />
       <Stack.Screen name="funcionarios" options={{ title: "Funcionários" }}/>
+      <Stack.Screen name="cadastroMaterial" options={{ title: "CadastroMaterial" }} />
+
     </Stack>
   );
 }
