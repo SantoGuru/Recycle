@@ -49,7 +49,7 @@ export default function CadastroMaterial() {
 
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
-  const handleCreateFuncionario = async () => {
+  const handleCreateMaterial = async () => {
     if (!nome || !descricao || !unidade) {
       setMessage("Preencha todos os campos");
       setMessageType("error");
@@ -149,7 +149,7 @@ export default function CadastroMaterial() {
         mode="contained"
         style={{ backgroundColor: tintColor }}
         labelStyle={{ color: backgroundColor }}
-        onPress={handleCreateFuncionario}
+        onPress={handleCreateMaterial}
         disabled={loading}
       >
         {loading ? "Cadastrando..." : "Cadastrar Material"}
