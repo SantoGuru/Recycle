@@ -4,27 +4,18 @@ import { useRef, useEffect } from "react";
 import LoaderDialog from "../ui/LoaderDialog";
 
 function PrivateRoute() {
-    const { isLogged, loading } = useAuth();
-    const loaderRef = useRef();
+  const { isLogged, loading } = useAuth();
 
-    useEffect(() => {
-        if (loading) {
-            loaderRef.current.open();
-        } else {
-            loaderRef.current.close();
-        }
-    }, [loading]);
+  if (!isLogged) {
+    return <Navigate to="/login" replace />;
+  }
 
-    if (!isLogged) {
-        return <Navigate to="/login" replace />;
-    }
-
-    return (
-        <>
-        <LoaderDialog ref={loaderRef} />
-        <Outlet />
-        </>
-    ) ;
+  return (
+    <>
+      <LoaderDialog ref={loading} />
+      <Outlet />
+    </>
+  );
 }
 
 export default PrivateRoute;
