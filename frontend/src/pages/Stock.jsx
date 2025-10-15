@@ -28,11 +28,12 @@ export default function Stock() {
         throw new Error("Erro ao carregar dados dos materiais!");
       }
 
-      const data = await response.json();
-
-      const totalValue = data.reduce((acc, item) => acc + item.valorTotal, 0);
-      setStock(data);
-      setTotal(totalValue);
+      if (response.status !== 204) {
+        const data = await response.json();
+        const totalValue = data.reduce((acc, item) => acc + item.valorTotal, 0);
+        setStock(data);
+        setTotal(totalValue);
+      }
     } catch (error) {
       toast.error(error.message || "Erro ao carregar dados dos materiais!");
     }
@@ -41,7 +42,6 @@ export default function Stock() {
   useEffect(() => {
     fetchStock();
   }, [token]);
-
 
   const modalRefEntrada = useRef();
   const modalRefSaida = useRef();
@@ -69,12 +69,18 @@ export default function Stock() {
           ref={modalRefEntrada}
           fecharModal={fecharModalEntrada}
         >
-          <EntradaMaterial fecharModal={fecharModalEntrada} atualizarEstoque={fetchStock} />
+          <EntradaMaterial
+            fecharModal={fecharModalEntrada}
+            atualizarEstoque={fetchStock}
+          />
         </FormulariosModal>
       </div>
       <div className="py-7">
         <FormulariosModal ref={modalRefSaida} fecharModal={fecharModalSaida}>
-          <SaidaMaterial fecharModal={fecharModalSaida} atualizarEstoque={fetchStock}/>
+          <SaidaMaterial
+            fecharModal={fecharModalSaida}
+            atualizarEstoque={fetchStock}
+          />
         </FormulariosModal>
       </div>
       <main className="flex flex-col min-h-screen mx-auto items-center px-8 pt-26">
@@ -82,10 +88,16 @@ export default function Stock() {
           <div className="flex flex-col md:flex-row justify-between my-8">
             <h1 className="font-semibold text-2xl">Controle de Estoque</h1>
             <div className="flex gap-2 mt-2">
-              <button onClick={abrirModalEntrada} className="cursor-pointer flex gap-2 p-3 bg-primary text-white rounded-md hover:bg-primary-hover">
+              <button
+                onClick={abrirModalEntrada}
+                className="cursor-pointer flex gap-2 p-3 bg-primary text-white rounded-md hover:bg-primary-hover"
+              >
                 <Plus /> Adicionar Entrada
               </button>
-              <button onClick={abrirModalSaida} className="cursor-pointer flex gap-2 p-3 bg-tertiary-container text-on-tertiary-container rounded-md hover:bg-tertiary-container-hover">
+              <button
+                onClick={abrirModalSaida}
+                className="cursor-pointer flex gap-2 p-3 bg-tertiary-container text-on-tertiary-container rounded-md hover:bg-tertiary-container-hover"
+              >
                 <Minus /> Adicionar Saída
               </button>
             </div>
