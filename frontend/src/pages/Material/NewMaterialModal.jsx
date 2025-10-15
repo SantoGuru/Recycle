@@ -108,7 +108,7 @@ export default function NewMaterial({ fecharModal }) {
         >
           <option value="kg">kg</option>
           <option value="g">g</option>
-          <option selected="selected" value="un">
+          <option defaultValue value="un">
             un
           </option>
           <option value="l">l</option>
