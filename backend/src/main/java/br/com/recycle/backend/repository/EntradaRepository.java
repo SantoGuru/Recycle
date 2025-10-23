@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface EntradaRepository extends JpaRepository<Entrada, Long> {
     List<Entrada> findByMaterialId(Long materialId);
+    List<Entrada> findByUsuarioId(Long usuarioId);
+    List<Entrada> findByUsuarioIdAndDataBetween(Long usuarioId, java.time.LocalDateTime dataInicio, java.time.LocalDateTime dataFim);
 }

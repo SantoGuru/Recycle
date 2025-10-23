@@ -13,4 +13,5 @@ public interface EstoqueRepository extends JpaRepository<Estoque, Long> {
     List<Estoque> findAllByMaterial_UsuarioId(Long usuarioId);
     List<Estoque> findAllByMaterial_Usuario_Empresa(Empresa empresa);
     Optional<Estoque> findByMaterialIdAndMaterial_UsuarioId(Long materialId, Long usuarioId);
+    List<Estoque> findByMaterialUsuarioIdAndMaterialNomeContainingIgnoreCase(Long usuarioId, String nomeMaterial);
 }

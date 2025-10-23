@@ -9,6 +9,7 @@ import br.com.recycle.backend.repository.EstoqueRepository;
 import br.com.recycle.backend.repository.MaterialRepository;
 import br.com.recycle.backend.repository.SaidaRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,8 +85,15 @@ public class SaidaService {
 
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional(readOnly = true)
-    public List<SaidaResponseDTO> listarSaidas(Long usuarioId) {
-        List<Saida> saidas = saidaRepository.findByUsuarioId(usuarioId);
+    public List<SaidaResponseDTO> listarSaidas(Long usuarioId, LocalDateTime dataInicio, LocalDateTime dataFim) { 
+        
+        List<Saida> saidas;
+        if (dataInicio != null && dataFim != null) {
+            saidas = saidaRepository.findByUsuarioIdAndDataBetween(usuarioId, dataInicio, dataFim);
+        } else {
+            saidas = saidaRepository.findByUsuarioId(usuarioId);
+        }
+
         return saidas.stream()
                 .map(SaidaResponseDTO::fromEntity)
                 .collect(Collectors.toList());

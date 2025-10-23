@@ -33,7 +33,10 @@ public class EstoqueController {
     @Operation(
         summary = "Listar todos os Estoques",
         description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
-                      "Retorna todos os registros de estoque do usuário (apenas com quantidade > 0)."
+                      "Retorna todos os registros de estoque do usuário (apenas com quantidade > 0). Permite filtrar por nome do material.", 
+        parameters = { 
+            @Parameter(name = "nomeMaterial", description = "Filtrar estoques cujo nome do material contenha o valor informado (case-insensitive)", required = false, schema = @Schema(implementation = String.class), example = "Plástico")
+        }
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -54,10 +57,12 @@ public class EstoqueController {
     })
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping
-    public ResponseEntity<List<EstoqueResponseDTO>> listarTodos(HttpServletRequest request) {
+    public ResponseEntity<List<EstoqueResponseDTO>> listarTodos(
+            HttpServletRequest request,
+            @RequestParam(required = false) String nomeMaterial 
+    ) {
         Long usuarioId = (Long) request.getAttribute("usuarioId");
-        List<EstoqueResponseDTO> estoques = estoqueService.listarTodos(usuarioId);
-
+        List<EstoqueResponseDTO> estoques = estoqueService.listarTodos(usuarioId, nomeMaterial); 
         if (estoques == null || estoques.isEmpty()) {
             return ResponseEntity.noContent().build();
         }

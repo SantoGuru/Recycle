@@ -1,5 +1,6 @@
 package br.com.recycle.backend.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -110,14 +111,14 @@ public class EntradaService {
     }
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional(readOnly = true)
-    public List<EntradaResponseDTO> listarEntradas(Long usuarioId) {
-        List<Material> materiais = materialRepository.findAllByUsuarioId(usuarioId);
-        List<Long> materiaisIds = materiais.stream().map(Material::getId).collect(Collectors.toList());
+    public List<EntradaResponseDTO> listarEntradas(Long usuarioId, LocalDateTime dataInicio, LocalDateTime dataFim) {
+        
+        List<Entrada> todasEntradas;
 
-        List<Entrada> todasEntradas = new ArrayList<>();
-        for (Long materialId : materiaisIds) {
-            List<Entrada> entradasDoMaterial = entradaRepository.findByMaterialId(materialId);
-            todasEntradas.addAll(entradasDoMaterial);
+        if (dataInicio != null && dataFim != null) {
+            todasEntradas = entradaRepository.findByUsuarioIdAndDataBetween(usuarioId, dataInicio, dataFim);
+        } else {
+            todasEntradas = entradaRepository.findByUsuarioId(usuarioId); 
         }
 
         return todasEntradas.stream()
