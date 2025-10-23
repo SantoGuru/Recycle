@@ -4,6 +4,8 @@ import { Form, Link, useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import { createAccountFunction } from "../http";
 import { useAuth } from "../store/AuthContext";
+import { toast } from "react-toastify";
+import { BadgeCheck } from "lucide-react";
 
 export default function Signup() {
   const { isLogged, loading, login } = useAuth();
@@ -48,15 +50,21 @@ export default function Signup() {
     try {
       const response = await createAccountFunction({ nome, email, nomeFantasia, cnpj, senha });
 
-      if (!response.ok) {
-        setMensagemErro("Email já cadastrado!");
+      if (response.ok) {
+        toast.success("Conta criada!", {
+          icon: <BadgeCheck className="stroke-blue-500" />,
+          className:
+            "border-1 border-blue-600 bg-white text-blue-600 font-bold rounded-sm",
+        });
+        const dados = await response.json();
+        login(dados);
+        navigate("/dashboard");
+      } else {
+        const error = await response.json();
+        setMensagemErro(error[0].message);
       }
-
-      const dados = await response.json();
-      login(dados);
-      navigate("/dashboard");
     } catch (error) {
-      setMensagemErro("Erro ao conectar com o servidor!");
+      setMensagemErro("Erro ao conectar ao servidor!");
     }
   };
 
@@ -69,8 +77,8 @@ export default function Signup() {
 
       <div className="bg-white rounded-lg shadow-xl p-8 md:w-2xl mt-4">
         {mensagemErro && (
-          <div className="w-50 flex items-center justify-center justify-self-center px-4 text-error border border-error text-center rounded-md mb-4">
-            <p className="line-clamp-2">{mensagemErro}</p>
+          <div className="w-100 flex items-center justify-center justify-self-center px-4 text-error border border-error text-center rounded-md mb-4">
+            <p className="line-clamp-4">{mensagemErro}</p>
           </div>
         )}
 
