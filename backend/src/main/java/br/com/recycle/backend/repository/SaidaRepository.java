@@ -10,4 +10,5 @@ import java.util.List;
 public interface SaidaRepository extends JpaRepository<Saida, Long> {
     List<Saida> findByMaterialId(Long materialId);
     List<Saida> findByUsuarioId(Long usuarioId);
+    List<Saida> findByUsuarioIdAndDataBetween(Long usuarioId, java.time.LocalDateTime dataInicio, java.time.LocalDateTime dataFim);
 }

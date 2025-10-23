@@ -34,12 +34,18 @@ public class EstoqueService {
         return EstoqueResponseDTO.fromEntity(estoque);
     }
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
-    public List<EstoqueResponseDTO> listarTodos(Long usuarioId) {
+    public List<EstoqueResponseDTO> listarTodos(Long usuarioId, String nomeMaterial) {
 
-        List<Estoque> estoques = estoqueRepository.findAllByMaterial_UsuarioId(usuarioId);
+        List<Estoque> estoques;
+
+        if (nomeMaterial != null && !nomeMaterial.trim().isEmpty()) {
+            estoques = estoqueRepository.findByMaterialUsuarioIdAndMaterialNomeContainingIgnoreCase(usuarioId, nomeMaterial);
+        } else {
+            estoques = estoqueRepository.findAllByMaterial_UsuarioId(usuarioId);
+        }
 
         return estoques.stream()
-                .filter(estoque -> estoque.getQuantidade() > 0) // FILTRO ADICIONADO AQUI
+                .filter(estoque -> estoque.getQuantidade() > 0)
                 .map(EstoqueResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }

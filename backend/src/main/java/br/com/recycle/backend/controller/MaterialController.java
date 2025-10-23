@@ -73,7 +73,10 @@ public class MaterialController {
     @Operation(
         summary = "Listar materiais",
         description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
-                      "Retorna todos os materiais cadastrados pelo usuário."
+                      "Retorna todos os materiais cadastrados pelo usuário. Permite filtrar por nome.",
+        parameters = { 
+            @Parameter(name = "nome", description = "Filtrar materiais cujo nome contenha o valor informado (case-insensitive)", required = false, schema = @Schema(implementation = String.class), example = "Papel")
+        }
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -89,9 +92,12 @@ public class MaterialController {
     })
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @GetMapping
-    public ResponseEntity<List<MaterialResponseDTO>> listarTodos(HttpServletRequest request) {
+    public ResponseEntity<List<MaterialResponseDTO>> listarTodos(
+            HttpServletRequest request,
+            @RequestParam(required = false) String nome 
+    ) {
         Long usuarioId = (Long) request.getAttribute("usuarioId");
-        List<MaterialResponseDTO> materiais = materialService.listarTodos(usuarioId);
+        List<MaterialResponseDTO> materiais = materialService.listarTodos(usuarioId, nome); 
         return ResponseEntity.ok(materiais);
     }
 

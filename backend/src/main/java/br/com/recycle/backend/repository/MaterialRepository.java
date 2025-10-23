@@ -16,4 +16,5 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
     List<Material> findAllByUsuarioId(Long usuarioId);
     boolean existsByNomeAndUsuarioId(String nome, Long usuarioId);
     boolean existsByIdAndUsuarioId(Long id, Long usuarioId);
+    List<Material> findByUsuarioIdAndNomeContainingIgnoreCase(Long usuarioId, String nome);
 }

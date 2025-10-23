@@ -61,15 +61,21 @@ public class MaterialService {
 
         return MaterialResponseDTO.fromEntity(material);
     }
+    
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
-    public List<MaterialResponseDTO> listarTodos(Long usuarioId) {
-
-        List<Material> materiais = materialRepository.findAllByUsuarioId(usuarioId);
+    public List<MaterialResponseDTO> listarTodos(Long usuarioId, String nome) {
+        List<Material> materiais;
+        if (nome != null && !nome.trim().isEmpty()) {
+            materiais = materialRepository.findByUsuarioIdAndNomeContainingIgnoreCase(usuarioId, nome);
+        } else {
+            materiais = materialRepository.findAllByUsuarioId(usuarioId);
+        }
 
         return materiais.stream()
                 .map(MaterialResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+
     @PreAuthorize("hasRole('GERENTE')")
     public MaterialResponseDTO atualizar(Long id, MaterialRequestDTO dto, Long usuarioId) {
         Material material = materialRepository.findByIdAndUsuarioId(id, usuarioId)
