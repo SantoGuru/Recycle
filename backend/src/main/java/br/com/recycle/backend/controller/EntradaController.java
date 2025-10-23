@@ -19,6 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -91,18 +95,15 @@ public class EntradaController {
         )
     })
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
-    @GetMapping
-    public ResponseEntity<List<EntradaResponseDTO>> listarEntradas(HttpServletRequest request) {
-        Long usuarioId = (Long) request.getAttribute("usuarioId");
-        if (usuarioId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+public ResponseEntity<Page<EntradaResponseDTO>> listarEntradas(
+        HttpServletRequest request,
+        @Parameter(description = "Número da página (0-index)") @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "Tamanho da página") @RequestParam(defaultValue = "20") int size,
+        @Parameter(description = "Campo de ordenação") @RequestParam(defaultValue = "id") String sort) {
 
-        List<EntradaResponseDTO> entradas = entradaService.listarEntradas(usuarioId);
-        if (entradas.isEmpty()) {
-            return ResponseEntity.noContent().build();
+    Long usuarioId = (Long) request.getAttribute("usuarioId");
+    Pageable pageable = PageRequest.of(page, size, Sort.by(sort).descending()); // exemplo default desc
+    Page<EntradaResponseDTO> entradas = entradaService.listarEntradasPaginado(usuarioId, pageable);
+    return ResponseEntity.ok(entradas);
         }
-
-        return ResponseEntity.ok(entradas);
     }
-}
