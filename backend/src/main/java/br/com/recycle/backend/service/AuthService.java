@@ -83,6 +83,10 @@ public class AuthService {
             throw new RuntimeException("Email já cadastrado");
         }
 
+        if (empresaRepository.existByCnpj(registroDTO.getCnpj())) {
+            throw new RuntimeException("CNPJ já cadastrado");
+        }
+
         Empresa empresa = empresaRepository.findByCnpj(registroDTO.getCnpj())
                 .orElseGet(() -> {
                     if (registroDTO.getNomeFantasia() == null || registroDTO.getNomeFantasia().isBlank()) {
