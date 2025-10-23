@@ -9,6 +9,9 @@ import br.com.recycle.backend.model.Empresa;
 import br.com.recycle.backend.model.Role;
 import br.com.recycle.backend.model.Usuario;
 import br.com.recycle.backend.repository.UsuarioRepository;
+import br.com.recycle.backend.model.Role;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,33 +60,23 @@ public class FuncionarioService {
 
         return usuarioRepository.save(func);
     }
+@Transactional(readOnly = true)
+public Page<FuncionarioComMovimentacoesDTO> buscarFuncionariosPaginado(Long gerenteId, Pageable pageable) {
+    Usuario gerente = usuarioRepository.findById(gerenteId)
+            .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
 
-    @Transactional(readOnly = true)
-    public List<FuncionarioComMovimentacoesDTO> buscarFuncionarios(Long gerenteId) {
-        Usuario gerente = usuarioRepository.findById(gerenteId)
-                .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
-
-        Empresa empresa = gerente.getEmpresa();
-        List<Usuario> funcionarios = empresa.getUsuarios().stream()
-                .filter(usuario -> usuario.getRole() == Role.OPERADOR)
-                .collect(Collectors.toList());
-
-        List<FuncionarioComMovimentacoesDTO> resultado = new ArrayList<>();
-
-        for (Usuario funcionario : funcionarios) {
-            List<EntradaResponseDTO> entradas = entradaService.listarEntradas(funcionario.getId());
-            List<SaidaResponseDTO> saidas = saidaService.listarSaidas(funcionario.getId());
-
-            FuncionarioComMovimentacoesDTO dto = new FuncionarioComMovimentacoesDTO();
-            dto.setFuncionario(UsuarioResponseDTO.fromEntity(funcionario));
-            dto.setEntradas(entradas);
-            dto.setSaidas(saidas);
-            dto.setTotalEntradas(entradas.size());
-            dto.setTotalSaidas(saidas.size());
-
-            resultado.add(dto);
-        }
-
-        return resultado;
-    }
+    return usuarioRepository
+            .findByEmpresaAndRole(gerente.getEmpresa(), Role.OPERADOR, pageable)
+            .map(func -> {
+                var entradas = entradaService.listarEntradas(func.getId()); // mantém listagens atuais
+                var saídas = saidaService.listarSaidas(func.getId());
+                var dto = new FuncionarioComMovimentacoesDTO();
+                dto.setFuncionario(UsuarioResponseDTO.fromEntity(func));
+                dto.setEntradas(entradas);
+                dto.setSaidas(saídas);
+                dto.setTotalEntradas(entradas.size());
+                dto.setTotalSaidas(saídas.size());
+                return dto;
+            });
+}
 }

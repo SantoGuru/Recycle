@@ -19,6 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Map;
@@ -87,13 +91,17 @@ public class MaterialController {
             content = @Content
         )
     })
-    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
-    @GetMapping
-    public ResponseEntity<List<MaterialResponseDTO>> listarTodos(HttpServletRequest request) {
-        Long usuarioId = (Long) request.getAttribute("usuarioId");
-        List<MaterialResponseDTO> materiais = materialService.listarTodos(usuarioId);
-        return ResponseEntity.ok(materiais);
-    }
+public ResponseEntity<Page<MaterialResponseDTO>> listarTodos(
+        HttpServletRequest request,
+        @Parameter(description = "Número da página (0-index)") @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "Tamanho da página") @RequestParam(defaultValue = "20") int size,
+        @Parameter(description = "Campo de ordenação") @RequestParam(defaultValue = "id") String sort) {
+
+    Long usuarioId = (Long) request.getAttribute("usuarioId");
+    Pageable pageable = PageRequest.of(page, size, Sort.by(sort).ascending());
+    Page<MaterialResponseDTO> materiais = materialService.listarTodosPaginado(usuarioId, pageable);
+    return ResponseEntity.ok(materiais);
+}
 
     @Operation(
         summary = "Buscar material por ID",

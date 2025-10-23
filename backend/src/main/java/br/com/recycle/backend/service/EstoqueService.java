@@ -2,7 +2,8 @@ package br.com.recycle.backend.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import br.com.recycle.backend.dto.DashboardDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,6 +44,12 @@ public class EstoqueService {
                 .map(EstoqueResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
+    public Page<EstoqueResponseDTO> listarTodosPaginado(Long usuarioId, Pageable pageable) {
+    return estoqueRepository
+            .findAllByMaterial_UsuarioId(usuarioId, pageable)
+            .map(EstoqueResponseDTO::fromEntity);
+}
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public DashboardDTO gerarResumoDashboard(Long usuarioId) {
         Empresa empresa = funcionarioService.getEmpresaUsuario(usuarioId);
