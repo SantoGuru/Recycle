@@ -71,8 +71,8 @@ public class FuncionarioService {
         List<FuncionarioComMovimentacoesDTO> resultado = new ArrayList<>();
 
         for (Usuario funcionario : funcionarios) {
-            List<EntradaResponseDTO> entradas = entradaService.listarEntradas(funcionario.getId());
-            List<SaidaResponseDTO> saidas = saidaService.listarSaidas(funcionario.getId());
+            List<EntradaResponseDTO> entradas = entradaService.listarEntradas(funcionario.getId(),null,null);
+            List<SaidaResponseDTO> saidas = saidaService.listarSaidas(funcionario.getId(),null,null);
 
             FuncionarioComMovimentacoesDTO dto = new FuncionarioComMovimentacoesDTO();
             dto.setFuncionario(UsuarioResponseDTO.fromEntity(funcionario));
