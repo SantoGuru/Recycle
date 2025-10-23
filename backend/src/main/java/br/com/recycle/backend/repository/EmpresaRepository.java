@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
     Optional<Empresa> findByCnpj(String cnpj);
+    boolean existsByCnpj(String cnpj);
 }
