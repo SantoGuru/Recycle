@@ -108,9 +108,9 @@ export default function HomeScreen() {
       <View style={style.grid}>
         <IconCard
           iconName="add"
-          title="Entrada"
+          title="Entradas"
           description="Gerencie entradas"
-          onPress={() => console.log("Início")}
+          onPress={() => router.push("/(tabs)/(home)/entradas")}
         />
         <IconCard
           iconName="remove"
@@ -121,7 +121,7 @@ export default function HomeScreen() {
         {isAdmin && (
           <>
             <IconCard
-              iconName="new-label"
+              iconName="inventory"
               title="Novo Item"
               description="Gerencie seus itens"
               onPress={() => router.push("/(tabs)/(home)/material")}
