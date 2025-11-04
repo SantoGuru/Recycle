@@ -18,10 +18,21 @@ export interface Material {
   nome: string;
   descricao: string;
   unidade: string;
+  dataCriacao: string;
+  dataAtualizacao: string;
+}
+
+export interface ItemMaterial {
+  materialId: number;
+  material: Material;
+  quantidade: number;
+  precoMedio: number;
+  valorTotal: number;
 }
 
 
-export default function Materials() {
+
+export default function Estoque() {
   const { session } = useAuth();
   const token = session?.token;
   const empresaNome = session?.empresaNome;
@@ -29,7 +40,7 @@ export default function Materials() {
   const theme = useTheme();
   const style = useMemo(() => styles(theme), [theme]);
   const [page, setPage] = useState<number>(0);
-  const [items, setItems] = useState<Material[]>([]);
+  const [items, setItems] = useState<ItemMaterial[]>([]);
   const numberOfItemsPerPageList = useMemo(() => [1, 2, 5, 10], []);
   const [itemsPerPage, onItemsPerPageChange] = useState(
     numberOfItemsPerPageList[0]
@@ -48,7 +59,7 @@ export default function Materials() {
   useEffect(() => {
     const fetchMaterials = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/materiais`, {
+        const response = await fetch(`${API_URL}/api/estoques`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -59,6 +70,7 @@ export default function Materials() {
         if (response.ok) {
           setItems(data);
         }
+        console.log("Resposta da API:", data);
       } catch (e) {
         return { error: "Não foi possível conectar ao servidor" };
       }
@@ -93,22 +105,26 @@ export default function Materials() {
         <View style={style.grid}>
           <IconCard
             iconName="add"
-            title="Cadastrar material"
-            description="Adicione um novo material"
-            onPress={() => router.push("/(tabs)/(home)/cadastroMaterial")}
+            title="Cadastrar Entrada"
+            description="Adicione uma nova entrada"
+            onPress={() => router.push("/(tabs)/(home)/cadastroEntrada")}
           />
         </View>
       </View>
       <DataTable style={style.table}>
         <DataTable.Header>
           <DataTable.Title>Nome</DataTable.Title>
-          <DataTable.Title>descricao</DataTable.Title>
+          <DataTable.Title>Quantidade</DataTable.Title>
+          <DataTable.Title>Preço Médio</DataTable.Title>
+          <DataTable.Title>Valor Total</DataTable.Title>
         </DataTable.Header>
         {items.length > 0 &&
           items.slice(from, to).map((item) => (
-            <DataTable.Row key={item.id}>
-              <DataTable.Cell>{item.nome} ({item.unidade})</DataTable.Cell>
-              <DataTable.Cell>{item.descricao}</DataTable.Cell>
+            <DataTable.Row key={item.materialId}>
+              <DataTable.Cell>{item.material.nome} ({item.material.unidade})</DataTable.Cell>
+              <DataTable.Cell>{item.quantidade}</DataTable.Cell>
+              <DataTable.Cell>{item.precoMedio}</DataTable.Cell>
+              <DataTable.Cell>{item.valorTotal}</DataTable.Cell>
             </DataTable.Row>
           ))}
 

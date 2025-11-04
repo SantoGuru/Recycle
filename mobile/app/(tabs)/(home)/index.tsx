@@ -112,12 +112,21 @@ export default function HomeScreen() {
           description="Gerencie entradas"
           onPress={() => router.push("/(tabs)/(home)/entradas")}
         />
-        <IconCard
+
+        {/* <IconCard
           iconName="remove"
           title="Saída"
           description="Gerencie saídas"
           onPress={() => console.log("Início")}
+        /> */}
+        
+        <IconCard
+          iconName="inbox"
+          title="Estoque"
+          description="Gerencie saídas"
+          onPress={() => router.push("/(tabs)/(home)/estoque")}
         />
+
         {isAdmin && (
           <>
             <IconCard

@@ -20,6 +20,7 @@ export default function HomeStackLayout() {
       <Stack.Screen name="cadastroMaterial" options={{ title: "CadastroMaterial" }} />
       <Stack.Screen name="material" options={{ title: "Material" }} />
       <Stack.Screen name="entradas" options={{ title: "Entradas" }} />
+      <Stack.Screen name="cadastroEntrada" options={{ title: "cadastroEntrada" }} />
 
     </Stack>
   );
