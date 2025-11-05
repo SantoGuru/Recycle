@@ -109,6 +109,13 @@ export default function Estoque() {
             description="Adicione uma nova entrada"
             onPress={() => router.push("/(tabs)/(home)/cadastroEntrada")}
           />
+
+          <IconCard
+            iconName="remove"
+            title="Cadastrar Saída"
+            description="Adicione uma nova saída"
+            onPress={() => router.push("/(tabs)/(home)/cadastroSaida")}
+          />
         </View>
       </View>
       <DataTable style={style.table}>
