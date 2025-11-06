@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import java.time.LocalDateTime;
+//
 import br.com.recycle.backend.dto.EntradaResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -125,6 +129,19 @@ public class EntradaService {
                 .map(EntradaResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+    //
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
+    @Transactional(readOnly = true)
+    public Page<EntradaResponseDTO> listarEntradasPaginado(Long usuarioId, LocalDateTime inicio, LocalDateTime fim, Pageable pageable) {
+    if (inicio != null && fim != null) {
+        return entradaRepository
+            .findByUsuarioIdAndDataBetween(usuarioId, inicio, fim, pageable)
+            .map(EntradaResponseDTO::fromEntity);
+        }
+    return entradaRepository
+        .findByUsuarioId(usuarioId, pageable)
+        .map(EntradaResponseDTO::fromEntity);
+    }
 
     private void validarDadosEntrada(EntradaRequestDTO entradaDTO) {
         if (entradaDTO == null) {
@@ -143,4 +160,5 @@ public class EntradaService {
             throw new RuntimeException("Preço unitário deve ser um valor positivo");
         }
     }
+    
 }

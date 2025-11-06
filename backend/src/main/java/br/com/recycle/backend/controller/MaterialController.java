@@ -1,5 +1,11 @@
 package br.com.recycle.backend.controller;
 
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+//
+
 import br.com.recycle.backend.dto.MaterialRequestDTO;
 import br.com.recycle.backend.dto.MaterialResponseDTO;
 import br.com.recycle.backend.service.MaterialService;
@@ -99,6 +105,18 @@ public class MaterialController {
         Long usuarioId = (Long) request.getAttribute("usuarioId");
         List<MaterialResponseDTO> materiais = materialService.listarTodos(usuarioId, nome); 
         return ResponseEntity.ok(materiais);
+    }
+
+//
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
+    @GetMapping("/paged")
+    public ResponseEntity<Page<MaterialResponseDTO>> listarTodosPaginado(
+            HttpServletRequest request,
+            @RequestParam(required = false) String nome,
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable)  {
+        Long usuarioId = (Long) request.getAttribute("usuarioId");
+        Page<MaterialResponseDTO> page = materialService.listarTodosPaginado(usuarioId, nome, pageable);
+        return ResponseEntity.ok(page);
     }
 
     @Operation(

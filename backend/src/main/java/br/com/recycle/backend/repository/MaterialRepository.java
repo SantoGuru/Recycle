@@ -1,4 +1,7 @@
 package br.com.recycle.backend.repository;
+//
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import br.com.recycle.backend.model.Material;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +20,7 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
     boolean existsByNomeAndUsuarioId(String nome, Long usuarioId);
     boolean existsByIdAndUsuarioId(Long id, Long usuarioId);
     List<Material> findByUsuarioIdAndNomeContainingIgnoreCase(Long usuarioId, String nome);
+//    
+    Page<Material> findAllByUsuarioId(Long usuarioId, Pageable pageable);
+    Page<Material> findByUsuarioIdAndNomeContainingIgnoreCase(Long usuarioId, String nome, Pageable pageable);
 }

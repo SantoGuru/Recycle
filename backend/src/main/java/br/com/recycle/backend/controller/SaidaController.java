@@ -1,5 +1,11 @@
 package br.com.recycle.backend.controller;
 
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+//
+
 import br.com.recycle.backend.dto.SaidaRequestDTO;
 import br.com.recycle.backend.dto.SaidaResponseDTO;
 import br.com.recycle.backend.service.SaidaService;
@@ -117,6 +123,18 @@ public class SaidaController {
         }
 
         return ResponseEntity.ok(saidas);
+    }
+//
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
+    @GetMapping("/paged")
+    public ResponseEntity<Page<SaidaResponseDTO>> listarSaidasPaginado(
+            HttpServletRequest request,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFim,
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable)  {
+        Long usuarioId = (Long) request.getAttribute("usuarioId");
+        Page<SaidaResponseDTO> page = saidaService.listarSaidasPaginado(usuarioId, dataInicio, dataFim, pageable);
+        return ResponseEntity.ok(page);
     }
 
 }

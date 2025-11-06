@@ -1,5 +1,11 @@
 package br.com.recycle.backend.controller;
 
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+//
+
 import br.com.recycle.backend.dto.FuncionarioComMovimentacoesDTO;
 import br.com.recycle.backend.dto.FuncionarioDTO;
 import br.com.recycle.backend.dto.UsuarioResponseDTO;
@@ -70,4 +76,15 @@ public class FuncionarioController {
 
         return ResponseEntity.ok(funcionarios);
     }
+//
+    @PreAuthorize("hasRole('GERENTE')")
+    @GetMapping("/paged")
+    public ResponseEntity<Page<FuncionarioComMovimentacoesDTO>> buscarFuncionariosPaginado(
+            HttpServletRequest request,
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable)  {
+        Long gerenteId = (Long) request.getAttribute("usuarioId");
+        Page<FuncionarioComMovimentacoesDTO> page = funcionarioService.buscarFuncionariosPaginado(gerenteId, pageable);
+        return ResponseEntity.ok(page);
+    }
+
 }

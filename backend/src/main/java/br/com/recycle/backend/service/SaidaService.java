@@ -1,5 +1,9 @@
 package br.com.recycle.backend.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import java.time.LocalDateTime;
+//
 import br.com.recycle.backend.dto.SaidaRequestDTO;
 import br.com.recycle.backend.dto.SaidaResponseDTO;
 import br.com.recycle.backend.model.Estoque;
@@ -9,7 +13,6 @@ import br.com.recycle.backend.repository.EstoqueRepository;
 import br.com.recycle.backend.repository.MaterialRepository;
 import br.com.recycle.backend.repository.SaidaRepository;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -98,4 +101,18 @@ public class SaidaService {
                 .map(SaidaResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+//
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
+    @Transactional(readOnly = true)
+    public Page<SaidaResponseDTO> listarSaidasPaginado(Long usuarioId, LocalDateTime inicio, LocalDateTime fim, Pageable pageable) {
+    if (inicio != null && fim != null) {
+        return saidaRepository
+            .findByUsuarioIdAndDataBetween(usuarioId, inicio, fim, pageable)
+            .map(SaidaResponseDTO::fromEntity);
+        }
+    return saidaRepository
+        .findByUsuarioId(usuarioId, pageable)
+        .map(SaidaResponseDTO::fromEntity);
+    }
+
 }
