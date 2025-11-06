@@ -129,7 +129,7 @@ public class AuthService {
             var modificado = user.get();
             modificado.setNome(modificacao.getNome());
             modificado.setEmail(modificacao.getEmail());
-            modificado.setSenha(modificacao.getSenha());
+            modificado.setSenha(passwordEncoder.encode(modificacao.getSenha()));
             usuarioRepository.save(modificado);
         }
     }

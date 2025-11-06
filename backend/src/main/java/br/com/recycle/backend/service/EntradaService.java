@@ -7,8 +7,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import java.time.LocalDateTime;
-//
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import br.com.recycle.backend.dto.EntradaResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -92,26 +93,76 @@ public class EntradaService {
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional
     public List<EstoqueResponseDTO> registrarEntradas(List<EntradaRequestDTO> entradas, Long usuarioId) {
-        // Valida todas as entradas antes de processar
-        for (EntradaRequestDTO entrada : entradas) {
-            validarDadosEntrada(entrada);
 
-            Material material = materialRepository.findById(entrada.getMaterialId())
-                    .orElseThrow(() -> new RuntimeException("Material não encontrado com ID: " + entrada.getMaterialId()));
-
-            if (!material.getUsuarioId().equals(usuarioId)) {
-                throw new RuntimeException("Material não pertence ao usuário");
+        Set<Long> materialIds = entradas.stream()
+                .peek(this::validarDadosEntrada)
+                .map(EntradaRequestDTO::getMaterialId)
+                .collect(Collectors.toSet());
+        
+                List<Material> materiaisEncontrados = materialRepository.findAllById(materialIds);
+        
+        for (Material mat : materiaisEncontrados) {
+            if (!mat.getUsuarioId().equals(usuarioId)) {
+                throw new RuntimeException("Tentativa de registrar entrada para o material ID " + mat.getId() + ", que não pertence ao usuário.");
             }
         }
 
-        // Processa todas as entradas
-        List<EstoqueResponseDTO> resultados = new ArrayList<>();
-        for (EntradaRequestDTO entrada : entradas) {
-            EstoqueResponseDTO resultado = registrarEntrada(entrada, usuarioId);
-            resultados.add(resultado);
+        Map<Long, Material> materialMap = materiaisEncontrados.stream()
+                .collect(Collectors.toMap(Material::getId, Function.identity()));
+
+        List<Estoque> estoquesEncontrados = estoqueRepository.findByMaterialIdInAndMaterial_UsuarioId(materialIds, usuarioId);
+        
+        Map<Long, Estoque> estoqueMap = estoquesEncontrados.stream()
+                .collect(Collectors.toMap(e -> e.getMaterial().getId(), Function.identity()));
+
+        List<Entrada> novasEntradas = new ArrayList<>();
+  
+        for (EntradaRequestDTO req : entradas) {
+            Material material = materialMap.get(req.getMaterialId());
+
+            if (material == null) {
+                throw new RuntimeException("Material não encontrado com ID: " + req.getMaterialId());
+            }
+
+            Estoque estoque = estoqueMap.get(req.getMaterialId());
+            if (estoque == null) {
+                estoque = new Estoque();
+                estoque.setMaterial(material);
+                estoque.setQuantidade(0.0f);
+                estoque.setPrecoMedio(0.0f);
+                estoque.setValorTotal(0.0f);
+                estoqueMap.put(material.getId(), estoque); 
+            }
+
+            Float quantidadeAtual = estoque.getQuantidade();
+            Float precoMedioAtual = estoque.getPrecoMedio();
+            Float quantidadeEntrada = req.getQuantidade();
+            Float precoEntrada = req.getPreco();
+
+            Float valorEstoqueAtual = quantidadeAtual * precoMedioAtual;
+            Float valorNovaEntrada = quantidadeEntrada * precoEntrada;
+            Float quantidadeTotal = quantidadeAtual + quantidadeEntrada;
+            Float novoPrecoMedio = quantidadeTotal > 0 ? (valorEstoqueAtual + valorNovaEntrada) / quantidadeTotal : precoEntrada;
+
+            estoque.setQuantidade(quantidadeTotal);
+            estoque.setPrecoMedio(novoPrecoMedio);
+            estoque.setValorTotal(quantidadeTotal * novoPrecoMedio);
+
+            Entrada entrada = new Entrada();
+            entrada.setMaterial(material);
+            entrada.setQuantidade(quantidadeEntrada);
+            entrada.setPreco(precoEntrada);
+            entrada.setUsuarioId(usuarioId);
+            novasEntradas.add(entrada);
         }
 
-        return resultados;
+        entradaRepository.saveAll(novasEntradas);
+        estoqueRepository.saveAll(estoqueMap.values()); 
+
+        return materialIds.stream()
+                .map(estoqueMap::get)
+                .map(EstoqueResponseDTO::fromEntity)
+                .collect(Collectors.toList());
     }
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional(readOnly = true)
