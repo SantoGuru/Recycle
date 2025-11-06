@@ -1,5 +1,8 @@
 package br.com.recycle.backend.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+//
 import br.com.recycle.backend.dto.EntradaResponseDTO;
 import br.com.recycle.backend.dto.FuncionarioDTO;
 import br.com.recycle.backend.dto.FuncionarioComMovimentacoesDTO;
@@ -86,4 +89,25 @@ public class FuncionarioService {
 
         return resultado;
     }
+//
+    @Transactional(readOnly = true)
+    public Page<FuncionarioComMovimentacoesDTO> buscarFuncionariosPaginado(Long gerenteId, Pageable pageable) {
+    Usuario gerente = usuarioRepository.findById(gerenteId)
+            .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
+
+    return usuarioRepository
+        .findByEmpresaAndRole(gerente.getEmpresa(), Role.OPERADOR, pageable)
+        .map(func -> {
+            var entradas = entradaService.listarEntradas(func.getId(), null, null);
+            var saidas   = saidaService.listarSaidas(func.getId(), null, null);
+            var dto = new FuncionarioComMovimentacoesDTO();
+            dto.setFuncionario(UsuarioResponseDTO.fromEntity(func));
+            dto.setEntradas(entradas);
+            dto.setSaidas(saidas);
+            dto.setTotalEntradas(entradas.size());
+            dto.setTotalSaidas(saidas.size());
+            return dto;
+        });
+    }
+
 }

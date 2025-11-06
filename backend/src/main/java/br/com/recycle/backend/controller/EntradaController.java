@@ -1,5 +1,11 @@
 package br.com.recycle.backend.controller;
 
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+//
+
 import br.com.recycle.backend.dto.EntradaRequestDTO;
 import br.com.recycle.backend.dto.EntradaResponseDTO;
 import br.com.recycle.backend.dto.EstoqueResponseDTO;
@@ -19,7 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestParam;
+
 import java.time.LocalDateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -123,4 +129,17 @@ public class EntradaController {
 
         return ResponseEntity.ok(entradas);
     }
+//    
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
+    @GetMapping("/paged")
+    public ResponseEntity<Page<EntradaResponseDTO>> listarEntradasPaginado(
+            HttpServletRequest request,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFim,
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable)  {
+        Long usuarioId = (Long) request.getAttribute("usuarioId");
+        Page<EntradaResponseDTO> page = entradaService.listarEntradasPaginado(usuarioId, dataInicio, dataFim, pageable);
+        return ResponseEntity.ok(page);
+    }
+
 }

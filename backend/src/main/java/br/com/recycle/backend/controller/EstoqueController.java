@@ -1,5 +1,11 @@
 package br.com.recycle.backend.controller;
 
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+//
+
 import br.com.recycle.backend.dto.EstoqueResponseDTO;
 import br.com.recycle.backend.service.EstoqueService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,6 +73,17 @@ public class EstoqueController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(estoques);
+    }
+//
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
+    @GetMapping("/paged")
+    public ResponseEntity<Page<EstoqueResponseDTO>> listarTodosPaginado(
+            HttpServletRequest request,
+            @RequestParam(required = false) String nomeMaterial,
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable)  {
+        Long usuarioId = (Long) request.getAttribute("usuarioId");
+        Page<EstoqueResponseDTO> page = estoqueService.listarTodosPaginado(usuarioId, nomeMaterial, pageable);
+        return ResponseEntity.ok(page);
     }
 
     @Operation(

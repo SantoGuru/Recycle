@@ -1,5 +1,8 @@
 package br.com.recycle.backend.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+//
 import br.com.recycle.backend.dto.MaterialRequestDTO;
 import br.com.recycle.backend.dto.MaterialResponseDTO;
 import br.com.recycle.backend.model.Entrada;
@@ -75,6 +78,18 @@ public class MaterialService {
                 .map(MaterialResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+//
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
+    public Page<MaterialResponseDTO> listarTodosPaginado(Long usuarioId, String nome, Pageable pageable) {
+    if (nome != null && !nome.trim().isEmpty()) {
+        return materialRepository
+            .findByUsuarioIdAndNomeContainingIgnoreCase(usuarioId, nome, pageable)
+            .map(MaterialResponseDTO::fromEntity);
+    }
+    return materialRepository
+        .findAllByUsuarioId(usuarioId, pageable)
+        .map(MaterialResponseDTO::fromEntity);
+}
 
     @PreAuthorize("hasRole('GERENTE')")
     public MaterialResponseDTO atualizar(Long id, MaterialRequestDTO dto, Long usuarioId) {

@@ -1,5 +1,8 @@
 package br.com.recycle.backend.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+//
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,6 +52,19 @@ public class EstoqueService {
                 .map(EstoqueResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+    //
+    @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
+    public Page<EstoqueResponseDTO> listarTodosPaginado(Long usuarioId, String nomeMaterial, Pageable pageable) {
+    if (nomeMaterial != null && !nomeMaterial.trim().isEmpty()) {
+        return estoqueRepository
+            .findByMaterialUsuarioIdAndMaterialNomeContainingIgnoreCase(usuarioId, nomeMaterial, pageable)
+            .map(EstoqueResponseDTO::fromEntity);
+        }
+    return estoqueRepository
+        .findAllByMaterial_UsuarioId(usuarioId, pageable)
+        .map(EstoqueResponseDTO::fromEntity);
+    }
+
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public DashboardDTO gerarResumoDashboard(Long usuarioId) {
         Empresa empresa = funcionarioService.getEmpresaUsuario(usuarioId);
@@ -70,4 +86,5 @@ public class EstoqueService {
 
         return new DashboardDTO(totalMateriais, quantidadeTotalKg, valorTotal, materiaisComEstoqueBaixo);
     }
+    
 }
