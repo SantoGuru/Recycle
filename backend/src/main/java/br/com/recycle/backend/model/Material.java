@@ -27,7 +27,7 @@ public class Material {
     @Column(name = "usuario_id", nullable = false)
     private Long usuarioId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", insertable = false, updatable = false)
     private Usuario usuario;
 
@@ -39,12 +39,12 @@ public class Material {
     @Column(name = "data_atualizacao")
     private LocalDateTime dataAtualizacao;
 
-    @OneToMany(mappedBy = "material")
+    @OneToMany(mappedBy = "material", fetch = FetchType.LAZY)
     private List<Entrada> entradas;
 
-    @OneToMany(mappedBy = "material")
+    @OneToMany(mappedBy = "material", fetch = FetchType.LAZY)
     private List<Saida> saidas;
 
-    @OneToOne(mappedBy = "material")
+    @OneToOne(mappedBy = "material", fetch = FetchType.LAZY)
     private Estoque estoque;
 }
