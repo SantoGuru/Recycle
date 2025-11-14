@@ -41,6 +41,11 @@ export default function Navbar() {
                 Estoque
               </li>
             </Link>
+            <Link to="/transactions">
+              <li className="text-lg text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.3)]">
+                Movimentações
+              </li>
+            </Link>
             {isGerente && (
               <Link to="/employees">
                 <li className="text-lg text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.3)]">

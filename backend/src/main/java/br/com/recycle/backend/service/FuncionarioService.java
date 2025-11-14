@@ -26,21 +26,19 @@ public class FuncionarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EntradaService entradaService;
-    private final SaidaService saidaService;
+    private final FuncionarioMovimentacaoService movimentacaoService;
 
     public FuncionarioService(UsuarioRepository usuarioRepository,
-            PasswordEncoder passwordEncoder, EntradaService entradaService, SaidaService saidaService) {
+            PasswordEncoder passwordEncoder, FuncionarioMovimentacaoService movimentacaoService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
-        this.entradaService = entradaService;
-        this.saidaService = saidaService;
+        this.movimentacaoService = movimentacaoService;
     }
 
     public Empresa getEmpresaUsuario(Long usuarioId) {
         return usuarioRepository.findById(usuarioId)
-            .map(usuario -> usuario.getEmpresa())
-            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .map(usuario -> usuario.getEmpresa())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
     @Transactional
@@ -74,8 +72,8 @@ public class FuncionarioService {
         List<FuncionarioComMovimentacoesDTO> resultado = new ArrayList<>();
 
         for (Usuario funcionario : funcionarios) {
-            List<EntradaResponseDTO> entradas = entradaService.listarEntradas(funcionario.getId(),null,null);
-            List<SaidaResponseDTO> saidas = saidaService.listarSaidas(funcionario.getId(),null,null);
+            List<EntradaResponseDTO> entradas = movimentacaoService.listarEntradas(funcionario.getId());
+            List<SaidaResponseDTO> saidas = movimentacaoService.listarSaidas(funcionario.getId());
 
             FuncionarioComMovimentacoesDTO dto = new FuncionarioComMovimentacoesDTO();
             dto.setFuncionario(UsuarioResponseDTO.fromEntity(funcionario));
@@ -89,25 +87,26 @@ public class FuncionarioService {
 
         return resultado;
     }
-//
+
+    //
     @Transactional(readOnly = true)
     public Page<FuncionarioComMovimentacoesDTO> buscarFuncionariosPaginado(Long gerenteId, Pageable pageable) {
-    Usuario gerente = usuarioRepository.findById(gerenteId)
-            .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
+        Usuario gerente = usuarioRepository.findById(gerenteId)
+                .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
 
-    return usuarioRepository
-        .findByEmpresaAndRole(gerente.getEmpresa(), Role.OPERADOR, pageable)
-        .map(func -> {
-            var entradas = entradaService.listarEntradas(func.getId(), null, null);
-            var saidas   = saidaService.listarSaidas(func.getId(), null, null);
-            var dto = new FuncionarioComMovimentacoesDTO();
-            dto.setFuncionario(UsuarioResponseDTO.fromEntity(func));
-            dto.setEntradas(entradas);
-            dto.setSaidas(saidas);
-            dto.setTotalEntradas(entradas.size());
-            dto.setTotalSaidas(saidas.size());
-            return dto;
-        });
+        return usuarioRepository
+                .findByEmpresaAndRole(gerente.getEmpresa(), Role.OPERADOR, pageable)
+                .map(func -> {
+                    var entradas = movimentacaoService.listarEntradas(func.getId());
+                    var saidas = movimentacaoService.listarSaidas(func.getId());
+                    var dto = new FuncionarioComMovimentacoesDTO();
+                    dto.setFuncionario(UsuarioResponseDTO.fromEntity(func));
+                    dto.setEntradas(entradas);
+                    dto.setSaidas(saidas);
+                    dto.setTotalEntradas(entradas.size());
+                    dto.setTotalSaidas(saidas.size());
+                    return dto;
+                });
     }
 
 }
