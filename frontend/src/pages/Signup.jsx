@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Form, Link, useNavigate } from "react-router-dom";
-
+import CnpjInput from "../components/CnpjInput";
 import Input from "../components/Input";
 import { createAccountFunction } from "../http";
 import { useAuth } from "../store/AuthContext";
@@ -48,7 +48,13 @@ export default function Signup() {
     setMensagemErro("");
 
     try {
-      const response = await createAccountFunction({ nome, email, nomeFantasia, cnpj, senha });
+      const response = await createAccountFunction({
+        nome,
+        email,
+        nomeFantasia,
+        cnpj,
+        senha,
+      });
 
       if (response.ok) {
         toast.success("Conta criada!", {
@@ -116,13 +122,12 @@ export default function Signup() {
             onChange={(e) => setNomeFantasia(e.target.value)}
           />
 
-          <Input
+          <CnpjInput
             required
             label="CNPJ"
-            name="cnpj"
             id="cnpj"
-            type="text"
-            placeholder="Digite CNPJ da empresa..."
+            name="cnpj"
+            placeholder="Digite o CNPJ da empresa..."
             value={cnpj}
             onChange={(e) => setCnpj(e.target.value)}
           />
