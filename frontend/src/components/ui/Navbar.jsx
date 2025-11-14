@@ -2,13 +2,16 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../store/AuthContext";
 
 export default function Navbar() {
-  const { isLogged, logout } = useAuth();
+  const { userData, isLogged, logout } = useAuth();
   const navigate = useNavigate();
 
   const location = useLocation();
 
   const currentOnLogin = location.pathname === "/login";
   const currentOnSignup = location.pathname === "/signup";
+
+  const role = userData?.role;
+  const isGerente = role === "GERENTE";
 
   const handleLogout = () => {
     logout();
@@ -26,16 +29,25 @@ export default function Navbar() {
               </span>
             </Link>
 
-            <Link to="/materials">
-              <li className="text-lg text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.3)]">
-                Materiais
-              </li>
-            </Link>
+            {isGerente && (
+              <Link to="/materials">
+                <li className="text-lg text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.3)]">
+                  Materiais
+                </li>
+              </Link>
+            )}
             <Link to="/stock">
               <li className="text-lg text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.3)]">
                 Estoque
               </li>
             </Link>
+            {isGerente && (
+              <Link to="/employees">
+                <li className="text-lg text-white drop-shadow-[3px_3px_6px_rgba(0,0,0,0.3)]">
+                  Funcionários
+                </li>
+              </Link>
+            )}
           </ul>
           <button
             onClick={handleLogout}
