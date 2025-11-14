@@ -6,17 +6,25 @@ import { toast } from "react-toastify";
 import EditMaterial from "./EditMaterial";
 import { Plus } from "lucide-react";
 import ConfirmMaterialDelete from "./ConfirmMaterialDelete";
+import { useNavigate } from 'react-router-dom';
 
 export default function Materials() {
   const { userData } = useAuth();
+  const navigate = useNavigate();
+
   const token = userData?.token;
+  const role = userData?.role;
+
+  if (role !== "GERENTE") {
+    navigate('/dashboard')
+  }
 
   const [materials, setMaterials] = useState([]);
   const [selectedMaterialId, setSelectedMaterialId] = useState(null);
   const editMaterialModal = useRef();
   const newMaterialModal = useRef();
   const confirmarExclusaoModal = useRef();
-  
+
   async function fetchMaterials() {
     if (!token) return;
 
@@ -55,7 +63,7 @@ export default function Materials() {
       );
 
       if (response.status === 400) {
-        throw new Error ('Erro ao excluir: Material em uso!')
+        throw new Error("Erro ao excluir: Material em uso!");
       }
 
       if (!response.ok) {
@@ -96,20 +104,19 @@ export default function Materials() {
   const abrirModalConfirmacao = (materialId) => {
     setSelectedMaterialId(materialId);
     confirmarExclusaoModal.current?.open();
-  }
+  };
 
   const fecharModalConfirmacao = () => {
     confirmarExclusaoModal.current?.close();
-  }
-  
+  };
+
   const confirmarExclusao = () => {
     if (selectedMaterialId) {
       deleteMaterial(selectedMaterialId);
       setSelectedMaterialId(null);
       fecharModalConfirmacao();
     }
-  }
-
+  };
 
   return (
     <>
@@ -123,9 +130,12 @@ export default function Materials() {
           materialId={selectedMaterialId}
         />
       </FormulariosModal>
-      
-      <FormulariosModal ref={confirmarExclusaoModal} fecharModal={fecharModalConfirmacao}>
-        <ConfirmMaterialDelete 
+
+      <FormulariosModal
+        ref={confirmarExclusaoModal}
+        fecharModal={fecharModalConfirmacao}
+      >
+        <ConfirmMaterialDelete
           onConfirm={confirmarExclusao}
           onCancel={fecharModalConfirmacao}
         />
