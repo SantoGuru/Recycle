@@ -36,33 +36,29 @@ public class EstoqueService {
 
         return EstoqueResponseDTO.fromEntity(estoque);
     }
+
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public List<EstoqueResponseDTO> listarTodos(Long usuarioId, String nomeMaterial) {
-
-        List<Estoque> estoques;
-
-        if (nomeMaterial != null && !nomeMaterial.trim().isEmpty()) {
-            estoques = estoqueRepository.findByMaterialUsuarioIdAndMaterialNomeContainingIgnoreCase(usuarioId, nomeMaterial);
-        } else {
-            estoques = estoqueRepository.findAllByMaterial_UsuarioId(usuarioId);
-        }
+        Empresa empresa = funcionarioService.getEmpresaUsuario(usuarioId);
+        List<Estoque> estoques = estoqueRepository.findAllByMaterial_Usuario_Empresa(empresa);
 
         return estoques.stream()
                 .filter(estoque -> estoque.getQuantidade() > 0)
                 .map(EstoqueResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+
     //
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public Page<EstoqueResponseDTO> listarTodosPaginado(Long usuarioId, String nomeMaterial, Pageable pageable) {
-    if (nomeMaterial != null && !nomeMaterial.trim().isEmpty()) {
-        return estoqueRepository
-            .findByMaterialUsuarioIdAndMaterialNomeContainingIgnoreCase(usuarioId, nomeMaterial, pageable)
-            .map(EstoqueResponseDTO::fromEntity);
+        if (nomeMaterial != null && !nomeMaterial.trim().isEmpty()) {
+            return estoqueRepository
+                    .findByMaterialUsuarioIdAndMaterialNomeContainingIgnoreCase(usuarioId, nomeMaterial, pageable)
+                    .map(EstoqueResponseDTO::fromEntity);
         }
-    return estoqueRepository
-        .findAllByMaterial_UsuarioId(usuarioId, pageable)
-        .map(EstoqueResponseDTO::fromEntity);
+        return estoqueRepository
+                .findAllByMaterial_UsuarioId(usuarioId, pageable)
+                .map(EstoqueResponseDTO::fromEntity);
     }
 
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
@@ -86,5 +82,5 @@ public class EstoqueService {
 
         return new DashboardDTO(totalMateriais, quantidadeTotalKg, valorTotal, materiaisComEstoqueBaixo);
     }
-    
+
 }

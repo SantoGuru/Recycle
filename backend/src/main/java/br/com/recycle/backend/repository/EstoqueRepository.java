@@ -14,6 +14,8 @@ import java.util.Set;
 
 @Repository
 public interface EstoqueRepository extends JpaRepository<Estoque, Long> {
+    Optional<Estoque> findByMaterialId(Long materialId);
+    List<Estoque> findByMaterialIdIn(Set<Long> materialIds);
     List<Estoque> findAllByMaterial_UsuarioId(Long usuarioId);
     List<Estoque> findAllByMaterial_Usuario_Empresa(Empresa empresa);
     Optional<Estoque> findByMaterialIdAndMaterial_UsuarioId(Long materialId, Long usuarioId);

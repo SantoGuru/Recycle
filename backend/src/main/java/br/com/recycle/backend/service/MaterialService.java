@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 //
 import br.com.recycle.backend.dto.MaterialRequestDTO;
 import br.com.recycle.backend.dto.MaterialResponseDTO;
+import br.com.recycle.backend.model.Empresa;
 import br.com.recycle.backend.model.Entrada;
 import br.com.recycle.backend.model.Estoque;
 import br.com.recycle.backend.model.Material;
@@ -29,17 +30,20 @@ public class MaterialService {
     private final EstoqueRepository estoqueRepository;
     private final EntradaRepository entradaRepository;
     private final SaidaRepository saidaRepository;
+    private final FuncionarioService funcionarioService;
 
     @Autowired
     public MaterialService(MaterialRepository materialRepository,
-                           EstoqueRepository estoqueRepository,
-                           EntradaRepository entradaRepository,
-                           SaidaRepository saidaRepository) {
+            EstoqueRepository estoqueRepository,
+            EntradaRepository entradaRepository,
+            SaidaRepository saidaRepository, FuncionarioService funcionarioService) {
         this.materialRepository = materialRepository;
         this.estoqueRepository = estoqueRepository;
         this.entradaRepository = entradaRepository;
         this.saidaRepository = saidaRepository;
+        this.funcionarioService = funcionarioService;
     }
+
     @PreAuthorize("hasRole('GERENTE')")
     public MaterialResponseDTO criar(MaterialRequestDTO dto, Long usuarioId) {
 
@@ -56,6 +60,7 @@ public class MaterialService {
         Material materialSalvo = materialRepository.save(material);
         return MaterialResponseDTO.fromEntity(materialSalvo);
     }
+
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public MaterialResponseDTO buscarPorId(Long id, Long usuarioId) {
 
@@ -64,32 +69,30 @@ public class MaterialService {
 
         return MaterialResponseDTO.fromEntity(material);
     }
-    
+
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public List<MaterialResponseDTO> listarTodos(Long usuarioId, String nome) {
         List<Material> materiais;
-        if (nome != null && !nome.trim().isEmpty()) {
-            materiais = materialRepository.findByUsuarioIdAndNomeContainingIgnoreCase(usuarioId, nome);
-        } else {
-            materiais = materialRepository.findAllByUsuarioId(usuarioId);
-        }
+        Empresa empresa = funcionarioService.getEmpresaUsuario(usuarioId);
+        materiais = materialRepository.findAllByUsuario_Empresa(empresa);
 
         return materiais.stream()
                 .map(MaterialResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
-//
+
+    //
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     public Page<MaterialResponseDTO> listarTodosPaginado(Long usuarioId, String nome, Pageable pageable) {
-    if (nome != null && !nome.trim().isEmpty()) {
+        if (nome != null && !nome.trim().isEmpty()) {
+            return materialRepository
+                    .findByUsuarioIdAndNomeContainingIgnoreCase(usuarioId, nome, pageable)
+                    .map(MaterialResponseDTO::fromEntity);
+        }
         return materialRepository
-            .findByUsuarioIdAndNomeContainingIgnoreCase(usuarioId, nome, pageable)
-            .map(MaterialResponseDTO::fromEntity);
+                .findAllByUsuarioId(usuarioId, pageable)
+                .map(MaterialResponseDTO::fromEntity);
     }
-    return materialRepository
-        .findAllByUsuarioId(usuarioId, pageable)
-        .map(MaterialResponseDTO::fromEntity);
-}
 
     @PreAuthorize("hasRole('GERENTE')")
     public MaterialResponseDTO atualizar(Long id, MaterialRequestDTO dto, Long usuarioId) {
@@ -108,16 +111,19 @@ public class MaterialService {
         Material materialAtualizado = materialRepository.save(material);
         return MaterialResponseDTO.fromEntity(materialAtualizado);
     }
+
     @PreAuthorize("hasRole('GERENTE')")
     @Transactional
     public void delete(Long id, Long usuarioId) {
         Material material = materialRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new RuntimeException("Material não encontrado ou você não tem permissão para excluí-lo"));
+                .orElseThrow(
+                        () -> new RuntimeException("Material não encontrado ou você não tem permissão para excluí-lo"));
 
         Optional<Estoque> estoqueOpt = estoqueRepository.findByMaterialIdAndMaterial_UsuarioId(id, usuarioId);
         if (estoqueOpt.isPresent() && estoqueOpt.get().getQuantidade() > 0) {
             throw new IllegalStateException("Não é possível excluir este material pois ainda há " +
-                    estoqueOpt.get().getQuantidade() + "kg em estoque. Para excluir o material, primeiro retire todo o estoque através de saídas.");
+                    estoqueOpt.get().getQuantidade()
+                    + "kg em estoque. Para excluir o material, primeiro retire todo o estoque através de saídas.");
         }
 
         List<Entrada> entradas = entradaRepository.findByMaterialId(id);

@@ -10,7 +10,7 @@ export default function Employees() {
   const token = userData?.token;
   const role = userData?.role;
 
-  if (role !== "ADMIN") {
+  if (role !== "GERENTE") {
     navigate('/dashboard')
   }
 

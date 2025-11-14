@@ -14,7 +14,8 @@ public interface EntradaRepository extends JpaRepository<Entrada, Long> {
     List<Entrada> findByMaterialId(Long materialId);
     List<Entrada> findByUsuarioId(Long usuarioId);
     List<Entrada> findByUsuarioIdAndDataBetween(Long usuarioId, java.time.LocalDateTime dataInicio, java.time.LocalDateTime dataFim);
-
+    List<Entrada> findByUsuario_EmpresaId(Long empresaId);
+    List<Entrada> findByUsuario_EmpresaIdAndDataBetween(Long empresaId,LocalDateTime inicio,LocalDateTime fim);
     Page<Entrada> findByUsuarioId(Long usuarioId, Pageable pageable);
     Page<Entrada> findByUsuarioIdAndDataBetween(Long usuarioId, LocalDateTime inicio, LocalDateTime fim, Pageable pageable);
 }

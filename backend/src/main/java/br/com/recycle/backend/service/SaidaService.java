@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 //
 import br.com.recycle.backend.dto.SaidaRequestDTO;
 import br.com.recycle.backend.dto.SaidaResponseDTO;
+import br.com.recycle.backend.model.Empresa;
 import br.com.recycle.backend.model.Estoque;
 import br.com.recycle.backend.model.Material;
 import br.com.recycle.backend.model.Saida;
@@ -15,6 +16,9 @@ import br.com.recycle.backend.repository.SaidaRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,21 +31,29 @@ public class SaidaService {
     private final SaidaRepository saidaRepository;
     private final EstoqueRepository estoqueRepository;
     private final MaterialRepository materialRepository;
+    private final FuncionarioService funcionarioService;
 
     public SaidaService(SaidaRepository saidaRepository, EstoqueRepository estoqueRepository,
-            MaterialRepository materialRepository) {
+            MaterialRepository materialRepository, FuncionarioService funcionarioService) {
         this.saidaRepository = saidaRepository;
         this.estoqueRepository = estoqueRepository;
         this.materialRepository = materialRepository;
+        this.funcionarioService = funcionarioService;
     }
 
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional
     public SaidaResponseDTO registrarSaida(SaidaRequestDTO dto, Long usuarioId) {
-        Material material = materialRepository.findByIdAndUsuarioId(dto.getMaterialId(), usuarioId)
-                .orElseThrow(() -> new RuntimeException("Material não encontrado ou não pertence ao usuário"));
+        Empresa empresaUsuario = funcionarioService.getEmpresaUsuario(usuarioId);
+        Material material = materialRepository.findById(dto.getMaterialId())
+                .orElseThrow(() -> new RuntimeException("Material não encontrado: " + dto.getMaterialId()));
 
-        Estoque estoque = estoqueRepository.findByMaterialIdAndMaterial_UsuarioId(dto.getMaterialId(), usuarioId)
+        Empresa empresaDoMaterial = material.getUsuario().getEmpresa();
+        if (!empresaDoMaterial.getId().equals(empresaUsuario.getId())) {
+            throw new RuntimeException("Usuário não tem acesso aos materiais desta empresa");
+        }
+
+        Estoque estoque = estoqueRepository.findByMaterialId(material.getId())
                 .orElseThrow(() -> new RuntimeException("Estoque não encontrado"));
 
         if (estoque.getQuantidade() < dto.getQuantidade()) {
@@ -68,51 +80,108 @@ public class SaidaService {
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional
     public List<SaidaResponseDTO> registrarSaidas(List<SaidaRequestDTO> dtos, Long usuarioId) {
+        Empresa empresaUsuario = funcionarioService.getEmpresaUsuario(usuarioId);
+
         for (SaidaRequestDTO dto : dtos) {
             if (dto.getMaterialId() == null || dto.getQuantidade() == null || dto.getQuantidade() <= 0) {
                 throw new RuntimeException("Dados inválidos para registro de saída");
             }
-
-            Material material = materialRepository.findByIdAndUsuarioId(dto.getMaterialId(), usuarioId)
-                    .orElseThrow(() -> new RuntimeException("Material não encontrado: " + dto.getMaterialId()));
         }
 
-        List<SaidaResponseDTO> resultados = new ArrayList<>();
+        Set<Long> materialIds = dtos.stream()
+                .map(SaidaRequestDTO::getMaterialId)
+                .collect(Collectors.toSet());
+
+        List<Material> materiais = materialRepository.findAllById(materialIds);
+
+        Map<Long, Material> materialMap = materiais.stream()
+                .collect(Collectors.toMap(Material::getId, Function.identity()));
+
+        for (Long id : materialIds) {
+            Material mat = materialMap.get(id);
+
+            if (mat == null) {
+                throw new RuntimeException("Material não encontrado: " + id);
+            }
+
+            if (!mat.getUsuario().getEmpresa().getId().equals(empresaUsuario.getId())) {
+                throw new RuntimeException(
+                        "Material ID " + id + " pertence a outra empresa.");
+            }
+        }
+
+        List<Estoque> estoques = estoqueRepository.findByMaterialIdIn(materialIds);
+
+        List<Saida> novasSaidas = new ArrayList<>();
+        Map<Long, Estoque> estoqueMap = estoques.stream()
+                .collect(Collectors.toMap(e -> e.getMaterial().getId(), Function.identity()));
+
         for (SaidaRequestDTO dto : dtos) {
-            SaidaResponseDTO resultado = registrarSaida(dto, usuarioId);
-            resultados.add(resultado);
+            Material material = materialMap.get(dto.getMaterialId());
+            Estoque estoque = estoqueMap.get(dto.getMaterialId());
+
+            if (estoque == null) {
+                throw new RuntimeException("Estoque não encontrado para material ID: " + dto.getMaterialId());
+            }
+
+            if (estoque.getQuantidade() < dto.getQuantidade()) {
+                throw new RuntimeException(
+                        "Quantidade insuficiente para o material ID " + dto.getMaterialId() +
+                                ". Disponível: " + estoque.getQuantidade());
+            }
+
+            Float novaQuantidade = estoque.getQuantidade() - dto.getQuantidade();
+            estoque.setQuantidade(novaQuantidade);
+            estoque.setValorTotal(novaQuantidade * estoque.getPrecoMedio());
+
+            Saida saida = new Saida();
+            saida.setQuantidade(dto.getQuantidade());
+            saida.setUsuarioId(usuarioId);
+            saida.setMaterial(material);
+            saida.setMaterialId(material.getId());
+            saida.setEstoque(estoque);
+
+            novasSaidas.add(saida);
         }
 
-        return resultados;
+        estoqueRepository.saveAll(estoqueMap.values());
+        saidaRepository.saveAll(novasSaidas);
+
+        return novasSaidas.stream()
+                .map(SaidaResponseDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional(readOnly = true)
-    public List<SaidaResponseDTO> listarSaidas(Long usuarioId, LocalDateTime dataInicio, LocalDateTime dataFim) { 
-        
+    public List<SaidaResponseDTO> listarSaidas(Long usuarioId, LocalDateTime dataInicio, LocalDateTime dataFim) {
+        Empresa empresa = funcionarioService.getEmpresaUsuario(usuarioId);
+
         List<Saida> saidas;
         if (dataInicio != null && dataFim != null) {
-            saidas = saidaRepository.findByUsuarioIdAndDataBetween(usuarioId, dataInicio, dataFim);
+            saidas = saidaRepository.findByUsuario_EmpresaIdAndDataBetween(empresa.getId(),dataInicio,dataFim);
         } else {
-            saidas = saidaRepository.findByUsuarioId(usuarioId);
+            saidas = saidaRepository.findByUsuario_EmpresaId(empresa.getId());
         }
 
         return saidas.stream()
                 .map(SaidaResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
-//
+
+    //
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional(readOnly = true)
-    public Page<SaidaResponseDTO> listarSaidasPaginado(Long usuarioId, LocalDateTime inicio, LocalDateTime fim, Pageable pageable) {
-    if (inicio != null && fim != null) {
-        return saidaRepository
-            .findByUsuarioIdAndDataBetween(usuarioId, inicio, fim, pageable)
-            .map(SaidaResponseDTO::fromEntity);
+    public Page<SaidaResponseDTO> listarSaidasPaginado(Long usuarioId, LocalDateTime inicio, LocalDateTime fim,
+            Pageable pageable) {
+        if (inicio != null && fim != null) {
+            return saidaRepository
+                    .findByUsuarioIdAndDataBetween(usuarioId, inicio, fim, pageable)
+                    .map(SaidaResponseDTO::fromEntity);
         }
-    return saidaRepository
-        .findByUsuarioId(usuarioId, pageable)
-        .map(SaidaResponseDTO::fromEntity);
+        return saidaRepository
+                .findByUsuarioId(usuarioId, pageable)
+                .map(SaidaResponseDTO::fromEntity);
     }
 
 }

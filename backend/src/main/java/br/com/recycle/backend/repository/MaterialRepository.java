@@ -3,6 +3,7 @@ package br.com.recycle.backend.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import br.com.recycle.backend.model.Empresa;
 import br.com.recycle.backend.model.Material;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -16,6 +17,7 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
     boolean existsByNome(String nome);
 
     Optional<Material> findByIdAndUsuarioId(Long id, Long usuarioId);
+    List<Material> findAllByUsuario_Empresa(Empresa empresa);
     List<Material> findAllByUsuarioId(Long usuarioId);
     boolean existsByNomeAndUsuarioId(String nome, Long usuarioId);
     boolean existsByIdAndUsuarioId(Long id, Long usuarioId);
