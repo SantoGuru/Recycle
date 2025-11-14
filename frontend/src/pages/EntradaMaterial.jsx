@@ -50,7 +50,7 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
         throw new Error("Erro ao enviar dados das movimentações!");
       }
 
-      toast.success("Material registrado com sucesso!");
+      toast.success("Entrada registrada com sucesso!");
 
       setMovimentacoes([]);
       setMaterialSelecionado("");
