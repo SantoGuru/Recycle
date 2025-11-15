@@ -11,6 +11,15 @@ public class SaidaResponseDTO {
     private String materialNome;
     private Float quantidade;
     private LocalDateTime data;
+    private String usuarioNome;
+
+    public String getUsuarioNome() {
+        return usuarioNome;
+    }
+
+    public void setUsuarioNome(String usuarioNome) {
+        this.usuarioNome = usuarioNome;
+    }
 
     public Long getId() {
         return id;
@@ -56,6 +65,10 @@ public class SaidaResponseDTO {
         SaidaResponseDTO dto = new SaidaResponseDTO();
         dto.setId(saida.getId());
         dto.setMaterialId(saida.getMaterialId());
+
+        if (saida.getUsuario() != null) {
+            dto.setUsuarioNome(saida.getUsuario().getNome());
+        }
 
         if (saida.getMaterial() != null) {
             dto.setMaterialNome(saida.getMaterial().getNome());

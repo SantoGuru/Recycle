@@ -14,6 +14,8 @@ import PublicRoute from "./components/routes/PublicRoute";
 import LoaderDialog from "./components/ui/LoaderDialog";
 import Materials from "./pages/Material/Materials";
 import Stock from "./pages/Stock";
+import Employees from "./pages/Employees";
+import InventoryTransactions from "./pages/InventoryTransactions";
 
 const router = createBrowserRouter([
   {
@@ -27,7 +29,7 @@ const router = createBrowserRouter([
           { index: true, element: <LandPage /> },
           { path: "/login", element: <Login /> },
           { path: "/signup", element: <Signup /> },
-        ]
+        ],
       },
       {
         element: <PrivateRoute />,
@@ -36,6 +38,8 @@ const router = createBrowserRouter([
           { path: "/materials", element: <Materials /> },
           { path: "/stock", element: <Stock /> },
           { path: "/entradaMaterial", element: <EntradaMaterial /> },
+          { path: "/employees", element: <Employees /> },
+          { path: "/transactions", element: <InventoryTransactions /> },
         ],
       },
     ],

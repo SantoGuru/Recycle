@@ -1,3 +1,14 @@
+/**
+ * @typedef {Object} UserSession
+ * @property {string} token
+ * @property {string} tipo
+ * @property {string} nome
+ * @property {number} id
+ * @property {string} role
+ * @property {number} empresaId
+ * @property {string} empresaNome
+ */
+
 import {
   createContext,
   useContext,

@@ -13,11 +13,16 @@ public class EntradaResponseDTO {
     private Float preco;
     private Float valorTotal;
     private LocalDateTime data;
+    private String usuarioNome;
 
     public static EntradaResponseDTO fromEntity(Entrada entrada) {
         EntradaResponseDTO dto = new EntradaResponseDTO();
         dto.setId(entrada.getId());
         dto.setMaterialId(entrada.getMaterialId());
+
+        if (entrada.getUsuario() != null) {
+            dto.setUsuarioNome(entrada.getUsuario().getNome());
+        }
 
         if (entrada.getMaterial() != null) {
             dto.setMaterialNome(entrada.getMaterial().getNome());
@@ -29,6 +34,14 @@ public class EntradaResponseDTO {
         dto.setData(entrada.getData());
 
         return dto;
+    }
+
+    public String getUsuarioNome() {
+        return usuarioNome;
+    }
+
+    public void setUsuarioNome(String usuarioNome) {
+        this.usuarioNome = usuarioNome;
     }
 
     public Long getId() {

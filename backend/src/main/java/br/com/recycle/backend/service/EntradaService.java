@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.recycle.backend.dto.EntradaRequestDTO;
 import br.com.recycle.backend.dto.EstoqueResponseDTO;
+import br.com.recycle.backend.model.Empresa;
 import br.com.recycle.backend.model.Entrada;
 import br.com.recycle.backend.model.Estoque;
 import br.com.recycle.backend.model.Material;
@@ -31,29 +32,35 @@ public class EntradaService {
     private final EntradaRepository entradaRepository;
     private final EstoqueRepository estoqueRepository;
     private final MaterialRepository materialRepository;
+    private final FuncionarioService funcionarioService;
 
     @Autowired
     public EntradaService(
             EntradaRepository entradaRepository,
             EstoqueRepository estoqueRepository,
-            MaterialRepository materialRepository) {
+            MaterialRepository materialRepository, FuncionarioService funcionarioService) {
         this.entradaRepository = entradaRepository;
         this.estoqueRepository = estoqueRepository;
         this.materialRepository = materialRepository;
+        this.funcionarioService = funcionarioService;
     }
+
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional
     public EstoqueResponseDTO registrarEntrada(EntradaRequestDTO entradaRequestDTO, Long usuarioId) {
         validarDadosEntrada(entradaRequestDTO);
+        Empresa empresaUsuarioLogado = funcionarioService.getEmpresaUsuario(usuarioId);
 
         Material material = materialRepository.findById(entradaRequestDTO.getMaterialId())
-                .orElseThrow(() -> new RuntimeException("Material não encontrado com ID: " + entradaRequestDTO.getMaterialId()));
+                .orElseThrow(() -> new RuntimeException(
+                        "Material não encontrado com ID: " + entradaRequestDTO.getMaterialId()));
+        Empresa empresaDoMaterial = material.getUsuario().getEmpresa();
 
-        if (!material.getUsuarioId().equals(usuarioId)) {
-            throw new RuntimeException("Material não pertence ao usuário");
+        if (!empresaDoMaterial.getId().equals(empresaUsuarioLogado.getId())) {
+            throw new RuntimeException("Usuário não tem acesso aos materiais desta empresa");
         }
 
-        Estoque estoque = estoqueRepository.findByMaterialIdAndMaterial_UsuarioId(material.getId(), usuarioId)
+        Estoque estoque = estoqueRepository.findByMaterialId(material.getId())
                 .orElse(null);
 
         if (estoque == null) {
@@ -73,7 +80,8 @@ public class EntradaService {
         Float valorEstoqueAtual = quantidadeAtual * precoMedioAtual;
         Float valorNovaEntrada = quantidadeEntrada * precoEntrada;
         Float quantidadeTotal = quantidadeAtual + quantidadeEntrada;
-        Float novoPrecoMedio = quantidadeTotal > 0 ? (valorEstoqueAtual + valorNovaEntrada) / quantidadeTotal : precoEntrada;
+        Float novoPrecoMedio = quantidadeTotal > 0 ? (valorEstoqueAtual + valorNovaEntrada) / quantidadeTotal
+                : precoEntrada;
 
         estoque.setQuantidade(quantidadeTotal);
         estoque.setPrecoMedio(novoPrecoMedio);
@@ -90,33 +98,37 @@ public class EntradaService {
 
         return EstoqueResponseDTO.fromEntity(estoque);
     }
+
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional
     public List<EstoqueResponseDTO> registrarEntradas(List<EntradaRequestDTO> entradas, Long usuarioId) {
+        Empresa empresaUsuarioLogado = funcionarioService.getEmpresaUsuario(usuarioId);
 
         Set<Long> materialIds = entradas.stream()
                 .peek(this::validarDadosEntrada)
                 .map(EntradaRequestDTO::getMaterialId)
                 .collect(Collectors.toSet());
-        
-                List<Material> materiaisEncontrados = materialRepository.findAllById(materialIds);
-        
+
+        List<Material> materiaisEncontrados = materialRepository.findAllById(materialIds);
+
         for (Material mat : materiaisEncontrados) {
-            if (!mat.getUsuarioId().equals(usuarioId)) {
-                throw new RuntimeException("Tentativa de registrar entrada para o material ID " + mat.getId() + ", que não pertence ao usuário.");
+            Empresa empresaDoMaterial = mat.getUsuario().getEmpresa();
+            if (!empresaDoMaterial.getId().equals(empresaUsuarioLogado.getId())) {
+                throw new RuntimeException(
+                        "Material ID " + mat.getId() + " pertence a outra empresa.");
             }
         }
 
         Map<Long, Material> materialMap = materiaisEncontrados.stream()
                 .collect(Collectors.toMap(Material::getId, Function.identity()));
 
-        List<Estoque> estoquesEncontrados = estoqueRepository.findByMaterialIdInAndMaterial_UsuarioId(materialIds, usuarioId);
-        
+        List<Estoque> estoquesEncontrados = estoqueRepository.findByMaterialIdIn(materialIds);
+
         Map<Long, Estoque> estoqueMap = estoquesEncontrados.stream()
                 .collect(Collectors.toMap(e -> e.getMaterial().getId(), Function.identity()));
 
         List<Entrada> novasEntradas = new ArrayList<>();
-  
+
         for (EntradaRequestDTO req : entradas) {
             Material material = materialMap.get(req.getMaterialId());
 
@@ -131,7 +143,7 @@ public class EntradaService {
                 estoque.setQuantidade(0.0f);
                 estoque.setPrecoMedio(0.0f);
                 estoque.setValorTotal(0.0f);
-                estoqueMap.put(material.getId(), estoque); 
+                estoqueMap.put(material.getId(), estoque);
             }
 
             Float quantidadeAtual = estoque.getQuantidade();
@@ -142,7 +154,8 @@ public class EntradaService {
             Float valorEstoqueAtual = quantidadeAtual * precoMedioAtual;
             Float valorNovaEntrada = quantidadeEntrada * precoEntrada;
             Float quantidadeTotal = quantidadeAtual + quantidadeEntrada;
-            Float novoPrecoMedio = quantidadeTotal > 0 ? (valorEstoqueAtual + valorNovaEntrada) / quantidadeTotal : precoEntrada;
+            Float novoPrecoMedio = quantidadeTotal > 0 ? (valorEstoqueAtual + valorNovaEntrada) / quantidadeTotal
+                    : precoEntrada;
 
             estoque.setQuantidade(quantidadeTotal);
             estoque.setPrecoMedio(novoPrecoMedio);
@@ -164,34 +177,41 @@ public class EntradaService {
                 .map(EstoqueResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional(readOnly = true)
     public List<EntradaResponseDTO> listarEntradas(Long usuarioId, LocalDateTime dataInicio, LocalDateTime dataFim) {
-        
+        Empresa empresa = funcionarioService.getEmpresaUsuario(usuarioId);
+
         List<Entrada> todasEntradas;
 
         if (dataInicio != null && dataFim != null) {
-            todasEntradas = entradaRepository.findByUsuarioIdAndDataBetween(usuarioId, dataInicio, dataFim);
+            todasEntradas = entradaRepository.findByUsuario_EmpresaIdAndDataBetween(
+                    empresa.getId(),
+                    dataInicio,
+                    dataFim);
         } else {
-            todasEntradas = entradaRepository.findByUsuarioId(usuarioId); 
+            todasEntradas = entradaRepository.findByUsuario_EmpresaId(empresa.getId());
         }
 
         return todasEntradas.stream()
                 .map(EntradaResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+
     //
     @PreAuthorize("hasAnyRole('GERENTE','OPERADOR')")
     @Transactional(readOnly = true)
-    public Page<EntradaResponseDTO> listarEntradasPaginado(Long usuarioId, LocalDateTime inicio, LocalDateTime fim, Pageable pageable) {
-    if (inicio != null && fim != null) {
-        return entradaRepository
-            .findByUsuarioIdAndDataBetween(usuarioId, inicio, fim, pageable)
-            .map(EntradaResponseDTO::fromEntity);
+    public Page<EntradaResponseDTO> listarEntradasPaginado(Long usuarioId, LocalDateTime inicio, LocalDateTime fim,
+            Pageable pageable) {
+        if (inicio != null && fim != null) {
+            return entradaRepository
+                    .findByUsuarioIdAndDataBetween(usuarioId, inicio, fim, pageable)
+                    .map(EntradaResponseDTO::fromEntity);
         }
-    return entradaRepository
-        .findByUsuarioId(usuarioId, pageable)
-        .map(EntradaResponseDTO::fromEntity);
+        return entradaRepository
+                .findByUsuarioId(usuarioId, pageable)
+                .map(EntradaResponseDTO::fromEntity);
     }
 
     private void validarDadosEntrada(EntradaRequestDTO entradaDTO) {
@@ -211,5 +231,5 @@ public class EntradaService {
             throw new RuntimeException("Preço unitário deve ser um valor positivo");
         }
     }
-    
+
 }
