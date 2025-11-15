@@ -169,8 +169,8 @@ public class EntradaService {
             novasEntradas.add(entrada);
         }
 
+        estoqueRepository.saveAll(estoqueMap.values()); 
         entradaRepository.saveAll(novasEntradas);
-        estoqueRepository.saveAll(estoqueMap.values());
 
         return materialIds.stream()
                 .map(estoqueMap::get)
