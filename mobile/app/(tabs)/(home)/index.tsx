@@ -8,6 +8,7 @@ import { Avatar, MD3Theme, Surface, Text, useTheme } from "react-native-paper";
 import { useMemo, useEffect, useState } from "react";
 import { API_URL } from "@/config";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { convertToReal } from "@/utils/currencyr-formatter";
 
 const { width } = Dimensions.get("window");
 
@@ -91,7 +92,7 @@ export default function HomeScreen() {
           <View style={style.materialContent}>
             <Text variant="displayMedium">{dashboard.totalMateriais}</Text>
             <Text variant="bodySmall" style={{ color: "rgb(56, 107, 1)" }}>
-              R$ {dashboard.valorTotalEstoque}
+              {convertToReal(dashboard.valorTotalEstoque)}
             </Text>
           </View>
           <Text variant="labelMedium">Total de Materiais</Text>

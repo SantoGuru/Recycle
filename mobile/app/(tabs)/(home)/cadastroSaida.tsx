@@ -57,7 +57,6 @@ export default function CadastroSaida() {
         if (response.ok) {
           setMaterials(data);
         }
-        console.log("Resposta da API:", data);
       } catch (e) {
         console.error("Não foi possível conectar ao servidor", e);
       }
