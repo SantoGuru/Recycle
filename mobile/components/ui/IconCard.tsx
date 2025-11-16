@@ -42,10 +42,10 @@ export default function IconCard({
         </View>
 
         <View>
-          <Text variant="titleMedium" style={styles.text}>
+          <Text variant="bodySmall" style={[styles.text, {fontWeight: "bold" }]}>
             {title}
           </Text>
-          <Text variant="bodySmall" style={styles.text}>
+          <Text variant="bodySmall" style={[styles.text, {color : theme.colors.onSurfaceVariant}]}>
             {description}
           </Text>
         </View>
@@ -80,5 +80,6 @@ const styles = StyleSheet.create({
   },
   text: {
     textAlign: "left",
+    fontSize: 13,
   },
 });

@@ -9,6 +9,9 @@ import {
   SafeAreaView,
   Keyboard,
   TouchableWithoutFeedback,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import {
   TextInput,
@@ -36,8 +39,6 @@ export default function CadastroEntrada() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  let a = "1";
-
   useEffect(() => {
     if (session == null) {
       router.push("/");
@@ -60,7 +61,6 @@ export default function CadastroEntrada() {
         if (response.ok) {
           setMaterials(data);
         }
-        console.log("Resposta da API:", data);
       } catch (e) {
         console.error("Não foi possível conectar ao servidor", e);
       }
@@ -156,111 +156,119 @@ export default function CadastroEntrada() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={[styles.container, { backgroundColor }]}>
-        <Text style={[styles.title, { color: textColor }]}>
-          Cadastro de Entrada
-        </Text>
-
-        <Button
-          mode="outlined"
-          onPress={() => setIsModalVisible(true)}
-          icon="chevron-down"
-          contentStyle={styles.selectButton}
-          style={styles.select}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <ScrollView
+          contentContainerStyle={[styles.container, { backgroundColor }]}
         >
-          {selectedMaterialName || "Selecione o Material"}
-        </Button>
-
-        <Modal
-          visible={isModalVisible}
-          animationType="slide"
-          onRequestClose={() => setIsModalVisible(false)}
-        >
-          <SafeAreaView style={[styles.modalContainer, { backgroundColor }]}>
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: textColor }]}>
-                Selecionar Material
-              </Text>
-              <IconButton
-                icon="close"
-                onPress={() => setIsModalVisible(false)}
-              />
-            </View>
-
-            <Searchbar
-              placeholder="Buscar material..."
-              onChangeText={setSearchQuery}
-              value={searchQuery}
-              style={styles.searchbar}
-            />
-
-            <FlatList
-              data={filteredMaterials}
-              keyExtractor={(item) => item.id.toString()}
-              ItemSeparatorComponent={() => <Divider />}
-              renderItem={({ item }) => (
-                <List.Item
-                  title={item.nome}
-                  onPress={() => handleSelectMaterial(item.id)}
-                  style={
-                    selectedMaterial === item.id ? styles.selectedItem : null
-                  }
-                />
-              )}
-              ListEmptyComponent={
-                <Text style={styles.emptyText}>Nenhum material encontrado</Text>
-              }
-            />
-          </SafeAreaView>
-        </Modal>
-
-        <TextInput
-          mode="flat"
-          label="Quantidade"
-          style={[styles.input, { color: textColor }]}
-          value={quantidade}
-          onChangeText={handleQuantidadeChange}
-          keyboardType="numeric"
-          returnKeyType="done"
-        />
-
-        <TextInput
-          mode="flat"
-          label="Valor"
-          style={[styles.input, { color: textColor }]}
-          value={valor}
-          onChangeText={handleValorChange}
-          keyboardType="decimal-pad"
-          returnKeyType="done"
-          left={<TextInput.Affix text="R$ " />}
-        />
-
-        <Button
-          mode="contained"
-          style={{ backgroundColor: tintColor, marginTop: 10 }}
-          labelStyle={{ color: backgroundColor }}
-          onPress={handleCreateEntrada}
-          disabled={loading}
-        >
-          {loading ? "Cadastrando..." : "Cadastrar Entrada"}
-        </Button>
-
-        {message ? (
-          <Text
-            style={[
-              styles.message,
-              messageType === "success" ? styles.success : styles.error,
-            ]}
-          >
-            {message}
+          <Text style={[styles.title, { color: textColor }]}>
+            Cadastro de Entrada
           </Text>
-        ) : null}
-      </View>
-    </TouchableWithoutFeedback>
+
+          <Button
+            mode="outlined"
+            onPress={() => setIsModalVisible(true)}
+            icon="chevron-down"
+            contentStyle={styles.selectButton}
+            style={styles.select}
+          >
+            {selectedMaterialName || "Selecione o Material"}
+          </Button>
+
+          <Modal
+            visible={isModalVisible}
+            animationType="slide"
+            onRequestClose={() => setIsModalVisible(false)}
+          >
+            <SafeAreaView style={[styles.modalContainer, { backgroundColor }]}>
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: textColor }]}>
+                  Selecionar Material
+                </Text>
+                <IconButton
+                  icon="close"
+                  onPress={() => setIsModalVisible(false)}
+                />
+              </View>
+
+              <Searchbar
+                placeholder="Buscar material..."
+                onChangeText={setSearchQuery}
+                value={searchQuery}
+                style={styles.searchbar}
+              />
+
+              <FlatList
+                data={filteredMaterials}
+                keyExtractor={(item) => item.id.toString()}
+                ItemSeparatorComponent={() => <Divider />}
+                renderItem={({ item }) => (
+                  <List.Item
+                    title={item.nome}
+                    onPress={() => handleSelectMaterial(item.id)}
+                    style={
+                      selectedMaterial === item.id ? styles.selectedItem : null
+                    }
+                  />
+                )}
+                ListEmptyComponent={
+                  <Text style={styles.emptyText}>
+                    Nenhum material encontrado
+                  </Text>
+                }
+              />
+            </SafeAreaView>
+          </Modal>
+
+          <TextInput
+            mode="flat"
+            label="Quantidade"
+            style={[styles.input, { color: textColor }]}
+            value={quantidade}
+            onChangeText={handleQuantidadeChange}
+            keyboardType="numeric"
+            returnKeyType="done"
+          />
+
+          <TextInput
+            mode="flat"
+            label="Valor"
+            style={[styles.input, { color: textColor }]}
+            value={valor}
+            onChangeText={handleValorChange}
+            keyboardType="decimal-pad"
+            returnKeyType="done"
+            left={<TextInput.Affix text="R$ " />}
+          />
+
+          <Button
+            mode="contained"
+            style={{ backgroundColor: tintColor, marginTop: 10 }}
+            labelStyle={{ color: backgroundColor }}
+            onPress={handleCreateEntrada}
+            disabled={loading}
+          >
+            {loading ? "Cadastrando..." : "Cadastrar Entrada"}
+          </Button>
+
+          {message ? (
+            <Text
+              style={[
+                styles.message,
+                messageType === "success" ? styles.success : styles.error,
+              ]}
+            >
+              {message}
+            </Text>
+          ) : null}
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

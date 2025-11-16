@@ -1,7 +1,6 @@
 import IconCard from "@/components/ui/IconCard";
 import { API_URL } from "@/config";
 import { useAuth } from "@/context/AuthContext";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { router } from "expo-router";
 import { useState, useEffect, useMemo } from "react";
 import {
@@ -19,27 +18,74 @@ import {
   Text,
   useTheme,
 } from "react-native-paper";
+import {
+  formatDatetime,
+  formatDatetimeExtensive,
+} from "../../../utils/date-formatter";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import ModalTooltip from "@/components/ModalTooltip";
-import { formatDatetimeExtensive } from "@/utils/date-formatter";
+import { convertToReal } from "@/utils/currencyr-formatter";
 const { width, height } = Dimensions.get("window");
 
-export interface Material {
+interface Movimentacao {
   id: number;
-  nome: string;
-  descricao: string;
-  unidade: string;
-  dataAtualizacao: string;
-  dataCriacao: string;
+  tipo: "ENTRADA" | "SAIDA";
+  materialNome: string;
+  usuarioNome: string;
+  quantidade: number;
+  data: string;
+  preco?: string;
+  valorTotal?: string;
 }
 
-export default function Materials() {
+async function fetchMovimentacoes(token: string): Promise<Movimentacao[]> {
+  const [entradasRes, saídasRes] = await Promise.all([
+    fetch(`${API_URL}/api/entradas`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+    fetch(`${API_URL}/api/saidas`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+  ]);
+
+  const entradas = entradasRes.ok ? await entradasRes.json() : [];
+  const saidas = saídasRes.ok ? await saídasRes.json() : [];
+
+  const entradasFormatadas = entradas.map((e: any) => ({
+    id: e.id,
+    tipo: "ENTRADA",
+    materialNome: e.materialNome,
+    quantidade: e.quantidade,
+    data: e.data,
+    usuarioNome: e.usuarioNome,
+    preco: e.preco,
+    valorTotal: e.valorTotal,
+  }));
+
+  const saídasFormatadas = saidas.map((s: any) => ({
+    id: s.id,
+    tipo: "SAÍDA",
+    materialNome: s.materialNome,
+    quantidade: s.quantidade,
+    data: s.data,
+    usuarioNome: s.usuarioNome,
+  }));
+
+  return [...entradasFormatadas, ...saídasFormatadas].sort(
+    (a, b) => new Date(b.data).getTime() - new Date(a.data).getTime()
+  );
+}
+
+export default function Movimentacoes() {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [tooltipContent, setTooltipContent] = useState<{
-    nome: string;
-    descricao: string;
-    unidade: string;
-    dataAtualizacao: string;
-    dataCriacao: string;
+    tipo: string;
+    materialNome: string;
+    quantidade: string;
+    data: string;
+    usuarioNome: string;
+    preco?: string;
+    valorTotal?: string;
   } | null>(null);
 
   const { session } = useAuth();
@@ -51,7 +97,7 @@ export default function Materials() {
   const theme = useTheme();
   const style = useMemo(() => styles(theme), [theme]);
   const [page, setPage] = useState<number>(0);
-  const [items, setItems] = useState<Material[]>([]);
+  const [items, setItems] = useState<Movimentacao[]>([]);
   const numberOfItemsPerPageList = useMemo(() => [5, 10, 30], []);
   const [itemsPerPage, onItemsPerPageChange] = useState(
     numberOfItemsPerPageList[1]
@@ -68,26 +114,20 @@ export default function Materials() {
   };
 
   useEffect(() => {
-    const fetchMaterials = async () => {
+    if (!token) return;
+
+    const load = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/materiais`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setItems(data);
-        }
-      } catch (e) {
-        return { error: "Não foi possível conectar ao servidor" };
+        const movimentos = await fetchMovimentacoes(token);
+        setItems(movimentos);
+      } catch (err) {
+        console.log("Erro ao buscar movimentações");
       }
     };
-    fetchMaterials();
+
+    load();
     setPage(0);
-  }, [itemsPerPage, token]);
+  }, [token, itemsPerPage]);
 
   const from = page * itemsPerPage;
   const to = Math.min((page + 1) * itemsPerPage, items.length);
@@ -120,38 +160,71 @@ export default function Materials() {
         <View style={style.grid}>
           <IconCard
             iconName="add"
-            title="Cadastrar material"
-            description="Adicione um novo material"
-            onPress={() => router.push("/(tabs)/(home)/cadastroMaterial")}
+            title="Cadastrar Entrada"
+            description="Adicione uma nova entrada"
+            onPress={() => router.push("/(tabs)/(home)/cadastroEntrada")}
+          />
+
+          <IconCard
+            iconName="remove"
+            title="Cadastrar Saída"
+            description="Adicione uma nova saída"
+            onPress={() => router.push("/(tabs)/(home)/cadastroSaida")}
           />
         </View>
       </View>
       <DataTable style={style.table}>
         <DataTable.Header>
-          <DataTable.Title>Nome</DataTable.Title>
-          <DataTable.Title>descricao</DataTable.Title>
+          <DataTable.Title>Tipo</DataTable.Title>
+          <DataTable.Title>Material</DataTable.Title>
+          <DataTable.Title numeric>Quantidade</DataTable.Title>
+          <DataTable.Title numeric>Data</DataTable.Title>
         </DataTable.Header>
         {items.length > 0 &&
           items.slice(from, to).map((item) => (
             <Pressable
               key={item.id}
               onPress={() => {
-                setTooltipContent({
-                  nome: item.nome,
-                  unidade: item.unidade,
-                  descricao: item.descricao,
-                  dataAtualizacao: item.dataAtualizacao,
-                  dataCriacao: item.dataCriacao,
-                });
+                const base = {
+                  tipo: item.tipo,
+                  materialNome: item.materialNome,
+                  quantidade: item.quantidade.toString(),
+                  data: item.data,
+                  usuarioNome: item.usuarioNome,
+                };
+                const final =
+                  item.tipo === "ENTRADA"
+                    ? {
+                        ...base,
+                        preco: item.preco,
+                        valorTotal: item.valorTotal,
+                      }
+                    : base;
+                setTooltipContent(final);
                 setTooltipVisible(true);
               }}
+              style={{ flex: 1 }}
               android_ripple={{ color: "#e0e0e0" }}
             >
-              <DataTable.Row pointerEvents="box-none">
+              <DataTable.Row>
                 <DataTable.Cell>
-                  {item.nome} ({item.unidade})
+                  <Text
+                    style={{
+                      color:
+                        item.tipo === "ENTRADA"
+                          ? theme.colors.primary
+                          : theme.colors.error,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {item.tipo}
+                  </Text>
                 </DataTable.Cell>
-                <DataTable.Cell>{item.descricao}</DataTable.Cell>
+                <DataTable.Cell>{item.materialNome}</DataTable.Cell>
+                <DataTable.Cell numeric>{item.quantidade}</DataTable.Cell>
+                <DataTable.Cell numeric>
+                  {formatDatetime(item.data)}
+                </DataTable.Cell>
               </DataTable.Row>
             </Pressable>
           ))}
@@ -177,25 +250,37 @@ export default function Materials() {
         {tooltipContent && (
           <View style={{ alignItems: "flex-start", gap: 8 }}>
             <Text variant="bodyMedium">
-              <Text style={{ fontWeight: "bold" }}>Nome</Text>:{" "}
-              {tooltipContent.nome}
+              <Text style={{ fontWeight: "bold" }}>Tipo</Text>{" "}
+              {tooltipContent.tipo}
             </Text>
             <Text variant="bodyMedium">
-              <Text style={{ fontWeight: "bold" }}>Descrição</Text>:{" "}
-              {tooltipContent.descricao}
+              <Text style={{ fontWeight: "bold" }}>Material</Text>:{" "}
+              {tooltipContent.materialNome}
             </Text>
             <Text variant="bodyMedium">
-              <Text style={{ fontWeight: "bold" }}>Unidade</Text>:{" "}
-              {tooltipContent.unidade}
+              <Text style={{ fontWeight: "bold" }}>quantidade</Text>:{" "}
+              {tooltipContent.quantidade}
             </Text>
             <Text variant="bodyMedium">
-              <Text style={{ fontWeight: "bold" }}>Criação</Text>:{" "}
-              {formatDatetimeExtensive(tooltipContent.dataCriacao)}
+              <Text style={{ fontWeight: "bold" }}>Responsável</Text>:{" "}
+              {tooltipContent.usuarioNome}
             </Text>
             <Text variant="bodyMedium">
-              <Text style={{ fontWeight: "bold" }}>Última alteração</Text>:{" "}
-              {formatDatetimeExtensive(tooltipContent.dataAtualizacao)}
+              <Text style={{ fontWeight: "bold" }}>Data</Text>:{" "}
+              {formatDatetimeExtensive(tooltipContent.data)}
             </Text>
+            {tooltipContent.preco && (
+              <Text variant="bodyMedium">
+                <Text style={{ fontWeight: "bold" }}>Preço</Text>:{" "}
+                {convertToReal(tooltipContent.preco)}
+              </Text>
+            )}
+            {tooltipContent.valorTotal && (
+              <Text variant="bodyMedium">
+                <Text style={{ fontWeight: "bold" }}>Valor Total</Text>:{" "}
+                {convertToReal(tooltipContent.valorTotal)}
+              </Text>
+            )}
           </View>
         )}
       </ModalTooltip>

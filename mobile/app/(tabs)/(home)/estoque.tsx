@@ -1,9 +1,17 @@
 import IconCard from "@/components/ui/IconCard";
 import { API_URL } from "@/config";
 import { useAuth } from "@/context/AuthContext";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { router } from "expo-router";
 import { useState, useEffect, useMemo } from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  Pressable,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Avatar,
   DataTable,
@@ -11,6 +19,9 @@ import {
   Text,
   useTheme,
 } from "react-native-paper";
+import { convertToReal } from "@/utils/currencyr-formatter";
+import ModalTooltip from "@/components/ModalTooltip";
+import { formatDatetimeExtensive } from "@/utils/date-formatter";
 const { width, height } = Dimensions.get("window");
 
 export interface Material {
@@ -30,20 +41,31 @@ export interface ItemMaterial {
   valorTotal: number;
 }
 
-
-
 export default function Estoque() {
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [tooltipContent, setTooltipContent] = useState<{
+    nome: string;
+    quantidade: string;
+    descricao: string;
+    dataCriacao: string;
+    dataAtualizacao: string;
+    unidade: string;
+    valorTotal?: string;
+  } | null>(null);
+
   const { session } = useAuth();
   const token = session?.token;
   const empresaNome = session?.empresaNome;
+  const tabBarHeight = useBottomTabBarHeight();
+  const insets = useSafeAreaInsets();
 
   const theme = useTheme();
   const style = useMemo(() => styles(theme), [theme]);
   const [page, setPage] = useState<number>(0);
   const [items, setItems] = useState<ItemMaterial[]>([]);
-  const numberOfItemsPerPageList = useMemo(() => [1, 2, 5, 10], []);
+  const numberOfItemsPerPageList = useMemo(() => [5, 10, 30], []);
   const [itemsPerPage, onItemsPerPageChange] = useState(
-    numberOfItemsPerPageList[0]
+    numberOfItemsPerPageList[1]
   );
   const filteredItemsPerPageList = useMemo(
     () => numberOfItemsPerPageList.filter((n) => n !== itemsPerPage),
@@ -70,7 +92,6 @@ export default function Estoque() {
         if (response.ok) {
           setItems(data);
         }
-        console.log("Resposta da API:", data);
       } catch (e) {
         return { error: "Não foi possível conectar ao servidor" };
       }
@@ -83,7 +104,12 @@ export default function Estoque() {
   const to = Math.min((page + 1) * itemsPerPage, items.length);
 
   return (
-    <View style={style.body}>
+    <ScrollView
+      contentContainerStyle={[
+        style.body,
+        { paddingBottom: Math.max(tabBarHeight + 16, insets.bottom + 16) },
+      ]}
+    >
       <View style={{ width: "100%", gap: height * 0.03 }}>
         <View style={style.header}>
           <Avatar.Image
@@ -102,21 +128,6 @@ export default function Estoque() {
             </Text>
           </View>
         </View>
-        <View style={style.grid}>
-          <IconCard
-            iconName="add"
-            title="Cadastrar Entrada"
-            description="Adicione uma nova entrada"
-            onPress={() => router.push("/(tabs)/(home)/cadastroEntrada")}
-          />
-
-          <IconCard
-            iconName="remove"
-            title="Cadastrar Saída"
-            description="Adicione uma nova saída"
-            onPress={() => router.push("/(tabs)/(home)/cadastroSaida")}
-          />
-        </View>
       </View>
       <DataTable style={style.table}>
         <DataTable.Header>
@@ -127,12 +138,35 @@ export default function Estoque() {
         </DataTable.Header>
         {items.length > 0 &&
           items.slice(from, to).map((item) => (
-            <DataTable.Row key={item.materialId}>
-              <DataTable.Cell>{item.material.nome} ({item.material.unidade})</DataTable.Cell>
-              <DataTable.Cell>{item.quantidade}</DataTable.Cell>
-              <DataTable.Cell>{item.precoMedio}</DataTable.Cell>
-              <DataTable.Cell>{item.valorTotal}</DataTable.Cell>
-            </DataTable.Row>
+            <Pressable
+              key={item.materialId}
+              onPress={() => {
+                setTooltipContent({
+                  nome: item.material.nome,
+                  dataAtualizacao: item.material.dataAtualizacao,
+                  dataCriacao: item.material.dataCriacao,
+                  quantidade: item.quantidade.toString(),
+                  descricao: item.material.descricao,
+                  unidade: item.material.unidade,
+                  valorTotal: item.valorTotal.toString(),
+                });
+                setTooltipVisible(true);
+              }}
+              android_ripple={{ color: "#e0e0e0" }}
+            >
+              <DataTable.Row>
+                <DataTable.Cell>
+                  {item.material.nome} ({item.material.unidade})
+                </DataTable.Cell>
+                <DataTable.Cell>{item.quantidade}</DataTable.Cell>
+                <DataTable.Cell>
+                  {convertToReal(item.precoMedio)}
+                </DataTable.Cell>
+                <DataTable.Cell>
+                  {convertToReal(item.valorTotal)}
+                </DataTable.Cell>
+              </DataTable.Row>
+            </Pressable>
           ))}
 
         <DataTable.Pagination
@@ -148,7 +182,45 @@ export default function Estoque() {
           selectPageDropdownLabel={"Linhas por página"}
         />
       </DataTable>
-    </View>
+
+      <ModalTooltip
+        visible={tooltipVisible}
+        onClose={() => setTooltipVisible(false)}
+      >
+        {tooltipContent && (
+          <View style={{ alignItems: "flex-start", gap: 8 }}>
+            <Text variant="bodyMedium">
+              <Text style={{ fontWeight: "bold" }}>Nome</Text>:{" "}
+              {tooltipContent.nome}
+            </Text>
+            <Text variant="bodyMedium">
+              <Text style={{ fontWeight: "bold" }}>Descrição</Text>:{" "}
+              {tooltipContent.descricao}
+            </Text>
+            <Text variant="bodyMedium">
+              <Text style={{ fontWeight: "bold" }}>Quantidade</Text>:{" "}
+              {tooltipContent.quantidade}
+            </Text>
+            <Text variant="bodyMedium">
+              <Text style={{ fontWeight: "bold" }}>Unidade</Text>:{" "}
+              {tooltipContent.unidade}
+            </Text>
+            <Text variant="bodyMedium">
+              <Text style={{ fontWeight: "bold" }}>Total em Estoque</Text>:{" "}
+              {convertToReal(tooltipContent.valorTotal)}
+            </Text>
+            <Text variant="bodyMedium">
+              <Text style={{ fontWeight: "bold" }}>Criação</Text>:{" "}
+              {formatDatetimeExtensive(tooltipContent.dataCriacao)}
+            </Text>
+            <Text variant="bodyMedium">
+              <Text style={{ fontWeight: "bold" }}>Última alteração</Text>:{" "}
+              {formatDatetimeExtensive(tooltipContent.dataAtualizacao)}
+            </Text>
+          </View>
+        )}
+      </ModalTooltip>
+    </ScrollView>
   );
 }
 

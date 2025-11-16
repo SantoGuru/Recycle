@@ -7,6 +7,7 @@ import { router } from "expo-router";
 import { Avatar, MD3Theme, Surface, Text, useTheme } from "react-native-paper";
 import { useMemo, useEffect, useState } from "react";
 import { API_URL } from "@/config";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
@@ -19,7 +20,8 @@ interface Dashboard {
 
 export default function HomeScreen() {
   const theme = useTheme();
-  const style = useMemo(() => styles(theme), [theme]);
+  const insets = useSafeAreaInsets();
+  const style = useMemo(() => styles(theme, insets), [theme, insets]);
   const { session } = useAuth();
   const role = session?.role;
   const token = session?.token;
@@ -108,9 +110,9 @@ export default function HomeScreen() {
       <View style={style.grid}>
         <IconCard
           iconName="add"
-          title="Entradas"
-          description="Gerencie entradas"
-          onPress={() => router.push("/(tabs)/(home)/entradas")}
+          title="Movimentações"
+          description="Gerencie movimentações"
+          onPress={() => router.push("/(tabs)/(home)/movimentacoes")}
         />
 
         {/* <IconCard
@@ -131,7 +133,7 @@ export default function HomeScreen() {
           <>
             <IconCard
               iconName="inventory"
-              title="Novo Item"
+              title="Materiais"
               description="Gerencie seus itens"
               onPress={() => router.push("/(tabs)/(home)/material")}
             />
@@ -148,13 +150,14 @@ export default function HomeScreen() {
   );
 }
 
-const styles = (theme: MD3Theme) =>
+const styles = (theme: MD3Theme, insets: any) =>
   StyleSheet.create({
     body: {
       flex: 1,
       justifyContent: "space-evenly",
       alignItems: "center",
       backgroundColor: theme.colors.background,
+      paddingBottom: insets.bottom,
     },
     header: {
       display: "flex",
