@@ -14,6 +14,7 @@ import {
   Avatar,
   DataTable,
   MD3Theme,
+  Searchbar,
   Text,
   useTheme,
 } from "react-native-paper";
@@ -62,6 +63,7 @@ export default function Estoque() {
   const style = useMemo(() => styles(theme), [theme]);
   const [page, setPage] = useState<number>(0);
   const [items, setItems] = useState<ItemMaterial[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const numberOfItemsPerPageList = useMemo(() => [5, 10, 30], []);
   const [itemsPerPage, onItemsPerPageChange] = useState(
     numberOfItemsPerPageList[1]
@@ -101,8 +103,19 @@ export default function Estoque() {
     }, [token])
   );
 
+  const handleFilter = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const filteredItems = items.filter((item) => {
+    let itemString = Object.values(item).join(" ").toLowerCase();
+    itemString += `${Object.values(item.material).join(" ").toLowerCase()}`;
+
+    return itemString.includes(searchQuery.toLowerCase());
+  });
+
   const from = page * itemsPerPage;
-  const to = Math.min((page + 1) * itemsPerPage, items.length);
+  const to = Math.min((page + 1) * itemsPerPage, filteredItems.length);
 
   return (
     <ScrollView
@@ -129,7 +142,14 @@ export default function Estoque() {
             </Text>
           </View>
         </View>
+        <Searchbar
+          placeholder="Buscar por..."
+          onChangeText={handleFilter}
+          value={searchQuery}
+          style={{ marginHorizontal: 8 }}
+        />
       </View>
+
       <DataTable style={style.table}>
         <DataTable.Header>
           <DataTable.Title>Nome</DataTable.Title>
@@ -137,8 +157,8 @@ export default function Estoque() {
           <DataTable.Title>Preço Médio</DataTable.Title>
           <DataTable.Title>Valor Total</DataTable.Title>
         </DataTable.Header>
-        {items.length > 0 &&
-          items.slice(from, to).map((item) => (
+        {filteredItems.length > 0 &&
+          filteredItems.slice(from, to).map((item) => (
             <Pressable
               key={item.materialId}
               onPress={() => {
@@ -173,9 +193,9 @@ export default function Estoque() {
         <DataTable.Pagination
           key={itemsPerPage}
           page={page}
-          numberOfPages={Math.ceil(items.length / itemsPerPage)}
+          numberOfPages={Math.ceil(filteredItems.length / itemsPerPage)}
           onPageChange={(page) => setPage(page)}
-          label={`${from + 1}-${to} de ${items.length}`}
+          label={`${from + 1}-${to} de ${filteredItems.length}`}
           numberOfItemsPerPageList={filteredItemsPerPageList}
           numberOfItemsPerPage={itemsPerPage}
           onItemsPerPageChange={handleItemsPerPageChange}

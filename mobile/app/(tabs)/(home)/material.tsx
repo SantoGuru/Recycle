@@ -18,6 +18,7 @@ import {
   MD3Theme,
   Text,
   useTheme,
+  Searchbar,
 } from "react-native-paper";
 import ModalTooltip from "@/components/ModalTooltip";
 import { formatDatetimeExtensive } from "@/utils/date-formatter";
@@ -52,6 +53,7 @@ export default function Materials() {
   const theme = useTheme();
   const style = useMemo(() => styles(theme), [theme]);
   const [page, setPage] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState("");
   const [items, setItems] = useState<Material[]>([]);
   const numberOfItemsPerPageList = useMemo(() => [5, 10, 30], []);
   const [itemsPerPage, onItemsPerPageChange] = useState(
@@ -66,6 +68,10 @@ export default function Materials() {
     if (value !== itemsPerPage) {
       setTimeout(() => onItemsPerPageChange(value), 150);
     }
+  };
+
+  const handleFilter = (query: string) => {
+    setSearchQuery(query);
   };
 
   useFocusEffect(
@@ -92,8 +98,14 @@ export default function Materials() {
     }, [token])
   );
 
+  const filteredItems = items.filter((item) => {
+    const itemString = Object.values(item).join(" ").toLowerCase();
+
+    return itemString.includes(searchQuery.toLowerCase());
+  });
+
   const from = page * itemsPerPage;
-  const to = Math.min((page + 1) * itemsPerPage, items.length);
+  const to = Math.min((page + 1) * itemsPerPage, filteredItems.length);
 
   return (
     <ScrollView
@@ -120,6 +132,7 @@ export default function Materials() {
             </Text>
           </View>
         </View>
+
         <View style={style.grid}>
           <IconCard
             iconName="add"
@@ -129,13 +142,19 @@ export default function Materials() {
           />
         </View>
       </View>
+      <Searchbar
+        placeholder="Buscar por..."
+        onChangeText={handleFilter}
+        value={searchQuery}
+        style={{ marginHorizontal: 8 }}
+      />
       <DataTable style={style.table}>
         <DataTable.Header>
           <DataTable.Title>Nome</DataTable.Title>
           <DataTable.Title>descricao</DataTable.Title>
         </DataTable.Header>
-        {items.length > 0 &&
-          items.slice(from, to).map((item) => (
+        {filteredItems.length > 0 &&
+          filteredItems.slice(from, to).map((item) => (
             <Pressable
               key={item.id}
               onPress={() => {
@@ -162,9 +181,9 @@ export default function Materials() {
         <DataTable.Pagination
           key={itemsPerPage}
           page={page}
-          numberOfPages={Math.ceil(items.length / itemsPerPage)}
+          numberOfPages={Math.ceil(filteredItems.length / itemsPerPage)}
           onPageChange={(page) => setPage(page)}
-          label={`${from + 1}-${to} de ${items.length}`}
+          label={`${from + 1}-${to} de ${filteredItems.length}`}
           numberOfItemsPerPageList={filteredItemsPerPageList}
           numberOfItemsPerPage={itemsPerPage}
           onItemsPerPageChange={handleItemsPerPageChange}
