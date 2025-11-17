@@ -50,7 +50,7 @@ export default function HomeScreen() {
         if (response.ok) {
           setDashboard(data);
         }
-      } catch (e) {
+      } catch {
         return { error: "Não foi possível conectar ao servidor" };
       }
     };
