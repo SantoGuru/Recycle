@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import * as React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 
 import { TextInput, Button, Menu } from "react-native-paper";
 
@@ -11,7 +21,6 @@ import { router } from "expo-router";
 import { API_URL } from "../../../config";
 
 export default function CadastroMaterial() {
-
   const { session } = useAuth();
   const role = session?.role;
   const token = session?.token;
@@ -26,7 +35,6 @@ export default function CadastroMaterial() {
     router.push("/");
   }
 
-
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
   const [unidade, setUnidade] = useState("");
@@ -36,8 +44,7 @@ export default function CadastroMaterial() {
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
 
-  const options = ['kg', 'g', 'un', 'l', 'ml'];
-
+  const options = ["kg", "g", "un", "l", "ml"];
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -60,7 +67,6 @@ export default function CadastroMaterial() {
     setMessage("");
     setMessageType("");
 
-
     try {
       const response = await fetch(`${API_URL}/api/materiais`, {
         method: "POST",
@@ -68,7 +74,7 @@ export default function CadastroMaterial() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({nome, descricao, unidade}),
+        body: JSON.stringify({ nome, descricao, unidade }),
       });
 
       if (response.ok) {
@@ -84,88 +90,89 @@ export default function CadastroMaterial() {
       return { error: "Não foi possível conectar ao servidor" };
     }
 
-
     setLoading(false);
   };
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
-      <Text style={[styles.title, { color: textColor }]}>
-        Cadastro de Material
-      </Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={[styles.container, { backgroundColor }]}>
+          <Text style={[styles.title, { color: textColor }]}>
+            Cadastro de Material
+          </Text>
 
-      <TextInput
-        mode="flat"
-        style={[styles.input, { color: textColor }]}
-        placeholder="Nome"
-        placeholderTextColor={textColor}
-        value={nome}
-        onChangeText={setNome}
-        autoCapitalize="none"
-      />
+          <TextInput
+            mode="flat"
+            style={[styles.input, { color: textColor }]}
+            placeholder="Nome"
+            placeholderTextColor={textColor}
+            value={nome}
+            onChangeText={setNome}
+            autoCapitalize="none"
+          />
 
-      <TextInput
-        mode="flat"
-        style={[styles.description, { color: textColor }]}
-        placeholder="Descrição"
-        placeholderTextColor={textColor}
-        value={descricao}
-        onChangeText={setDescricao}
-        autoCapitalize="none"
+          <TextInput
+            mode="flat"
+            style={[styles.description, { color: textColor }]}
+            placeholder="Descrição"
+            placeholderTextColor={textColor}
+            value={descricao}
+            onChangeText={setDescricao}
+            autoCapitalize="none"
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+          />
 
-        multiline
-        numberOfLines={4}
-        textAlignVertical="top"
-      />
+          <View style={styles.select}>
+            <Menu
+              visible={visible}
+              onDismiss={closeMenu}
+              anchor={
+                <Button mode="outlined" onPress={openMenu}>
+                  {unidade ? `Unidade: ${unidade}` : "Selecione a unidade"}
+                </Button>
+              }
+            >
+              {options.map((opt) => (
+                <Menu.Item
+                  key={opt}
+                  onPress={() => {
+                    setUnidade(opt);
+                    closeMenu();
+                  }}
+                  title={opt}
+                />
+              ))}
+            </Menu>
+          </View>
 
+          <Button
+            mode="contained"
+            style={{ backgroundColor: tintColor }}
+            labelStyle={{ color: backgroundColor }}
+            onPress={handleCreateMaterial}
+            disabled={loading}
+          >
+            {loading ? "Cadastrando..." : "Cadastrar Material"}
+          </Button>
 
-      <View style={styles.select}>
-
-        <Menu   
-          visible={visible}
-          onDismiss={closeMenu}
-          anchor={
-            <Button mode="outlined" onPress={openMenu}>
-              {unidade ? `Unidade: ${unidade}` : 'Selecione a unidade'}
-            </Button>
-          }
-        >
-          {options.map((opt) => (
-            <Menu.Item
-              key={opt}
-              onPress={() => {
-                setUnidade(opt);
-                closeMenu();
-              }}
-              title={opt}
-            />
-          ))}
-        </Menu>
-
-      </View>
-
-
-      <Button
-        mode="contained"
-        style={{ backgroundColor: tintColor }}
-        labelStyle={{ color: backgroundColor }}
-        onPress={handleCreateMaterial}
-        disabled={loading}
-      >
-        {loading ? "Cadastrando..." : "Cadastrar Material"}
-      </Button>
-
-      {message ? (
-        <Text
-          style={[
-            styles.message,
-            messageType === "success" ? styles.success : styles.error,
-          ]}
-        >
-          {message}
-        </Text>
-      ) : null}
-    </View>
+          {message ? (
+            <Text
+              style={[
+                styles.message,
+                messageType === "success" ? styles.success : styles.error,
+              ]}
+            >
+              {message}
+            </Text>
+          ) : null}
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -203,7 +210,7 @@ const styles = StyleSheet.create({
   description: {
     height: 120,
     borderRadius: 8,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderWidth: 1,
     paddingHorizontal: 15,
     marginBottom: 20,
@@ -212,5 +219,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 20,
     borderRadius: 10,
-  }
+  },
 });

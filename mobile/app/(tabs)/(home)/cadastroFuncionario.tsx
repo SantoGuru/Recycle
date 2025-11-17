@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard
+} from "react-native";
 
 import { TextInput, Button } from "react-native-paper";
 
@@ -20,7 +28,7 @@ export default function CadastroFuncionario() {
     }
   }, [session]);
 
-  if (role != "GERENTE") {
+  if (role !== "GERENTE") {
     router.push("/");
   }
 
@@ -61,7 +69,7 @@ export default function CadastroFuncionario() {
     try {
       const response = await fetch(`${API_URL}/api/usuarios/funcionarios`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
@@ -85,87 +93,94 @@ export default function CadastroFuncionario() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
-      <Text style={[styles.title, { color: textColor }]}>
-        Cadastro de Funcionário
-      </Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={[styles.container, { backgroundColor }]}>
+          <Text style={[styles.title, { color: textColor }]}>
+            Cadastro de Funcionário
+          </Text>
 
-      <TextInput
-        mode="flat"
-        style={[styles.input, { color: textColor }]}
-        placeholder="Nome"
-        placeholderTextColor={textColor}
-        value={nome}
-        onChangeText={setNome}
-        autoCapitalize="none"
-      />
-
-      <TextInput
-        mode="flat"
-        style={[styles.input, { color: textColor }]}
-        placeholder="Email"
-        placeholderTextColor={textColor}
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-
-      <TextInput
-        mode="flat"
-        style={[styles.input, { color: textColor }]}
-        placeholder="Senha"
-        placeholderTextColor={textColor}
-        value={senha}
-        onChangeText={setSenha}
-        secureTextEntry={!mostrarSenha}
-        right={
-          <TextInput.Icon
-            icon={mostrarSenha ? "eye-off" : "eye"}
-            color={iconColor}
-            onPress={() => setMostrarSenha(!mostrarSenha)}
+          <TextInput
+            mode="flat"
+            style={[styles.input, { color: textColor }]}
+            placeholder="Nome"
+            placeholderTextColor={textColor}
+            value={nome}
+            onChangeText={setNome}
+            autoCapitalize="none"
           />
-        }
-      />
 
-      <TextInput
-        mode="flat"
-        style={[styles.input, { color: textColor }]}
-        placeholder="Confirmar Senha"
-        placeholderTextColor={textColor}
-        value={confirmaSenha}
-        onChangeText={setConfirmaSenha}
-        secureTextEntry={!mostrarSenha}
-        right={
-          <TextInput.Icon
-            icon={mostrarSenha ? "eye-off" : "eye"}
-            color={iconColor}
-            onPress={() => setMostrarSenha(!mostrarSenha)}
+          <TextInput
+            mode="flat"
+            style={[styles.input, { color: textColor }]}
+            placeholder="Email"
+            placeholderTextColor={textColor}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
-        }
-      />
 
-      <Button
-        mode="contained"
-        style={{ backgroundColor: tintColor }}
-        labelStyle={{ color: backgroundColor }}
-        onPress={handleCreateFuncionario}
-        disabled={loading}
-      >
-        {loading ? "Cadastrando..." : "Cadastrar Funcionário"}
-      </Button>
+          <TextInput
+            mode="flat"
+            style={[styles.input, { color: textColor }]}
+            placeholder="Senha"
+            placeholderTextColor={textColor}
+            value={senha}
+            onChangeText={setSenha}
+            secureTextEntry={!mostrarSenha}
+            right={
+              <TextInput.Icon
+                icon={mostrarSenha ? "eye-off" : "eye"}
+                color={iconColor}
+                onPress={() => setMostrarSenha(!mostrarSenha)}
+              />
+            }
+          />
 
-      {message ? (
-        <Text
-          style={[
-            styles.message,
-            messageType === "success" ? styles.success : styles.error,
-          ]}
-        >
-          {message}
-        </Text>
-      ) : null}
-    </View>
+          <TextInput
+            mode="flat"
+            style={[styles.input, { color: textColor }]}
+            placeholder="Confirmar Senha"
+            placeholderTextColor={textColor}
+            value={confirmaSenha}
+            onChangeText={setConfirmaSenha}
+            secureTextEntry={!mostrarSenha}
+            right={
+              <TextInput.Icon
+                icon={mostrarSenha ? "eye-off" : "eye"}
+                color={iconColor}
+                onPress={() => setMostrarSenha(!mostrarSenha)}
+              />
+            }
+          />
+
+          <Button
+            mode="contained"
+            style={{ backgroundColor: tintColor }}
+            labelStyle={{ color: backgroundColor }}
+            onPress={handleCreateFuncionario}
+            disabled={loading}
+          >
+            {loading ? "Cadastrando..." : "Cadastrar Funcionário"}
+          </Button>
+
+          {message ? (
+            <Text
+              style={[
+                styles.message,
+                messageType === "success" ? styles.success : styles.error,
+              ]}
+            >
+              {message}
+            </Text>
+          ) : null}
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 

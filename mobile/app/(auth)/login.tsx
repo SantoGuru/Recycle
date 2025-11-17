@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { TextInput, Button } from 'react-native-paper';
 
@@ -8,6 +9,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
@@ -46,7 +48,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <ScrollView contentContainerStyle={[styles.container, { paddingBottom: insets.bottom + 20 }]}>
       <Text style={[styles.title, { color: textColor }]}>Login</Text>
 
       <TextInput
@@ -101,7 +103,7 @@ export default function LoginScreen() {
           {message}
         </Text>
       ) : null}
-    </View>
+    </ScrollView>
   );
 }
 

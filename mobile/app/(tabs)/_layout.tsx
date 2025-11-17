@@ -7,10 +7,12 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from 'react-native-paper';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const { signOut } = useAuth();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -20,6 +22,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
         tabBarStyle: {
+          height: 60 + insets.bottom,
           backgroundColor: theme.colors.surface,
           ...Platform.select({ 
             ios: {

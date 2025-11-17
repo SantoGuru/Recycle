@@ -1,14 +1,14 @@
-import { View, Text, StyleSheet, Image } from "react-native";
+import { Text, StyleSheet, Image, ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, useTheme } from "react-native-paper";
 import { router } from "expo-router";
 
 export default function Inicio() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-    >
+    <ScrollView contentContainerStyle={[styles.container, { paddingBottom: insets.bottom + 20 }]}>
       <Image
         source={require("./../../assets/images/recycle-logo.png")}
         style={styles.image}
@@ -29,7 +29,7 @@ export default function Inicio() {
       >
         Começar
       </Button>
-    </View>
+    </ScrollView>
   );
 }
 

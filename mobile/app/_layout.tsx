@@ -13,11 +13,13 @@ import {
 } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
+import { View } from "react-native";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { PaperProvider, MD3DarkTheme, MD3LightTheme } from "react-native-paper";
+import { PaperProvider, MD3DarkTheme, MD3LightTheme, useTheme } from "react-native-paper";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
+
 function RootLayout() {
   const { session, isLoading } = useAuth();
   const segments = useSegments();
@@ -28,6 +30,7 @@ function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
   const theme = colorScheme === "dark" ? MD3DarkTheme : MD3LightTheme;
+  const paperTheme = useTheme();
 
   useEffect(() => {
     if (!navigationState?.key || isLoading) return;
@@ -47,21 +50,22 @@ function RootLayout() {
     }
   }, [loaded, isLoading]);
 
-
   if (!loaded || isLoading || !navigationState?.key) {
     return null;
   }
 
   return (
     <PaperProvider theme={theme}>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(auth)" options={{ headerShown: false }}/>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
+      <View style={{ flex: 1, backgroundColor: paperTheme.colors.background }}>
+        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+          <Stack>
+            <Stack.Screen name="(auth)" options={{ headerShown: false }}/>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </View>
     </PaperProvider>
   );
 }
