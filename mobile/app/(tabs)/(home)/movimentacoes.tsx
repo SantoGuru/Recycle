@@ -15,6 +15,7 @@ import {
   Avatar,
   DataTable,
   MD3Theme,
+  Searchbar,
   Text,
   useTheme,
 } from "react-native-paper";
@@ -99,6 +100,7 @@ export default function Movimentacoes() {
   const style = useMemo(() => styles(theme), [theme]);
   const [page, setPage] = useState<number>(0);
   const [items, setItems] = useState<Movimentacao[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const numberOfItemsPerPageList = useMemo(() => [5, 10, 30], []);
   const [itemsPerPage, onItemsPerPageChange] = useState(
     numberOfItemsPerPageList[1]
@@ -123,7 +125,7 @@ export default function Movimentacoes() {
           const movimentos = await fetchMovimentacoes(token);
           setItems(movimentos);
           setPage(0);
-        } catch (err) {
+        } catch {
           console.log("Erro ao buscar movimentações");
         }
       };
@@ -134,8 +136,18 @@ export default function Movimentacoes() {
     }, [token])
   );
 
+  const handleFilter = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const filteredItems = items.filter((item) => {
+    const itemString = Object.values(item).join(" ").toLowerCase();
+
+    return itemString.includes(searchQuery.toLowerCase());
+  });
+
   const from = page * itemsPerPage;
-  const to = Math.min((page + 1) * itemsPerPage, items.length);
+  const to = Math.min((page + 1) * itemsPerPage, filteredItems.length);
 
   return (
     <ScrollView
@@ -188,6 +200,13 @@ export default function Movimentacoes() {
           />
         </View>
       </View>
+
+      <Searchbar
+        placeholder="Buscar por..."
+        onChangeText={handleFilter}
+        value={searchQuery}
+        style={{ marginHorizontal: 8 }}
+      />
       <DataTable style={style.table}>
         <DataTable.Header>
           <DataTable.Title>Tipo</DataTable.Title>
@@ -195,8 +214,8 @@ export default function Movimentacoes() {
           <DataTable.Title numeric>Quantidade</DataTable.Title>
           <DataTable.Title numeric>Data</DataTable.Title>
         </DataTable.Header>
-        {items.length > 0 &&
-          items.slice(from, to).map((item) => (
+        {filteredItems.length > 0 &&
+          filteredItems.slice(from, to).map((item) => (
             <Pressable
               key={item.id}
               onPress={() => {
@@ -247,9 +266,9 @@ export default function Movimentacoes() {
         <DataTable.Pagination
           key={itemsPerPage}
           page={page}
-          numberOfPages={Math.ceil(items.length / itemsPerPage)}
+          numberOfPages={Math.ceil(filteredItems.length / itemsPerPage)}
           onPageChange={(page) => setPage(page)}
-          label={`${from + 1}-${to} de ${items.length}`}
+          label={`${from + 1}-${to} de ${filteredItems.length}`}
           numberOfItemsPerPageList={filteredItemsPerPageList}
           numberOfItemsPerPage={itemsPerPage}
           onItemsPerPageChange={handleItemsPerPageChange}
