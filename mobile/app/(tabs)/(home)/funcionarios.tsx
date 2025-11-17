@@ -2,7 +2,7 @@ import IconCard from "@/components/ui/IconCard";
 import { API_URL } from "@/config";
 import { useAuth } from "@/context/AuthContext";
 import { router } from "expo-router";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -20,6 +20,7 @@ import {
   useTheme,
 } from "react-native-paper";
 import ModalTooltip from "@/components/ModalTooltip";
+import { useFocusEffect } from "@react-navigation/native";
 const { width, height } = Dimensions.get("window");
 
 interface Funcionario {
@@ -74,27 +75,29 @@ export default function Funcionarios() {
     }
   };
 
-  useEffect(() => {
-    const fetchFuncionarios = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/usuarios/funcionarios`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setItems(data);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchFuncionarios = async () => {
+        try {
+          const response = await fetch(`${API_URL}/api/usuarios/funcionarios`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            setItems(data);
+          }
+        } catch (e) {
+          return { error: "Não foi possível conectar ao servidor" };
         }
-      } catch (e) {
-        return { error: "Não foi possível conectar ao servidor" };
-      }
-    };
-    fetchFuncionarios();
-    setPage(0);
-  }, [itemsPerPage, token]);
+      };
+      fetchFuncionarios();
+      setPage(0);
+    }, [token])
+  );
 
   const from = page * itemsPerPage;
   const to = Math.min((page + 1) * itemsPerPage, items.length);

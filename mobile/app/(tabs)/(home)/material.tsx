@@ -3,7 +3,7 @@ import { API_URL } from "@/config";
 import { useAuth } from "@/context/AuthContext";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { router } from "expo-router";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -21,6 +21,7 @@ import {
 } from "react-native-paper";
 import ModalTooltip from "@/components/ModalTooltip";
 import { formatDatetimeExtensive } from "@/utils/date-formatter";
+import { useFocusEffect } from "@react-navigation/native";
 const { width, height } = Dimensions.get("window");
 
 export interface Material {
@@ -67,27 +68,29 @@ export default function Materials() {
     }
   };
 
-  useEffect(() => {
-    const fetchMaterials = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/materiais`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setItems(data);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchMaterials = async () => {
+        try {
+          const response = await fetch(`${API_URL}/api/materiais`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            setItems(data);
+          }
+        } catch {
+          return { error: "Não foi possível conectar ao servidor" };
         }
-      } catch (e) {
-        return { error: "Não foi possível conectar ao servidor" };
-      }
-    };
-    fetchMaterials();
-    setPage(0);
-  }, [itemsPerPage, token]);
+      };
+      fetchMaterials();
+      setPage(0);
+    }, [token])
+  );
 
   const from = page * itemsPerPage;
   const to = Math.min((page + 1) * itemsPerPage, items.length);

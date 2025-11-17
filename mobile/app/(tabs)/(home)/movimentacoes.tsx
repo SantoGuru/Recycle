@@ -2,7 +2,7 @@ import IconCard from "@/components/ui/IconCard";
 import { API_URL } from "@/config";
 import { useAuth } from "@/context/AuthContext";
 import { router } from "expo-router";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -25,6 +25,7 @@ import {
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import ModalTooltip from "@/components/ModalTooltip";
 import { convertToReal } from "@/utils/currencyr-formatter";
+import { useFocusEffect } from "@react-navigation/native";
 const { width, height } = Dimensions.get("window");
 
 interface Movimentacao {
@@ -113,21 +114,25 @@ export default function Movimentacoes() {
     }
   };
 
-  useEffect(() => {
-    if (!token) return;
+  useFocusEffect(
+    useCallback(() => {
+      if (!token) return;
 
-    const load = async () => {
-      try {
-        const movimentos = await fetchMovimentacoes(token);
-        setItems(movimentos);
-      } catch (err) {
-        console.log("Erro ao buscar movimentações");
-      }
-    };
+      const load = async () => {
+        try {
+          const movimentos = await fetchMovimentacoes(token);
+          setItems(movimentos);
+          setPage(0);
+        } catch (err) {
+          console.log("Erro ao buscar movimentações");
+        }
+      };
 
-    load();
-    setPage(0);
-  }, [token, itemsPerPage]);
+      load();
+
+      return () => {};
+    }, [token])
+  );
 
   const from = page * itemsPerPage;
   const to = Math.min((page + 1) * itemsPerPage, items.length);
@@ -162,14 +167,24 @@ export default function Movimentacoes() {
             iconName="add"
             title="Cadastrar Entrada"
             description="Adicione uma nova entrada"
-            onPress={() => router.push("/(tabs)/(home)/cadastroEntrada")}
+            onPress={() =>
+              router.push({
+                pathname: "/(tabs)/(home)/cadastroEntrada",
+                params: { refresh: "1" },
+              })
+            }
           />
 
           <IconCard
             iconName="remove"
             title="Cadastrar Saída"
             description="Adicione uma nova saída"
-            onPress={() => router.push("/(tabs)/(home)/cadastroSaida")}
+            onPress={() =>
+              router.push({
+                pathname: "/(tabs)/(home)/cadastroSaida",
+                params: { refresh: "1" },
+              })
+            }
           />
         </View>
       </View>
