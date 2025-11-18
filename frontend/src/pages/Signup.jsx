@@ -43,6 +43,14 @@ export default function Signup() {
       return;
     }
 
+    const senhaValida = /^(?=.*[A-Z])(?=.*\d).+$/;
+      if (!senhaValida.test(senha)) {
+        setMensagemErro("A senha deve conter pelo menos uma letra maiúscula, uma minúscula e um dígito.");
+        setErroSenha(true);
+        return;
+}
+    
+
     setErroSenha(false);
     setErroConfirmarSenha(false);
     setMensagemErro("");

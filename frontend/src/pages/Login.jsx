@@ -37,12 +37,7 @@ export default function Login() {
         login(dados);
       }
     } catch (error) {
-      setMensagemErro("Email ou senha errados!");
-      toast.error("Erro ao logar!", {
-        icon: <BadgeCheck className="stroke-blue-500" />,
-        className:
-          "border-1 border-red-600 bg-white text-red-600 font-bold rounded-sm",
-      });
+      setMensagemErro("Erro de conexão com o servidor!");
     }
   };
 
