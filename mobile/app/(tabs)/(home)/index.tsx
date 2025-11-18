@@ -9,6 +9,7 @@ import { useMemo, useEffect, useState } from "react";
 import { API_URL } from "@/config";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { convertToReal } from "@/utils/currencyr-formatter";
+import { apiFetch } from "@/utils/api";
 
 const { width } = Dimensions.get("window");
 
@@ -34,24 +35,32 @@ export default function HomeScreen() {
     totalMateriais: 0,
     valorTotalEstoque: 0,
   });
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/dashboard/resumo`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-        console.log(data);
-        if (response.ok) {
-          setDashboard(data);
+        const data = await apiFetch<Dashboard>(
+          `${API_URL}/api/dashboard/resumo`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setDashboard(data);
+      } catch (error) {
+        let message = "Não foi possível conectar ao servidor";
+
+        if (error instanceof Error) {
+          message = error.message;
         }
-      } catch {
-        return { error: "Não foi possível conectar ao servidor" };
+
+        setMessage(message);
+        setMessageType("error");
       }
     };
 
@@ -108,6 +117,17 @@ export default function HomeScreen() {
         </Surface>
       </View>
 
+      {message ? (
+        <Text
+          style={[
+            style.message,
+            messageType === "success" ? style.success : style.error,
+          ]}
+        >
+          {message}
+        </Text>
+      ) : null}
+
       <View style={style.grid}>
         <IconCard
           iconName="add"
@@ -122,7 +142,7 @@ export default function HomeScreen() {
           description="Gerencie saídas"
           onPress={() => console.log("Início")}
         /> */}
-        
+
         <IconCard
           iconName="inbox"
           title="Estoque"
@@ -219,5 +239,16 @@ const styles = (theme: MD3Theme, insets: any) =>
       alignItems: "center",
       width: 100,
       height: 100,
+    },
+    message: {
+      marginTop: 20,
+      textAlign: "center",
+      fontSize: 16,
+    },
+    success: {
+      color: "green",
+    },
+    error: {
+      color: "red",
     },
   });
