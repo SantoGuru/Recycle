@@ -44,6 +44,7 @@ export default function LoginScreen() {
       setMessage(`Erro: ${result.error}`);
       setMessageType('error');
     }
+    
     setLoading(false);
   };
 

@@ -4,8 +4,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  FlatList,
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
@@ -19,6 +17,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { router } from "expo-router";
 
 import { API_URL } from "../../../config";
+import { apiFetch } from "@/utils/api";
 
 export default function CadastroMaterial() {
   const { session } = useAuth();
@@ -31,7 +30,7 @@ export default function CadastroMaterial() {
     }
   }, [session]);
 
-  if (role != "GERENTE") {
+  if (role !== "GERENTE") {
     router.push("/");
   }
 
@@ -52,7 +51,6 @@ export default function CadastroMaterial() {
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
   const tintColor = useThemeColor({}, "tint");
-  const iconColor = useThemeColor({}, "icon");
 
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
@@ -68,7 +66,7 @@ export default function CadastroMaterial() {
     setMessageType("");
 
     try {
-      const response = await fetch(`${API_URL}/api/materiais`, {
+      await apiFetch(`${API_URL}/api/materiais`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -77,20 +75,20 @@ export default function CadastroMaterial() {
         body: JSON.stringify({ nome, descricao, unidade }),
       });
 
-      if (response.ok) {
-        setMessage("Material Cadastrado com sucesso!");
-        setMessageType("success");
-      } else {
-        setMessage("Erro ao cadastrar material");
-        setMessageType("error");
-      }
-    } catch (err) {
-      setMessage("Não foi possível conectar ao servidor");
-      setMessageType("error");
-      return { error: "Não foi possível conectar ao servidor" };
-    }
+      setMessage("Material Cadastrado com sucesso!");
+      setMessageType("success");
+    } catch (error) {
+      let message = "Não foi possível conectar ao servidor";
 
-    setLoading(false);
+      if (error instanceof Error) {
+        message = error.message;
+      }
+
+      setMessage(message);
+      setMessageType("error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

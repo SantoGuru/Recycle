@@ -22,6 +22,7 @@ import {
 } from "react-native-paper";
 import ModalTooltip from "@/components/ModalTooltip";
 import { useFocusEffect } from "@react-navigation/native";
+import { apiFetch } from "@/utils/api";
 const { width, height } = Dimensions.get("window");
 
 interface Funcionario {
@@ -60,6 +61,8 @@ export default function Funcionarios() {
   const theme = useTheme();
   const style = useMemo(() => styles(theme), [theme]);
   const [page, setPage] = useState<number>(0);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
   const [items, setItems] = useState<FuncionarioComMovimentacoes[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const numberOfItemsPerPageList = useMemo(() => [5, 10, 30], []);
@@ -81,19 +84,29 @@ export default function Funcionarios() {
     useCallback(() => {
       const fetchFuncionarios = async () => {
         try {
-          const response = await fetch(`${API_URL}/api/usuarios/funcionarios`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          const data = await response.json();
-          if (response.ok) {
-            setItems(data);
+          const data = await apiFetch<FuncionarioComMovimentacoes[]>(
+            `${API_URL}/api/usuarios/funcionarios`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          setItems(data);
+          setMessage("");
+          setMessageType("");
+        } catch (error) {
+          let message = "Erro ao carregar dados";
+
+          if (error instanceof Error) {
+            message = error.message;
           }
-        } catch (e) {
-          return { error: "Não foi possível conectar ao servidor" };
+
+          setMessage(message);
+          setMessageType("error");
         }
       };
       fetchFuncionarios();
@@ -155,6 +168,16 @@ export default function Funcionarios() {
         value={searchQuery}
         style={{ marginHorizontal: 8 }}
       />
+      {message ? (
+        <Text
+          style={[
+            style.message,
+            messageType === "success" ? style.success : style.error,
+          ]}
+        >
+          {message}
+        </Text>
+      ) : null}
       <DataTable style={style.table}>
         <DataTable.Header>
           <DataTable.Title>Nome</DataTable.Title>
@@ -273,5 +296,16 @@ const styles = (theme: MD3Theme) =>
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.2,
       shadowRadius: 3,
+    },
+    message: {
+      marginTop: 20,
+      textAlign: "center",
+      fontSize: 16,
+    },
+    success: {
+      color: "green",
+    },
+    error: {
+      color: "red",
     },
   });

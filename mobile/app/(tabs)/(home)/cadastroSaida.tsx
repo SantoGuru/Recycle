@@ -24,6 +24,7 @@ import { router } from "expo-router";
 import { Material } from "./material";
 
 import { API_URL } from "../../../config";
+import { apiFetch } from "@/utils/api";
 
 export default function CadastroSaida() {
   const { session } = useAuth();
@@ -31,9 +32,14 @@ export default function CadastroSaida() {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [selectedMaterial, setSelectedMaterial] = useState<number>();
   const [quantidade, setQuantidade] = useState<string>("");
-
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const tintColor = useThemeColor({}, "tint");
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
   useEffect(() => {
     if (session == null) {
@@ -46,38 +52,33 @@ export default function CadastroSaida() {
 
     const fetchMaterials = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/materiais`, {
+        const data = await apiFetch<Material[]>(`${API_URL}/api/materiais`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
-        const data = await response.json();
-        if (response.ok) {
-          setMaterials(data);
+
+        setMaterials(data);
+      } catch (error) {
+        let message = "Erro ao enviar dados da movimentação";
+
+        if (error instanceof Error) {
+          message = error.message;
         }
-      } catch (e) {
-        console.error("Não foi possível conectar ao servidor", e);
+
+        setMessage(message);
+        setMessageType("error");
       }
     };
     fetchMaterials();
   }, [token]);
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-
-  const textColor = useThemeColor({}, "text");
-  const backgroundColor = useThemeColor({}, "background");
-  const tintColor = useThemeColor({}, "tint");
-
-  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
-
   const handleQuantidadeChange = (text: string) => {
     const numeroLimpo = text.replace(/[^0-9]/g, "");
     setQuantidade(numeroLimpo);
   };
-
 
   const handleCreateSaida = async () => {
     if (!selectedMaterial || !quantidade) {
@@ -93,7 +94,7 @@ export default function CadastroSaida() {
     const quantidadeNumerica = Number(quantidade);
 
     try {
-      const response = await fetch(`${API_URL}/api/saidas`, {
+      await apiFetch(`${API_URL}/api/saidas`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -107,21 +108,20 @@ export default function CadastroSaida() {
         ]),
       });
 
-      if (response.ok) {
-        setMessage("Saída Cadastrada com sucesso!");
-        setMessageType("success");
-      } else {
-        setMessage("Erro ao cadastrar saída");
-        setMessageType("error");
-      }
-    } catch (err) {
-      console.log("Mensagem erro: ", err);
-      setMessage("Não foi possível conectar ao servidor");
-      setMessageType("error");
-      return { error: "Não foi possível conectar ao servidor" };
-    }
+      setMessage("Saída Cadastrada com sucesso!");
+      setMessageType("success");
+    } catch (error) {
+      let message = "Erro ao enviar dados da movimentação";
 
-    setLoading(false);
+      if (error instanceof Error) {
+        message = error.message;
+      }
+
+      setMessage(message);
+      setMessageType("error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const selectedMaterialName = useMemo(() => {
@@ -209,7 +209,6 @@ export default function CadastroSaida() {
           keyboardType="numeric"
           returnKeyType="done"
         />
-
 
         <Button
           mode="contained"

@@ -23,6 +23,7 @@ import {
 import ModalTooltip from "@/components/ModalTooltip";
 import { formatDatetimeExtensive } from "@/utils/date-formatter";
 import { useFocusEffect } from "@react-navigation/native";
+import { apiFetch } from "@/utils/api";
 const { width, height } = Dimensions.get("window");
 
 export interface Material {
@@ -49,11 +50,12 @@ export default function Materials() {
   const empresaNome = session?.empresaNome;
   const tabBarHeight = useBottomTabBarHeight();
   const insets = useSafeAreaInsets();
-
   const theme = useTheme();
   const style = useMemo(() => styles(theme), [theme]);
   const [page, setPage] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
   const [items, setItems] = useState<Material[]>([]);
   const numberOfItemsPerPageList = useMemo(() => [5, 10, 30], []);
   const [itemsPerPage, onItemsPerPageChange] = useState(
@@ -78,19 +80,26 @@ export default function Materials() {
     useCallback(() => {
       const fetchMaterials = async () => {
         try {
-          const response = await fetch(`${API_URL}/api/materiais`, {
+          const data = await apiFetch<Material[]>(`${API_URL}/api/materiais`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
           });
-          const data = await response.json();
-          if (response.ok) {
-            setItems(data);
+
+          setItems(data);
+          setMessage("");
+          setMessageType("");
+        } catch (error) {
+          let message = "Erro ao carregar dados";
+
+          if (error instanceof Error) {
+            message = error.message;
           }
-        } catch {
-          return { error: "Não foi possível conectar ao servidor" };
+
+          setMessage(message);
+          setMessageType("error");
         }
       };
       fetchMaterials();
@@ -148,6 +157,17 @@ export default function Materials() {
         value={searchQuery}
         style={{ marginHorizontal: 8 }}
       />
+
+      {message ? (
+        <Text
+          style={[
+            style.message,
+            messageType === "success" ? style.success : style.error,
+          ]}
+        >
+          {message}
+        </Text>
+      ) : null}
       <DataTable style={style.table}>
         <DataTable.Header>
           <DataTable.Title>Nome</DataTable.Title>
@@ -262,5 +282,16 @@ const styles = (theme: MD3Theme) =>
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.2,
       shadowRadius: 3,
+    },
+    message: {
+      marginTop: 20,
+      textAlign: "center",
+      fontSize: 16,
+    },
+    success: {
+      color: "green",
+    },
+    error: {
+      color: "red",
     },
   });

@@ -27,6 +27,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import ModalTooltip from "@/components/ModalTooltip";
 import { convertToReal } from "@/utils/currencyr-formatter";
 import { useFocusEffect } from "@react-navigation/native";
+import { apiFetch } from "@/utils/api";
 const { width, height } = Dimensions.get("window");
 
 interface Movimentacao {
@@ -40,20 +41,35 @@ interface Movimentacao {
   valorTotal?: string;
 }
 
+interface EntradaResponse {
+  id: number;
+  materialNome: string;
+  usuarioNome: string;
+  quantidade: number;
+  data: string;
+  preco: string;
+  valorTotal: string;
+}
+
+interface SaidaResponse {
+  id: number;
+  materialNome: string;
+  usuarioNome: string;
+  quantidade: number;
+  data: string;
+}
+
 async function fetchMovimentacoes(token: string): Promise<Movimentacao[]> {
-  const [entradasRes, saídasRes] = await Promise.all([
-    fetch(`${API_URL}/api/entradas`, {
+  const [entradas, saidas] = await Promise.all([
+    apiFetch<EntradaResponse[]>(`${API_URL}/api/entradas`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
-    fetch(`${API_URL}/api/saidas`, {
+    apiFetch<SaidaResponse[]>(`${API_URL}/api/saidas`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
   ]);
 
-  const entradas = entradasRes.ok ? await entradasRes.json() : [];
-  const saidas = saídasRes.ok ? await saídasRes.json() : [];
-
-  const entradasFormatadas = entradas.map((e: any) => ({
+  const entradasFormatadas: Movimentacao[] = entradas.map((e: any) => ({
     id: e.id,
     tipo: "ENTRADA",
     materialNome: e.materialNome,
@@ -64,9 +80,9 @@ async function fetchMovimentacoes(token: string): Promise<Movimentacao[]> {
     valorTotal: e.valorTotal,
   }));
 
-  const saídasFormatadas = saidas.map((s: any) => ({
+  const saídasFormatadas: Movimentacao[] = saidas.map((s: any) => ({
     id: s.id,
-    tipo: "SAÍDA",
+    tipo: "SAIDA",
     materialNome: s.materialNome,
     quantidade: s.quantidade,
     data: s.data,

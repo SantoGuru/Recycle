@@ -6,7 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
 } from "react-native";
 
 import { TextInput, Button } from "react-native-paper";
@@ -16,6 +16,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { router } from "expo-router";
 
 import { API_URL } from "../../../config";
+import { apiFetch } from "@/utils/api";
 
 export default function CadastroFuncionario() {
   const { session } = useAuth();
@@ -56,7 +57,7 @@ export default function CadastroFuncionario() {
       return;
     }
 
-    if (senha != confirmaSenha) {
+    if (senha !== confirmaSenha) {
       setMessage("Senha e confirmar senha devem ser iguais");
       setMessageType("error");
       return;
@@ -67,7 +68,7 @@ export default function CadastroFuncionario() {
     setMessageType("");
 
     try {
-      const response = await fetch(`${API_URL}/api/usuarios/funcionarios`, {
+      await apiFetch(`${API_URL}/api/usuarios/funcionarios`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,20 +77,20 @@ export default function CadastroFuncionario() {
         body: JSON.stringify({ nome, email, senha }),
       });
 
-      if (response.ok) {
         setMessage("Cadastro de funcionário realizado com sucesso!");
         setMessageType("success");
-      } else {
-        setMessage("Erro ao cadastrar funcionario");
-        setMessageType("error");
+    } catch (error) {
+      let message = "Erro ao enviar dados da movimentação";
+
+      if (error instanceof Error) {
+        message = error.message;
       }
-    } catch (err) {
-      setMessage("Não foi possível conectar ao servidor");
+      setMessage(message || "Não foi possível conectar ao servidor");
       setMessageType("error");
       return { error: "Não foi possível conectar ao servidor" };
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
