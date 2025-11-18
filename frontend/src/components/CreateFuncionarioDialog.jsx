@@ -6,6 +6,23 @@ export default function CreateFuncionarioDialog({ open, onClose, onSuccess }) {
 
   const { userData } = useAuth();
   const token = userData?.token;
+
+  function validarSenha(senha) {
+    if (senha.length < 6) {
+      return "A senha deve ter pelo menos 6 caracteres.";
+    }
+    if (!/[0-9]/.test(senha)) {
+      return "A senha deve conter ao menos um número.";
+    }
+    if (!/[A-Z]/.test(senha)) {
+
+    }
+    if (!/[a-z]/.test(senha)) {
+      return "A senha deve conter ao menos uma letra minúscula.";
+    }
+    return null;
+  }
+
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -17,6 +34,13 @@ export default function CreateFuncionarioDialog({ open, onClose, onSuccess }) {
   const handleSubmit = async () => {
     if (!nome || !email || !senha || !confirmarSenha) {
       setMensagem("Preencha todos os campos.");
+      setTipoMensagem("error");
+      return;
+    }
+
+    const erroSenha = validarSenha(senha);
+    if (erroSenha) {
+      setMensagem(erroSenha);
       setTipoMensagem("error");
       return;
     }
@@ -48,10 +72,8 @@ export default function CreateFuncionarioDialog({ open, onClose, onSuccess }) {
         setMensagem("Funcionário cadastrado com sucesso!");
         setTipoMensagem("success");
 
-        // notifica o pai para atualizar a lista
         if (onSuccess) onSuccess();
 
-        // fecha em 1s
         setTimeout(() => {
           onClose();
         }, 1000);
@@ -69,10 +91,7 @@ export default function CreateFuncionarioDialog({ open, onClose, onSuccess }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div
-        className="modal-container"
-        onClick={(e) => e.stopPropagation()} // impede fechar ao clicar dentro
-      >
+      <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         <h2 className="modal-title">Cadastrar Funcionário</h2>
 
         <input

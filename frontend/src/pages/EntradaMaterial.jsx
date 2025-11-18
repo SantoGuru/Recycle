@@ -17,51 +17,58 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
     fetchMaterials();
   }, [token]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (
-      !materialSelecionado ||
-      materialSelecionado == 0 ||
-      !quantidade ||
-      !preco
-    )
-      return;
+  const erro = validarCampos(materialSelecionado, quantidade, preco);
+  if (erro) {
+    toast.error(erro);
+    return;
+  }
 
-    const novaMovimentacao = {
-      materialId: Number(materialSelecionado),
-      quantidade: parseFloat(quantidade),
-      preco: parseFloat(preco),
-    };
-
-    const todasMovimentacoes = [...movimentacoes, novaMovimentacao];
-
-    try {
-      const response = await fetch("http://localhost:8080/api/entradas", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(todasMovimentacoes),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erro ao enviar dados das movimentações!");
-      }
-
-      toast.success("Entrada registrada com sucesso!");
-
-      setMovimentacoes([]);
-      setMaterialSelecionado("");
-      setQuantidade("");
-      setPreco("");
-      atualizarEstoque();
-      fecharModal();
-    } catch (error) {
-      toast.error(error.message || "Erro ao enviar dados das movimentações!");
-    }
+  const novaMovimentacao = {
+    materialId: Number(materialSelecionado),
+    quantidade: parseFloat(quantidade),
+    preco: parseFloat(preco),
   };
+
+  const todasMovimentacoes = [...movimentacoes, novaMovimentacao];
+
+  try {
+    const response = await fetch("http://localhost:8080/api/entradas", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(todasMovimentacoes),
+    });
+
+    if (!response.ok) {
+      let errorJson = {};
+      try {
+        errorJson = await response.json();
+      } catch {}
+
+      const status = response.status;
+      const mensagemBackend = errorJson.message || errorJson.error;
+
+      throw new Error(`Status ${status}: ${mensagemBackend || "Erro ao enviar dados das movimentações!"}`);
+    }
+
+    toast.success("Entrada registrada com sucesso!");
+
+    setMovimentacoes([]);
+    setMaterialSelecionado("");
+    setQuantidade("");
+    setPreco("");
+    atualizarEstoque();
+    fecharModal();
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
+
 
   async function fetchMaterials() {
     if (!token) return;
@@ -88,23 +95,44 @@ export default function EntradaMaterial({ fecharModal, atualizarEstoque }) {
 
   const inputsEmpty =
     !materialSelecionado || materialSelecionado == 0 || !quantidade || !preco || quantidade <= 0 || preco <= 0;
-  const handleAddMovimentacao = () => {
-    if (inputsEmpty) return;
 
-    // const material = materials.find(m => m.id === parseInt(materialSelecionado));
+  function validarCampos(materialId, quantidade, preco) {
+  if (!materialId || materialId === "0") {
+    return "É necessário selecionar um material.";
+  }
 
-    const novaMovimentacao = {
-      materialId: Number(materialSelecionado),
-      quantidade: parseFloat(quantidade),
-      preco: parseFloat(preco),
-    };
+  if (!quantidade || Number(quantidade) <= 0) {
+    return "A quantidade deve ser maior que zero.";
+  }
 
-    setMovimentacoes([...movimentacoes, novaMovimentacao]);
+  if (!preco || Number(preco) < 0.01) {
+    return "O preço deve ser no mínimo R$ 0,01.";
+  }
 
-    setMaterialSelecionado("");
-    setQuantidade("");
-    setPreco("");
+  return null;
+}
+
+const handleAddMovimentacao = () => {
+
+  const erro = validarCampos(materialSelecionado, quantidade, preco);
+  if (erro) {
+    toast.error(erro);
+    return;
+  }
+
+  const novaMovimentacao = {
+    materialId: Number(materialSelecionado),
+    quantidade: parseFloat(quantidade),
+    preco: parseFloat(preco),
   };
+
+  setMovimentacoes([...movimentacoes, novaMovimentacao]);
+
+  setMaterialSelecionado("");
+  setQuantidade("");
+  setPreco("");
+};
+
 
   const removerMovimentacao = (index) => {
     const novasMovimentacoes = movimentacoes.filter((_, i) => i !== index);
