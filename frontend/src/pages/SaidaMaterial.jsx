@@ -39,45 +39,64 @@ export default function SaidaMaterial({ fecharModal, atualizarEstoque }) {
     }
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!materialSelecionado || !quantidade) return;
+  if (!materialSelecionado || !quantidade) return;
+  if (!materialSelecionado || materialSelecionado == 0 || !quantidade) return;
 
-    if (!materialSelecionado || materialSelecionado == 0 || !quantidade) return;
+  const novaMovimentacao = {
+    materialId: Number(materialSelecionado),
+    quantidade: parseFloat(quantidade),
+  };
 
-    const novaMovimentacao = {
-      materialId: Number(materialSelecionado),
-      quantidade: parseFloat(quantidade),
-    };
+  const todasMovimentacoes = [...movimentacoes, novaMovimentacao];
 
-    const todasMovimentacoes = [...movimentacoes, novaMovimentacao];
+  try {
+    const response = await fetch("http://localhost:8080/api/saidas", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(todasMovimentacoes),
+    });
 
-    try {
-      const response = await fetch("http://localhost:8080/api/saidas", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(todasMovimentacoes),
-      });
+    // TRATAMENTO DE ERRO COMPLETO
+    if (!response.ok) {
+      let errorMessage = "Erro ao enviar dados das movimentações!";
 
-      if (!response.ok) {
-        throw new Error("Erro ao enviar dados das movimentações!");
+      try {
+        const data = await response.json();
+
+        // caso backend envie array de erros (como Spring Validation)
+        if (Array.isArray(data) && data[0]?.message) {
+          errorMessage = data[0].message;
+        }
+        // caso backend envie objeto único
+        else if (data.message) {
+          errorMessage = data.message;
+        }
+      } catch (jsonError) {
+        console.warn("Erro ao processar JSON de erro:", jsonError);
       }
 
-      toast.success("Material retirado com sucesso!");
-
-      setMovimentacoes([]);
-      setMaterialSelecionado("");
-      setQuantidade("");
-      atualizarEstoque();
-      fecharModal();
-    } catch (error) {
-      toast.error(error.message || "Erro ao enviar dados das movimentações!");
+      throw new Error(errorMessage);
     }
-  };
+
+    toast.success("Material retirado com sucesso!");
+
+    setMovimentacoes([]);
+    setMaterialSelecionado("");
+    setQuantidade("");
+    atualizarEstoque();
+    fecharModal();
+
+  } catch (error) {
+    toast.error(error.message || "Erro ao enviar dados das movimentações!");
+  }
+};
+
 
   const inputsEmpty = !materialSelecionado || !quantidade || quantidade <= 0;
   const handleAddMovimentacao = () => {
