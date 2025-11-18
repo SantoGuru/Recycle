@@ -24,6 +24,7 @@ import ModalTooltip from "@/components/ModalTooltip";
 import { formatDatetimeExtensive } from "@/utils/date-formatter";
 import { useFocusEffect } from "@react-navigation/native";
 import { apiFetch } from "@/utils/api";
+import AppErrorMessage from "@/components/AppErrorMessage";
 const { width, height } = Dimensions.get("window");
 
 export interface Material {
@@ -46,6 +47,7 @@ export default function Materials() {
   } | null>(null);
 
   const { session } = useAuth();
+  const role = session?.role;
   const token = session?.token;
   const empresaNome = session?.empresaNome;
   const tabBarHeight = useBottomTabBarHeight();
@@ -54,8 +56,6 @@ export default function Materials() {
   const style = useMemo(() => styles(theme), [theme]);
   const [page, setPage] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
   const [items, setItems] = useState<Material[]>([]);
   const numberOfItemsPerPageList = useMemo(() => [5, 10, 30], []);
   const [itemsPerPage, onItemsPerPageChange] = useState(
@@ -65,6 +65,10 @@ export default function Materials() {
     () => numberOfItemsPerPageList.filter((n) => n !== itemsPerPage),
     [numberOfItemsPerPageList, itemsPerPage]
   );
+
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [messageVisible, setMessageVisible] = useState(false);
 
   const handleItemsPerPageChange = (value: number) => {
     if (value !== itemsPerPage) {
@@ -100,6 +104,7 @@ export default function Materials() {
 
           setMessage(message);
           setMessageType("error");
+          setMessageVisible(true);
         }
       };
       fetchMaterials();
@@ -115,6 +120,13 @@ export default function Materials() {
 
   const from = page * itemsPerPage;
   const to = Math.min((page + 1) * itemsPerPage, filteredItems.length);
+
+  let isAdmin;
+  if (role === "GERENTE") {
+    isAdmin = true;
+  } else {
+    isAdmin = false;
+  }
 
   return (
     <ScrollView
@@ -142,14 +154,16 @@ export default function Materials() {
           </View>
         </View>
 
-        <View style={style.grid}>
-          <IconCard
-            iconName="add"
-            title="Cadastrar material"
-            description="Adicione um novo material"
-            onPress={() => router.push("/(tabs)/(home)/cadastroMaterial")}
-          />
-        </View>
+        {isAdmin && (
+          <View style={style.grid}>
+            <IconCard
+              iconName="add"
+              title="Cadastrar material"
+              description="Adicione um novo material"
+              onPress={() => router.push("/(tabs)/(home)/cadastroMaterial")}
+            />
+          </View>
+        )}
       </View>
       <Searchbar
         placeholder="Buscar por..."
@@ -158,16 +172,13 @@ export default function Materials() {
         style={{ marginHorizontal: 8 }}
       />
 
-      {message ? (
-        <Text
-          style={[
-            style.message,
-            messageType === "success" ? style.success : style.error,
-          ]}
-        >
-          {message}
-        </Text>
-      ) : null}
+      <AppErrorMessage
+        visible={messageVisible}
+        message={message}
+        type={messageType as "success" | "error"}
+        onDismiss={() => setMessageVisible(false)}
+      />
+
       <DataTable style={style.table}>
         <DataTable.Header>
           <DataTable.Title>Nome</DataTable.Title>

@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Avatar,
+  Button,
   DataTable,
   MD3Theme,
   Searchbar,
@@ -95,6 +96,8 @@ async function fetchMovimentacoes(token: string): Promise<Movimentacao[]> {
 }
 
 export default function Movimentacoes() {
+  const [showEntrada, setShowEntrada] = useState(false);
+  const [showSaida, setShowSaida] = useState(false);
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [tooltipContent, setTooltipContent] = useState<{
     tipo: string;
@@ -158,8 +161,12 @@ export default function Movimentacoes() {
 
   const filteredItems = items.filter((item) => {
     const itemString = Object.values(item).join(" ").toLowerCase();
+    const matchesSearch = itemString.includes(searchQuery.toLowerCase());
 
-    return itemString.includes(searchQuery.toLowerCase());
+    if (showEntrada && !showSaida && item.tipo !== "ENTRADA") return false;
+    if (!showEntrada && showSaida && item.tipo !== "SAIDA") return false;
+
+    return matchesSearch;
   });
 
   const from = page * itemsPerPage;
@@ -216,13 +223,35 @@ export default function Movimentacoes() {
           />
         </View>
       </View>
+      <View style={{ flexDirection: "column", gap: 12 }}>
+        <Searchbar
+          placeholder="Buscar por..."
+          onChangeText={handleFilter}
+          value={searchQuery}
+          style={{ marginHorizontal: 8 }}
+        />
+        <View style={{ flexDirection: "row", gap: 16, alignItems: 'center' }}>
+          <Text variant="bodyMedium" style={{ paddingLeft: 5 }}>
+            Filtrar:
+          </Text>
 
-      <Searchbar
-        placeholder="Buscar por..."
-        onChangeText={handleFilter}
-        value={searchQuery}
-        style={{ marginHorizontal: 8 }}
-      />
+          <Button
+            mode={showEntrada ? "contained" : "outlined"}
+            onPress={() => setShowEntrada((v) => !v)}
+          >
+            Entrada
+          </Button>
+          <Button
+            buttonColor={showSaida ? theme.colors.error : ""}
+            textColor={showSaida ? "" : theme.colors.error}
+            mode={showSaida ? "contained" : "outlined"}
+            onPress={() => setShowSaida((v) => !v)}
+          >
+            Saída
+          </Button>
+        </View>
+      </View>
+
       <DataTable style={style.table}>
         <DataTable.Header>
           <DataTable.Title>Tipo</DataTable.Title>

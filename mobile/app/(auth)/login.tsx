@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import { Text, StyleSheet, ScrollView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useState } from "react";
+import { Text, StyleSheet, ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { TextInput, Button } from 'react-native-paper';
+import { TextInput, Button } from "react-native-paper";
 
-import { useAuth } from '@/context/AuthContext';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { useAuth } from "@/context/AuthContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import AppErrorMessage from "@/components/AppErrorMessage";
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
   const insets = useSafeAreaInsets();
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
   const textColor = useThemeColor({}, "text");
@@ -21,35 +21,43 @@ export default function LoginScreen() {
   const tintColor = useThemeColor({}, "tint");
   const iconColor = useThemeColor({}, "icon");
 
-
-  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [messageVisible, setMessageVisible] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !senha) {
-      setMessage('Preencha email e senha');
-      setMessageType('error');
+      setMessage("Preencha email e senha");
+      setMessageType("error");
+      setMessageVisible(true);
       return;
     }
 
     setLoading(true);
-    setMessage('');
-    setMessageType('');
+    setMessage("");
+    setMessageType("");
 
     const result = await signIn(email, senha);
 
     if (result.success) {
-      setMessage('Login realizado com sucesso!');
-      setMessageType('success');
+      setMessage("Login realizado com sucesso!");
+      setMessageType("success");
+      setMessageVisible(true);
     } else {
       setMessage(`Erro: ${result.error}`);
-      setMessageType('error');
+      setMessageType("error");
+      setMessageVisible(true);
     }
-    
     setLoading(false);
   };
 
   return (
-    <ScrollView contentContainerStyle={[styles.container, { paddingBottom: insets.bottom + 20 }]}>
+    <ScrollView
+      contentContainerStyle={[
+        styles.container,
+        { paddingBottom: insets.bottom + 20 },
+      ]}
+    >
       <Text style={[styles.title, { color: textColor }]}>Login</Text>
 
       <TextInput
@@ -80,9 +88,6 @@ export default function LoginScreen() {
         }
       />
 
-
-
-
       <Button
         mode="contained"
         style={{ backgroundColor: tintColor }}
@@ -93,17 +98,12 @@ export default function LoginScreen() {
         {loading ? "Entrando..." : "Login"}
       </Button>
 
-
-      {message ? (
-        <Text
-          style={[
-            styles.message,
-            messageType === 'success' ? styles.success : styles.error,
-          ]}
-        >
-          {message}
-        </Text>
-      ) : null}
+      <AppErrorMessage
+        visible={messageVisible}
+        message={message}
+        type={messageType as "success" | "error"}
+        onDismiss={() => setMessageVisible(false)}
+      />
     </ScrollView>
   );
 }
@@ -111,32 +111,32 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 20,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 40,
-    textAlign: 'center',
+    textAlign: "center",
   },
   input: {
     height: 50,
     borderWidth: 1,
-    borderColor: '#999',
+    borderColor: "#999",
     borderRadius: 8,
     paddingHorizontal: 15,
     marginBottom: 20,
   },
   message: {
     marginTop: 20,
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 16,
   },
   success: {
-    color: 'green',
+    color: "green",
   },
   error: {
-    color: 'red',
+    color: "red",
   },
 });

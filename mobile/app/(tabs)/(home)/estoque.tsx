@@ -9,6 +9,7 @@ import {
   ScrollView,
   Pressable,
 } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Avatar,
@@ -17,12 +18,14 @@ import {
   Searchbar,
   Text,
   useTheme,
+  Chip,
 } from "react-native-paper";
 import { convertToReal } from "@/utils/currencyr-formatter";
 import ModalTooltip from "@/components/ModalTooltip";
 import { formatDatetimeExtensive } from "@/utils/date-formatter";
 import { useFocusEffect } from "@react-navigation/native";
 import { apiFetch } from "@/utils/api";
+import AppErrorMessage from "@/components/AppErrorMessage";
 const { width, height } = Dimensions.get("window");
 
 export interface Material {
@@ -42,7 +45,12 @@ export interface ItemMaterial {
   valorTotal: number;
 }
 
+const LOW_STOCK_THRESHOLD = 100;
+
 export default function Estoque() {
+  const params = useLocalSearchParams();
+  const initialLowOnly = params.lowOnly === "true";
+  const [lowStockOnly, setLowStockOnly] = useState(initialLowOnly);
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [tooltipContent, setTooltipContent] = useState<{
     nome: string;
@@ -65,8 +73,6 @@ export default function Estoque() {
   const [page, setPage] = useState<number>(0);
   const [items, setItems] = useState<ItemMaterial[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
   const numberOfItemsPerPageList = useMemo(() => [5, 10, 30], []);
   const [itemsPerPage, onItemsPerPageChange] = useState(
     numberOfItemsPerPageList[1]
@@ -75,6 +81,10 @@ export default function Estoque() {
     () => numberOfItemsPerPageList.filter((n) => n !== itemsPerPage),
     [numberOfItemsPerPageList, itemsPerPage]
   );
+
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [messageVisible, setMessageVisible] = useState(false);
 
   const handleItemsPerPageChange = (value: number) => {
     if (value !== itemsPerPage) {
@@ -109,6 +119,7 @@ export default function Estoque() {
 
           setMessage(message);
           setMessageType("error");
+          setMessageVisible(true);
         }
       };
       fetchMaterials();
@@ -123,8 +134,12 @@ export default function Estoque() {
   const filteredItems = items.filter((item) => {
     let itemString = Object.values(item).join(" ").toLowerCase();
     itemString += `${Object.values(item.material).join(" ").toLowerCase()}`;
+    const matchesSearch = itemString.includes(searchQuery.toLowerCase());
 
-    return itemString.includes(searchQuery.toLowerCase());
+    const isLow = Number(item.quantidade) < LOW_STOCK_THRESHOLD;
+    const matchesLow = !lowStockOnly || isLow;
+
+    return matchesSearch && matchesLow;
   });
 
   const from = page * itemsPerPage;
@@ -161,17 +176,35 @@ export default function Estoque() {
           value={searchQuery}
           style={{ marginHorizontal: 8 }}
         />
-      </View>
-      {message ? (
-        <Text
-          style={[
-            style.message,
-            messageType === "success" ? style.success : style.error,
-          ]}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            marginHorizontal: 8,
+          }}
         >
-          {message}
-        </Text>
-      ) : null}
+          <Chip
+            icon="alert-circle-outline"
+            mode={lowStockOnly ? "flat" : "outlined"}
+            selected={lowStockOnly}
+            onPress={() => setLowStockOnly(!lowStockOnly)}
+          >
+            Em baixa
+          </Chip>
+          <Text style={{ marginLeft: 8 }}>
+            {lowStockOnly
+              ? `Mostrando só itens < ${LOW_STOCK_THRESHOLD}`
+              : "Mostrando todos"}
+          </Text>
+        </View>
+      </View>
+      <AppErrorMessage
+        visible={messageVisible}
+        message={message}
+        type={messageType as "success" | "error"}
+        onDismiss={() => setMessageVisible(false)}
+      />
       <DataTable style={style.table}>
         <DataTable.Header>
           <DataTable.Title>Nome</DataTable.Title>
