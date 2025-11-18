@@ -28,6 +28,7 @@ import { Material } from "./material";
 
 import { API_URL } from "../../../config";
 import { apiFetch } from "@/utils/api";
+import AppErrorMessage from "@/components/AppErrorMessage";
 
 export default function CadastroEntrada() {
   const { session } = useAuth();
@@ -37,13 +38,15 @@ export default function CadastroEntrada() {
   const [quantidade, setQuantidade] = useState<string>("");
   const [valor, setValor] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
   const tintColor = useThemeColor({}, "tint");
-  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [messageVisible, setMessageVisible] = useState(false);
 
   useEffect(() => {
     if (session == null) {
@@ -74,6 +77,7 @@ export default function CadastroEntrada() {
 
         setMessage(message);
         setMessageType("error");
+        setMessageVisible(true);
       }
     };
     fetchMaterials();
@@ -95,6 +99,7 @@ export default function CadastroEntrada() {
     if (!selectedMaterial || !quantidade || !valor) {
       setMessage("Preencha todos os campos");
       setMessageType("error");
+      setMessageVisible(true);
       return;
     }
 
@@ -125,6 +130,7 @@ export default function CadastroEntrada() {
 
       setMessage("Entrada Cadastrada com sucesso!");
       setMessageType("success");
+      setMessageVisible(true);
     } catch (error) {
       let message = "Não foi possível conectar ao servidor";
 
@@ -134,6 +140,7 @@ export default function CadastroEntrada() {
 
       setMessage(message);
       setMessageType("error");
+      setMessageVisible(true);
     } finally {
       setLoading(false);
     }
@@ -167,6 +174,13 @@ export default function CadastroEntrada() {
           <Text style={[styles.title, { color: textColor }]}>
             Cadastro de Entrada
           </Text>
+
+          <AppErrorMessage
+            visible={messageVisible}
+            message={message}
+            type={messageType as "success" | "error"}
+            onDismiss={() => setMessageVisible(false)}
+          />
 
           <Button
             mode="outlined"
@@ -254,16 +268,6 @@ export default function CadastroEntrada() {
             {loading ? "Cadastrando..." : "Cadastrar Entrada"}
           </Button>
 
-          {message ? (
-            <Text
-              style={[
-                styles.message,
-                messageType === "success" ? styles.success : styles.error,
-              ]}
-            >
-              {message}
-            </Text>
-          ) : null}
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

@@ -17,6 +17,7 @@ import { router } from "expo-router";
 
 import { API_URL } from "../../../config";
 import { apiFetch } from "@/utils/api";
+import AppErrorMessage from "@/components/AppErrorMessage";
 
 export default function CadastroFuncionario() {
   const { session } = useAuth();
@@ -40,7 +41,6 @@ export default function CadastroFuncionario() {
   const [confirmaSenha, setConfirmaSenha] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
   const textColor = useThemeColor({}, "text");
@@ -48,18 +48,22 @@ export default function CadastroFuncionario() {
   const tintColor = useThemeColor({}, "tint");
   const iconColor = useThemeColor({}, "icon");
 
+  const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [messageVisible, setMessageVisible] = useState(false);
 
   const handleCreateFuncionario = async () => {
     if (!email || !senha || !nome || !confirmaSenha) {
       setMessage("Preencha todos os campos");
       setMessageType("error");
+      setMessageVisible(true);
       return;
     }
 
     if (senha !== confirmaSenha) {
       setMessage("Senha e confirmar senha devem ser iguais");
       setMessageType("error");
+      setMessageVisible(true);
       return;
     }
 
@@ -77,8 +81,9 @@ export default function CadastroFuncionario() {
         body: JSON.stringify({ nome, email, senha }),
       });
 
-        setMessage("Cadastro de funcionário realizado com sucesso!");
-        setMessageType("success");
+      setMessage("Cadastro de funcionário realizado com sucesso!");
+      setMessageType("success");
+      setMessageVisible(true);
     } catch (error) {
       let message = "Erro ao enviar dados da movimentação";
 
@@ -87,6 +92,7 @@ export default function CadastroFuncionario() {
       }
       setMessage(message || "Não foi possível conectar ao servidor");
       setMessageType("error");
+      setMessageVisible(true);
       return { error: "Não foi possível conectar ao servidor" };
     } finally {
       setLoading(false);
@@ -103,7 +109,12 @@ export default function CadastroFuncionario() {
           <Text style={[styles.title, { color: textColor }]}>
             Cadastro de Funcionário
           </Text>
-
+          <AppErrorMessage
+            visible={messageVisible}
+            message={message}
+            type={messageType as "success" | "error"}
+            onDismiss={() => setMessageVisible(false)}
+          />
           <TextInput
             mode="flat"
             style={[styles.input, { color: textColor }]}
@@ -168,17 +179,6 @@ export default function CadastroFuncionario() {
           >
             {loading ? "Cadastrando..." : "Cadastrar Funcionário"}
           </Button>
-
-          {message ? (
-            <Text
-              style={[
-                styles.message,
-                messageType === "success" ? styles.success : styles.error,
-              ]}
-            >
-              {message}
-            </Text>
-          ) : null}
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

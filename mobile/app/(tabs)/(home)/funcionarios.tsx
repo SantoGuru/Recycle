@@ -23,6 +23,7 @@ import {
 import ModalTooltip from "@/components/ModalTooltip";
 import { useFocusEffect } from "@react-navigation/native";
 import { apiFetch } from "@/utils/api";
+import AppErrorMessage from "@/components/AppErrorMessage";
 const { width, height } = Dimensions.get("window");
 
 interface Funcionario {
@@ -61,8 +62,7 @@ export default function Funcionarios() {
   const theme = useTheme();
   const style = useMemo(() => styles(theme), [theme]);
   const [page, setPage] = useState<number>(0);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+
   const [items, setItems] = useState<FuncionarioComMovimentacoes[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const numberOfItemsPerPageList = useMemo(() => [5, 10, 30], []);
@@ -73,6 +73,10 @@ export default function Funcionarios() {
     () => numberOfItemsPerPageList.filter((n) => n !== itemsPerPage),
     [numberOfItemsPerPageList, itemsPerPage]
   );
+
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [messageVisible, setMessageVisible] = useState(false);
 
   const handleItemsPerPageChange = (value: number) => {
     if (value !== itemsPerPage) {
@@ -107,6 +111,7 @@ export default function Funcionarios() {
 
           setMessage(message);
           setMessageType("error");
+          setMessageVisible(true);
         }
       };
       fetchFuncionarios();
@@ -168,16 +173,12 @@ export default function Funcionarios() {
         value={searchQuery}
         style={{ marginHorizontal: 8 }}
       />
-      {message ? (
-        <Text
-          style={[
-            style.message,
-            messageType === "success" ? style.success : style.error,
-          ]}
-        >
-          {message}
-        </Text>
-      ) : null}
+      <AppErrorMessage
+        visible={messageVisible}
+        message={message}
+        type={messageType as "success" | "error"}
+        onDismiss={() => setMessageVisible(false)}
+      />
       <DataTable style={style.table}>
         <DataTable.Header>
           <DataTable.Title>Nome</DataTable.Title>

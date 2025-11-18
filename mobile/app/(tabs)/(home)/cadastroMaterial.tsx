@@ -17,7 +17,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { router } from "expo-router";
 
 import { API_URL } from "../../../config";
-import { apiFetch } from "@/utils/api";
+import AppErrorMessage from "@/components/AppErrorMessage";
 
 export default function CadastroMaterial() {
   const { session } = useAuth();
@@ -46,27 +46,30 @@ export default function CadastroMaterial() {
   const options = ["kg", "g", "un", "l", "ml"];
 
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
 
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
   const tintColor = useThemeColor({}, "tint");
 
-  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarType, setSnackbarType] = useState<"success" | "error" | "">(
+    ""
+  );
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const handleCreateMaterial = async () => {
     if (!nome || !descricao || !unidade) {
-      setMessage("Preencha todos os campos");
-      setMessageType("error");
+      setSnackbarMessage("Preencha todos os campos");
+      setSnackbarType("error");
       return;
     }
 
     setLoading(true);
-    setMessage("");
-    setMessageType("");
+    setSnackbarMessage("");
+    setSnackbarType("");
 
     try {
-      await apiFetch(`${API_URL}/api/materiais`, {
+      const response = await fetch(`${API_URL}/api/materiais`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,20 +78,23 @@ export default function CadastroMaterial() {
         body: JSON.stringify({ nome, descricao, unidade }),
       });
 
-      setMessage("Material Cadastrado com sucesso!");
-      setMessageType("success");
-    } catch (error) {
-      let message = "Não foi possível conectar ao servidor";
-
-      if (error instanceof Error) {
-        message = error.message;
+      if (response.ok) {
+        setSnackbarMessage("Material Cadastrado com sucesso!");
+        setSnackbarType("success");
+        setSnackbarVisible(true);
+      } else {
+        setSnackbarMessage("Erro ao cadastrar material");
+        setSnackbarType("error");
+        setSnackbarVisible(true);
       }
-
-      setMessage(message);
-      setMessageType("error");
-    } finally {
-      setLoading(false);
+    } catch {
+      setSnackbarMessage("Não foi possível conectar ao servidor");
+      setSnackbarType("error");
+      setSnackbarVisible(true);
+      return { error: "Não foi possível conectar ao servidor" };
     }
+
+    setLoading(false);
   };
 
   return (
@@ -101,6 +107,13 @@ export default function CadastroMaterial() {
           <Text style={[styles.title, { color: textColor }]}>
             Cadastro de Material
           </Text>
+
+          <AppErrorMessage
+            visible={snackbarVisible}
+            message={snackbarMessage}
+            type={snackbarType as "success" | "error"}
+            onDismiss={() => setSnackbarVisible(false)}
+          />
 
           <TextInput
             mode="flat"
@@ -157,17 +170,6 @@ export default function CadastroMaterial() {
           >
             {loading ? "Cadastrando..." : "Cadastrar Material"}
           </Button>
-
-          {message ? (
-            <Text
-              style={[
-                styles.message,
-                messageType === "success" ? styles.success : styles.error,
-              ]}
-            >
-              {message}
-            </Text>
-          ) : null}
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

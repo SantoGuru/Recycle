@@ -15,14 +15,14 @@ export default function HomeStackLayout() {
 
     }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="cadastroFuncionario" options={{ title: "Cadastro" }} />
+      <Stack.Screen name="cadastroFuncionario" options={{ title: "Cadastro Funcionário" }} />
       <Stack.Screen name="funcionarios" options={{ title: "Funcionários" }}/>
-      <Stack.Screen name="cadastroMaterial" options={{ title: "CadastroMaterial" }} />
+      <Stack.Screen name="cadastroMaterial" options={{ title: "Cadastro Material" }} />
       <Stack.Screen name="material" options={{ title: "Material" }} />
       <Stack.Screen name="movimentacoes" options={{ title: "Movimentações" }} />
       <Stack.Screen name="cadastroEntrada" options={{ title: "Cadastro Entrada" }} />
       <Stack.Screen name="cadastroSaida" options={{ title: "Cadastro Saída" }} />
-
+      <Stack.Screen name="estoque" options={{ title: "Estoque" }} />
     </Stack>
   );
 }

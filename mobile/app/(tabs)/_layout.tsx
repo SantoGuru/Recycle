@@ -22,7 +22,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
         tabBarStyle: {
-          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom,
           backgroundColor: theme.colors.surface,
           ...Platform.select({ 
             ios: {

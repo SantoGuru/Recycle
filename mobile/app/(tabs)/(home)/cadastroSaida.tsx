@@ -25,6 +25,7 @@ import { Material } from "./material";
 
 import { API_URL } from "../../../config";
 import { apiFetch } from "@/utils/api";
+import AppErrorMessage from "@/components/AppErrorMessage";
 
 export default function CadastroSaida() {
   const { session } = useAuth();
@@ -39,7 +40,10 @@ export default function CadastroSaida() {
   const backgroundColor = useThemeColor({}, "background");
   const tintColor = useThemeColor({}, "tint");
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">(
+    ""
+  );
+  const [messageVisible, setMessageVisible] = useState(false);
 
   useEffect(() => {
     if (session == null) {
@@ -70,6 +74,7 @@ export default function CadastroSaida() {
 
         setMessage(message);
         setMessageType("error");
+        setMessageVisible(true);
       }
     };
     fetchMaterials();
@@ -84,6 +89,7 @@ export default function CadastroSaida() {
     if (!selectedMaterial || !quantidade) {
       setMessage("Preencha todos os campos");
       setMessageType("error");
+      setMessageVisible(true);
       return;
     }
 
@@ -110,6 +116,7 @@ export default function CadastroSaida() {
 
       setMessage("Saída Cadastrada com sucesso!");
       setMessageType("success");
+      setMessageVisible(true);
     } catch (error) {
       let message = "Erro ao enviar dados da movimentação";
 
@@ -119,6 +126,7 @@ export default function CadastroSaida() {
 
       setMessage(message);
       setMessageType("error");
+      setMessageVisible(true);
     } finally {
       setLoading(false);
     }
@@ -146,7 +154,12 @@ export default function CadastroSaida() {
         <Text style={[styles.title, { color: textColor }]}>
           Cadastro de Saída
         </Text>
-
+        <AppErrorMessage
+          visible={messageVisible}
+          message={message}
+          type={messageType as "success" | "error"}
+          onDismiss={() => setMessageVisible(false)}
+        />
         <Button
           mode="outlined"
           onPress={() => setIsModalVisible(true)}
@@ -219,17 +232,6 @@ export default function CadastroSaida() {
         >
           {loading ? "Cadastrando..." : "Cadastrar Saída"}
         </Button>
-
-        {message ? (
-          <Text
-            style={[
-              styles.message,
-              messageType === "success" ? styles.success : styles.error,
-            ]}
-          >
-            {message}
-          </Text>
-        ) : null}
       </View>
     </TouchableWithoutFeedback>
   );

@@ -17,25 +17,25 @@ export default function IconCard({
   const theme = useTheme();
 
   return (
-    <Card style={styles.card}>
+    <Card style={styles.card} onPress={onPress}>
       <Card.Content style={styles.content}>
         <View style={styles.cardHeader}>
           <Avatar.Icon
-            size={48}
+            size={40}
             style={{ backgroundColor: "transparent" }}
             icon={() => (
               <MaterialIcons
                 name={iconName}
-                size={24}
+                size={22}
                 color={theme.colors.primary}
               />
             )}
           />
-          <TouchableOpacity onPress={onPress}>
+          <TouchableOpacity onPress={onPress} style={styles.actionButton}>
             <Avatar.Icon
-              size={40}
+              size={32}
               icon={({ size, color }) => (
-                <MaterialIcons name="north-east" size={24} color={color} />
+                <MaterialIcons name="north-east" size={20} color={color} />
               )}
             />
           </TouchableOpacity>
@@ -59,27 +59,32 @@ const styles = StyleSheet.create({
     margin: 8,
   },
   card: {
-    width: width * 0.4,
-    height: height * 0.2,
-    borderRadius: 16,
+    width: width * 0.42,
+    height: Math.min(140, height * 0.16),
+    borderRadius: 12,
     justifyContent: "flex-start",
     alignItems: "baseline",
-    elevation: 4,
+    elevation: 3,
   },
   cardHeader: {
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: "2%",
+    marginTop: 4,
   },
   content: {
     flex: 1,
     justifyContent: "space-between",
-    gap: 8,
+    gap: 6,
+    paddingVertical: 8,
   },
   text: {
     textAlign: "left",
     fontSize: 13,
+  },
+  actionButton: {
+    padding: 2,
+    marginRight: -6,
   },
 });
