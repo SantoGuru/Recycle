@@ -267,7 +267,7 @@ export default function Materials() {
                 <DataTable.Cell>{item.descricao}</DataTable.Cell>
                 <DataTable.Cell>
                   <TouchableOpacity onPress={() => handleEditMaterial(item)}>
-                    <Text style={{ color: theme.colors.onSurfaceVariant }}>Editar</Text>
+                    <Button mode="contained-tonal">Editar</Button>
                   </TouchableOpacity>
                 </DataTable.Cell>
               </DataTable.Row>
