@@ -4,12 +4,16 @@ import { useAuth } from "@/context/AuthContext";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { router } from "expo-router";
 import { useState, useMemo, useCallback } from "react";
+import * as React from "react";
 import {
   View,
   StyleSheet,
   Dimensions,
   ScrollView,
   Pressable,
+  TouchableOpacity,
+  TextInput,
+  Modal,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
@@ -19,12 +23,15 @@ import {
   Text,
   useTheme,
   Searchbar,
+  Button,
+  Menu,
 } from "react-native-paper";
 import ModalTooltip from "@/components/ModalTooltip";
 import { formatDatetimeExtensive } from "@/utils/date-formatter";
 import { useFocusEffect } from "@react-navigation/native";
 import { apiFetch } from "@/utils/api";
 import AppErrorMessage from "@/components/AppErrorMessage";
+import { useThemeColor } from "@/hooks/useThemeColor";
 const { width, height } = Dimensions.get("window");
 
 export interface Material {
@@ -70,6 +77,55 @@ export default function Materials() {
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
   const [messageVisible, setMessageVisible] = useState(false);
 
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editMaterial, setEditMaterial] = useState<Material | null>(null);
+  const [editNome, setEditNome] = useState("");
+  const [editDescricao, setEditDescricao] = useState("");
+
+  const [editUnidade, setEditUnidade] = useState("");
+  const [menuUnidadeVisible, setMenuUnidadeVisible] = useState(false);
+  const openUnidadeMenu = () => setMenuUnidadeVisible(true);
+  const closeUnidadeMenu = () => setMenuUnidadeVisible(false);
+  const options = ["kg", "g", "un", "l", "ml"];
+
+
+  const handleEditMaterial = (material: Material) => {
+    setEditMaterial(material);
+    setEditNome(material.nome);
+    setEditDescricao(material.descricao);
+    setEditUnidade(material.unidade);
+    setEditModalVisible(true);
+  };
+
+  const updateMaterial = async () => {
+    if (!editMaterial) return;
+
+    try {
+      await apiFetch(`${API_URL}/api/materiais/${editMaterial.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          nome: editNome,
+          descricao: editDescricao,
+          unidade: editUnidade,
+        }),
+      });
+
+
+      setEditModalVisible(false);
+
+      await fetchMaterials();
+    } catch (error) {
+      console.log("Erro ao atualizar:", error);
+    }
+  };
+
+
+
+
   const handleItemsPerPageChange = (value: number) => {
     if (value !== itemsPerPage) {
       setTimeout(() => onItemsPerPageChange(value), 150);
@@ -80,37 +136,40 @@ export default function Materials() {
     setSearchQuery(query);
   };
 
+  const fetchMaterials = async () => {
+    try {
+      const data = await apiFetch<Material[]>(`${API_URL}/api/materiais`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setItems(data);
+      setMessage("");
+      setMessageType("");
+    } catch (error) {
+      let message = "Erro ao carregar dados";
+
+      if (error instanceof Error) {
+        message = error.message;
+      }
+
+      setMessage(message);
+      setMessageType("error");
+      setMessageVisible(true);
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
-      const fetchMaterials = async () => {
-        try {
-          const data = await apiFetch<Material[]>(`${API_URL}/api/materiais`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          setItems(data);
-          setMessage("");
-          setMessageType("");
-        } catch (error) {
-          let message = "Erro ao carregar dados";
-
-          if (error instanceof Error) {
-            message = error.message;
-          }
-
-          setMessage(message);
-          setMessageType("error");
-          setMessageVisible(true);
-        }
-      };
       fetchMaterials();
       setPage(0);
     }, [token])
   );
+
+
 
   const filteredItems = items.filter((item) => {
     const itemString = Object.values(item).join(" ").toLowerCase();
@@ -182,7 +241,8 @@ export default function Materials() {
       <DataTable style={style.table}>
         <DataTable.Header>
           <DataTable.Title>Nome</DataTable.Title>
-          <DataTable.Title>descricao</DataTable.Title>
+          <DataTable.Title>Descricao</DataTable.Title>
+          <DataTable.Title>Ações</DataTable.Title>
         </DataTable.Header>
         {filteredItems.length > 0 &&
           filteredItems.slice(from, to).map((item) => (
@@ -205,6 +265,11 @@ export default function Materials() {
                   {item.nome} ({item.unidade})
                 </DataTable.Cell>
                 <DataTable.Cell>{item.descricao}</DataTable.Cell>
+                <DataTable.Cell>
+                  <TouchableOpacity onPress={() => handleEditMaterial(item)}>
+                    <Text style={{ color: theme.colors.onSurfaceVariant }}>Editar</Text>
+                  </TouchableOpacity>
+                </DataTable.Cell>
               </DataTable.Row>
             </Pressable>
           ))}
@@ -252,6 +317,110 @@ export default function Materials() {
           </View>
         )}
       </ModalTooltip>
+
+
+      <ModalTooltip
+        visible={editModalVisible}
+        onClose={() => setEditModalVisible(false)}
+      >
+
+        <View style={{
+          backgroundColor: theme.colors.background,
+          padding: 20,
+          borderRadius: 12,
+          width: "100%",
+        }}>
+          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 20 }}>
+            Editar Material
+          </Text>
+
+          <TextInput
+            value={editNome}
+            onChangeText={setEditNome}
+            placeholder="Nome"
+            style={style.input}
+          />
+
+          <TextInput
+            value={editDescricao}
+            onChangeText={setEditDescricao}
+            placeholder="Descrição"
+            style={style.input}
+          />
+
+          <TouchableOpacity
+            style={[style.input, { justifyContent: "center" }]}
+            onPress={() => setMenuUnidadeVisible(true)}
+          >
+            <Text>
+              {editUnidade || "Selecione a unidade"}
+            </Text>
+          </TouchableOpacity>
+
+          <Modal
+            visible={menuUnidadeVisible}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => setMenuUnidadeVisible(false)}
+          >
+            <View style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(0,0,0,0.5)"
+            }}>
+              <View style={{
+                backgroundColor: theme.colors.background,
+                padding: 20,
+                borderRadius: 12,
+                width: "50%"
+              }}>
+                <Text style={{ fontSize: 18, marginBottom: 12 }}>Selecione a unidade</Text>
+
+                {options.map((opt) => (
+                  <TouchableOpacity
+                    key={opt}
+                    onPress={() => {
+                      setEditUnidade(opt);
+                      setMenuUnidadeVisible(false);
+                    }}
+                    style={{
+                      paddingVertical: 12,
+                      borderBottomWidth: 1,
+                    }}
+                  >
+                    <Text style={{ fontSize: 16 }}>{opt}</Text>
+                  </TouchableOpacity>
+                ))}
+
+                <Button
+                  style={{ marginTop: 20 }}
+                  onPress={() => setMenuUnidadeVisible(false)}
+                >
+                  Fechar
+                </Button>
+              </View>
+            </View>
+          </Modal>
+
+
+
+
+
+
+          <View style={{ justifyContent: "space-between" }}>
+
+            <Button
+              onPress={updateMaterial}
+              mode="contained-tonal"
+            >
+              <Text style={[style.text, { fontWeight: "bold" }]}>Salvar</Text>
+            </Button>
+          </View>
+        </View>
+
+      </ModalTooltip>
+
     </ScrollView>
   );
 }
@@ -293,6 +462,27 @@ const styles = (theme: MD3Theme) =>
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.2,
       shadowRadius: 3,
+    },
+    input: {
+      borderWidth: 1,
+      borderRadius: theme.roundness,
+      shadowColor: theme.colors.shadow,
+      padding: 10,
+      marginBottom: 12,
+      color: theme.colors.onSurface,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 3,
+    },
+    text: {
+      fontSize: 16,
+      marginBottom: 12,
+      color: theme.colors.onSurface,
+    },
+    select: {
+      paddingHorizontal: 15,
+      marginBottom: 20,
+      borderRadius: 10,
     },
     message: {
       marginTop: 20,
