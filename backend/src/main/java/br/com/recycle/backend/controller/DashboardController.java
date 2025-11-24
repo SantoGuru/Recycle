@@ -19,18 +19,37 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
+/**
+ * Controller responsável por fornecer informações gerais (dashboard)
+ * com base nos dados de estoque e demais métricas da empresa.
+ * 
+ * Este endpoint exige autenticação JWT e pode ser acessado por
+ * usuários com papel GERENTE ou OPERADOR.
+ */
 @Tag(name = "Dashboard", description = "Fornece um resumo geral do sistema para o usuário autenticado")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/dashboard")
 public class DashboardController {
 
+    // Serviço que contém a lógica de cálculo do resumo do dashboard
     private final EstoqueService estoqueService;
 
+    // Injeta o serviço via construtor
     public DashboardController(EstoqueService estoqueService) {
         this.estoqueService = estoqueService;
     }
 
+    /**
+     * Endpoint para retornar o resumo geral do dashboard.
+     * Inclui:
+     * - Total de materiais cadastrados
+     * - Quantidade total em KG
+     * - Valor total do estoque
+     * - Lista de materiais com estoque baixo
+     *
+     * O ID do usuário é extraído do request (inserido previamente pelo filtro JWT).
+     */
     @Operation(
         summary = "Resumo geral do dashboard",
         description = "Requer autenticação (Bearer). Permissões: GERENTE e OPERADOR. " +
@@ -53,12 +72,18 @@ public class DashboardController {
     public ResponseEntity<DashboardDTO> getResumoDashboard(
         @Parameter(hidden = true) HttpServletRequest request) {
 
+        // O filtro JWT adiciona o userId nos atributos da requisição
         Long usuarioId = (Long) request.getAttribute("usuarioId");
+
+        // Se não houver ID, o token provavelmente é inválido ou ausente
         if (usuarioId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        
+
+        // Gera o resumo do dashboard para a empresa vinculada ao usuário
         DashboardDTO resumo = estoqueService.gerarResumoDashboard(usuarioId);
+
+        // Retorna as informações consolidadas
         return ResponseEntity.ok(resumo);
     }
 }
