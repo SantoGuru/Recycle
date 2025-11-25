@@ -20,18 +20,29 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 
+/**
+ * Controlador responsável pelos endpoints de autenticação e registro de usuários.
+ * Este controller é público (@PermitAll), permitindo que novos usuários se registrem
+ * e usuários existentes realizem login.
+ */
 @Tag(name = "Authentication", description = "Endpoints para autenticação e registro de usuários")
 @PermitAll
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    // Serviço responsável pela lógica de autenticação e registro.
     private final AuthService authService;
 
+    // Injeta o AuthService pelo construtor (boas práticas do Spring)
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
 
+    /**
+     * Endpoint de login.
+     * Recebe as credenciais do usuário e retorna um token JWT.
+     */
     @Operation(
         summary = "Login de usuário",
         description = "Acesso público. Autentica o usuário e retorna um token JWT (Bearer)."
@@ -57,10 +68,19 @@ public class AuthController {
     public ResponseEntity<TokenDTO> login(
         @Parameter(description = "Credenciais do usuário para login", required = true)
         @Valid @RequestBody LoginDTO loginDTO) {
+
+        // Chama o serviço de autenticação para gerar o token
         TokenDTO tokenDTO = authService.login(loginDTO);
+
+        // Retorna o token com status 200
         return ResponseEntity.ok(tokenDTO);
     }
 
+    /**
+     * Endpoint de registro.
+     * Cria um novo usuário e a empresa (caso necessário) e, em seguida,
+     * realiza o login automático retornando o token JWT.
+     */
     @Operation(
         summary = "Registro de usuário",
         description = "Acesso público. Registra um novo usuário (cria a empresa se necessário) e retorna token JWT (Bearer)."
@@ -81,13 +101,19 @@ public class AuthController {
     public ResponseEntity<TokenDTO> registro(
         @Parameter(description = "Dados do novo usuário (nome, email, senha e cnpj)", required = true)
         @Valid @RequestBody RegistroDTO registroDTO) {
+
+        // Registra o usuário e possivelmente cria uma empresa associada
         Usuario usuario = authService.registrar(registroDTO);
 
+        // Após registrar, realiza login automaticamente
         LoginDTO loginDTO = new LoginDTO();
         loginDTO.setEmail(registroDTO.getEmail());
         loginDTO.setSenha(registroDTO.getSenha());
         
+        // Gera o token para o novo usuário
         TokenDTO tokenDTO = authService.login(loginDTO);
+
+        // Retorna o token com status 200
         return ResponseEntity.ok(tokenDTO);
     }
 }
