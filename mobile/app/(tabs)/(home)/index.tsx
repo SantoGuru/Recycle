@@ -11,8 +11,9 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Avatar, MD3Theme, Surface, Text, useTheme } from "react-native-paper";
 import { useAuth } from "@/context/AuthContext";
 import { router } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { API_URL } from "@/config";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -51,36 +52,38 @@ export default function HomeScreen() {
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
   const [messageVisible, setMessageVisible] = useState(false);
 
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const data = await apiFetch<Dashboard>(
-          `${API_URL}/api/dashboard/resumo`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+  useFocusEffect(
+    useCallback(() => {
+      const fetchDashboard = async () => {
+        try {
+          const data = await apiFetch<Dashboard>(
+            `${API_URL}/api/dashboard/resumo`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          setDashboard(data);
+        } catch (error) {
+          let message = "Não foi possível conectar ao servidor";
+
+          if (error instanceof Error) {
+            message = error.message;
           }
-        );
 
-        setDashboard(data);
-      } catch (error) {
-        let message = "Não foi possível conectar ao servidor";
-
-        if (error instanceof Error) {
-          message = error.message;
+          setMessage(message);
+          setMessageType("error");
+          setMessageVisible(true);
         }
+      };
 
-        setMessage(message);
-        setMessageType("error");
-        setMessageVisible(true);
-      }
-    };
-
-    fetchDashboard();
-  }, [token]);
+      fetchDashboard();
+    }, [token])
+  );
 
   let isAdmin;
   if (role === "GERENTE") {
